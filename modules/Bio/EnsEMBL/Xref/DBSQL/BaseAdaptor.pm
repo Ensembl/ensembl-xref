@@ -79,8 +79,8 @@ sub new {
     -HOST   => $args{host},
     -DBNAME => $args{dbname},
     -USER   => $args{user},
-    -PASS   => $args{pass} || '',
-    -PORT => $args{port} || '3306'
+    -PASS   => $args{pass} // q{},
+    -PORT => $args{port} // '3306'
   ) );
   $self->verbose( $args{verbose} // 0 );
 
@@ -135,8 +135,8 @@ sub get_filehandle {
 
   my $io = undef;
 
-  if ( !( defined $file_name ) || $file_name eq '' ) {
-    confess "No file name";
+  if ( !( defined $file_name ) || $file_name eq q{} ) {
+    confess 'No file name';
   }
   my $alt_file_name = $file_name;
   $alt_file_name =~ s/\.(gz|Z)$//x;
@@ -187,7 +187,7 @@ sub get_source_id_for_source_name {
 
   my @sql_params = ( $low_name );
   if ( defined $priority_desc ) {
-    $sql .= " AND LOWER(priority_description)=?";
+    $sql .= ' AND LOWER(priority_description)=?';
     push @sql_params, lc $priority_desc;
 
     $source_name .= " ($priority_desc)";
@@ -398,7 +398,7 @@ PDS
   my %sql_hash = (
     Gene => $gene_sql,
     Transcript => $transcript_sql,
-    Translation => $translation_sql
+    Translation => $translation_sql,
   );
 
   my @sth;
@@ -414,7 +414,7 @@ PDS
               $sth[$ii]->fetchrow_array() )
       {
         if ( !defined $link ) {
-          $link = '';
+          $link = q{};
         }
         $direct_2_xref{$acc} =
           $gen_xref_id . $separator .
@@ -536,7 +536,7 @@ sub upload_xref_object_graphs {
   my ( $self, $rxrefs ) = @_;
 
   if ( !defined $rxrefs || !( scalar @{$rxrefs} ) ) {
-    confess "Please give me some xrefs to load";
+    confess 'Please give me some xrefs to load';
   }
 
   foreach my $xref ( @{$rxrefs} ) {
@@ -549,14 +549,14 @@ sub upload_xref_object_graphs {
 
     # Create entry in xref table and note ID
     my $xref_id = $self->add_xref( {
-      "acc"          => $xref->{ACCESSION},
-      "version"      => $xref->{VERSION} // 0,
-      "label"        => $xref->{LABEL}   // $xref->{ACCESSION},
-      "desc"         => $xref->{DESCRIPTION},
-      "source_id"    => $xref->{SOURCE_ID},
-      "species_id"   => $xref->{SPECIES_ID},
-      "info_type"    => $xref->{INFO_TYPE},
-      "update_label" => 1, "update_desc" => 1 } );
+      'acc'          => $xref->{ACCESSION},
+      'version'      => $xref->{VERSION} // 0,
+      'label'        => $xref->{LABEL}   // $xref->{ACCESSION},
+      'desc'         => $xref->{DESCRIPTION},
+      'source_id'    => $xref->{SOURCE_ID},
+      'species_id'   => $xref->{SPECIES_ID},
+      'info_type'    => $xref->{INFO_TYPE},
+      'update_label' => 1, 'update_desc' => 1 } );
 
     # If there are any direct_xrefs, add these to the relevant tables
     $self->add_multiple_direct_xrefs( @{ $xref->{DIRECT_XREFS} } );
@@ -812,7 +812,7 @@ sub get_taxonomy_from_species_id {
   my %hash;
 
   my $sth = $self->dbi->prepare_cached(
-      "SELECT taxonomy_id FROM species WHERE species_id = ?");
+      'SELECT taxonomy_id FROM species WHERE species_id = ?');
   $sth->execute() or croak( $self->dbi->errstr() );
   while ( my @row = $sth->fetchrow_array() ) {
     $hash{ $row[0] } = 1;
@@ -839,11 +839,11 @@ sub get_direct_xref {
 
   my %sql_hash = (
     gene =>
-      "SELECT general_xref_id FROM gene_direct_xref d WHERE ensembl_stable_id = ? AND linkage_xref ",
+      'SELECT general_xref_id FROM gene_direct_xref d WHERE ensembl_stable_id = ? AND linkage_xref ',
     transcript =>
-      "SELECT general_xref_id FROM transcript_direct_xref d WHERE ensembl_stable_id = ? AND linkage_xref ",
+      'SELECT general_xref_id FROM transcript_direct_xref d WHERE ensembl_stable_id = ? AND linkage_xref ',
     translation =>
-      "SELECT general_xref_id FROM translation_direct_xref d WHERE ensembl_stable_id = ? AND linkage_xref "
+      'SELECT general_xref_id FROM translation_direct_xref d WHERE ensembl_stable_id = ? AND linkage_xref ',
   );
 
   my $sql = $sql_hash{ $type };
@@ -858,7 +858,7 @@ sub get_direct_xref {
   my $direct_sth = $self->dbi->prepare_cached($sql);
 
   $direct_sth->execute(@sql_params) || confess( $self->dbi->errstr() );
-  if ( wantarray() ) {
+  if ( wantarray ) {
     # Generic behaviour
 
     my @results;
@@ -932,8 +932,13 @@ sub get_xref {
 sub get_object_xref {
   my ( $self, $xref_id, $ensembl_id, $object_type ) = @_;
 
-  my $sql =
-'SELECT object_xref_id FROM object_xref WHERE xref_id = ? AND ensembl_object_type = ? AND ensembl_id = ?';
+  my $sql = (<<'SQL')
+    SELECT object_xref_id
+    FROM object_xref
+    WHERE xref_id = ? AND
+          ensembl_object_type = ? AND
+          ensembl_id = ?
+SQL
   my $get_object_xref_sth = $self->dbi->prepare_cached($sql);
 
   #
@@ -964,14 +969,14 @@ sub get_object_xref {
 sub add_xref {
   my ( $self, $arg_ref ) = @_;
 
-  my $acc          = $arg_ref->{acc} || confess 'add_xref needs an acc';
-  my $source_id    = $arg_ref->{source_id} || confess 'add_xref needs a source_id';
+  my $acc          = $arg_ref->{acc}        || confess 'add_xref needs an acc';
+  my $source_id    = $arg_ref->{source_id}  || confess 'add_xref needs a source_id';
   my $species_id   = $arg_ref->{species_id} || confess 'add_xref needs a species_id';
-  my $label        = $arg_ref->{label} // $acc;
+  my $label        = $arg_ref->{label}      // $acc;
   my $description  = $arg_ref->{desc};
-  my $version      = $arg_ref->{version} // 0;
-  my $info_type    = $arg_ref->{info_type} // 'MISC';
-  my $info_text    = $arg_ref->{info_text} // q{};
+  my $version      = $arg_ref->{version}    // 0;
+  my $info_type    = $arg_ref->{info_type}  // 'MISC';
+  my $info_text    = $arg_ref->{info_text}  // q{};
   my $update_label = $arg_ref->{update_label};
   my $update_desc  = $arg_ref->{update_desc};
 
@@ -1064,14 +1069,10 @@ sub add_object_xref {
 sub add_identity_xref {
   my ( $self, $arg_ref ) = @_;
 
-  my $object_xref_id = $arg_ref->{object_xref_id} ||
-    confess 'add_identity_xref needs an object_xref_id';
-  my $score = $arg_ref->{score} ||
-    confess 'add_identity_xref needs a score';
-  my $target_identity = $arg_ref->{target_identity} ||
-    confess 'add_identity_xref needs a target_identity';
-  my $query_identity = $arg_ref->{query_identity} ||
-    confess 'add_identity_xref needs a query_identity';
+  my $object_xref_id = $arg_ref->{object_xref_id}   || confess 'add_identity_xref needs an object_xref_id';
+  my $score = $arg_ref->{score}                     || confess 'add_identity_xref needs a score';
+  my $target_identity = $arg_ref->{target_identity} || confess 'add_identity_xref needs a target_identity';
+  my $query_identity = $arg_ref->{query_identity}   || confess 'add_identity_xref needs a query_identity';
 
   my $add_identity_xref_sth =
     $self->dbi->prepare_cached( 'INSERT INTO identity_xref ' .
@@ -1167,7 +1168,7 @@ sub add_direct_xref {
   my %sql_hash = (
     gene => 'INSERT INTO gene_direct_xref VALUES (?,?,?)',
     transcript => 'INSERT INTO transcript_direct_xref VALUES (?,?,?)',
-    translation => 'INSERT INTO translation_direct_xref VALUES (?,?,?)'
+    translation => 'INSERT INTO translation_direct_xref VALUES (?,?,?)',
   );
 
   my $add_direct_xref_sth = $self->dbi->prepare_cached( $sql_hash{ lc $ensembl_type } );
@@ -1323,13 +1324,13 @@ sub add_multiple_dependent_xrefs {
 
     # Insert the xref
     my $dep_xref_id = $self->add_xref( (
-      "acc"        => $dep{ACCESSION},
-      "version"    => $dep{VERSION}     // 1,
-      "label"      => $dep{LABEL}       // $dep{ACCESSION},
-      "desc"       => $dep{DESCRIPTION},
-      "source_id"  => $dep{SOURCE_ID},
-      "species_id" => $dep{SPECIES_ID},
-      "info_type"  => 'DEPENDENT' ) );
+      'acc'        => $dep{ACCESSION},
+      'version'    => $dep{VERSION}     // 1,
+      'label'      => $dep{LABEL}       // $dep{ACCESSION},
+      'desc'       => $dep{DESCRIPTION},
+      'source_id'  => $dep{SOURCE_ID},
+      'species_id' => $dep{SPECIES_ID},
+      'info_type'  => 'DEPENDENT' ) );
 
     # Add the linkage_annotation and source id it came from
     $self->add_dependent_xref_maponly(
@@ -1466,13 +1467,13 @@ sub get_label_to_acc {
     source.name LIKE ? AND
     xref.source_id = source.source_id
 GLA
-  my @sql_params = ($name . '%');
+  my @sql_params = ($name . q{%});
   if ( defined $prio_desc ) {
-    $sql .= " AND source.priority_description LIKE ?";
+    $sql .= ' AND source.priority_description LIKE ?';
     push @sql_params, $prio_desc;
   }
   if ( defined $species_id ) {
-    $sql .= " AND xref.species_id = ?";
+    $sql .= ' AND xref.species_id = ?';
     push @sql_params, $species_id;
   }
   my $sub_sth = $self->dbi->prepare_cached($sql);
@@ -1492,13 +1493,13 @@ GLA
     xref.source_id = source.source_id
 GLS
 
-  @sql_params = ($name . '%');
+  @sql_params = ($name . q{%});
   if ( defined $prio_desc ) {
-    $sql .= " AND source.priority_description LIKE ?";
+    $sql .= ' AND source.priority_description LIKE ?';
     push @sql_params, $prio_desc;
   }
   if ( defined $species_id ) {
-    $sql .= " AND xref.species_id  = ?";
+    $sql .= ' AND xref.species_id  = ?';
     push @sql_params, $species_id;
   }
   $sub_sth = $self->dbi->prepare_cached($sql);
@@ -1535,13 +1536,13 @@ sub get_acc_to_label {
     xref.source_id = source.source_id
 GLA
 
-  my @sql_params = ($name . '%');
+  my @sql_params = ($name . q{%});
   if ( defined $prio_desc ) {
-    $sql .= " AND source.priority_description LIKE ?";
+    $sql .= ' AND source.priority_description LIKE ?';
     push @sql_params, $prio_desc;
   }
   if ( defined $species_id ) {
-    $sql .= " AND xref.species_id  = ?";
+    $sql .= ' AND xref.species_id  = ?';
     push @sql_params, $species_id;
   }
   my $sub_sth = $self->dbi->prepare_cached($sql);
@@ -1578,13 +1579,13 @@ sub get_label_to_desc {
     xref.source_id = source.source_id
 GDH
 
-  my @sql_params = ($name . '%');
+  my @sql_params = ($name . q{%});
   if ( defined $prio_desc ) {
-    $sql .= " AND source.priority_description LIKE ?";
+    $sql .= ' AND source.priority_description LIKE ?';
     push @sql_params, $prio_desc;
   }
   if ( defined $species_id ) {
-    $sql .= " and xref.species_id  = ?";
+    $sql .= ' and xref.species_id  = ?';
     push @sql_params, $species_id;
   }
   my $sub_sth = $self->dbi->prepare_cached($sql);
@@ -1595,7 +1596,7 @@ GDH
   }
 
   # Also include the synonyms
-  my $syn_sql = (<<"GDS");
+  my $syn_sql = (<<'GDS');
   SELECT xref.description, synonym.synonym
   FROM xref, source, synonym
   WHERE
@@ -1604,13 +1605,13 @@ GDH
     xref.source_id = source.source_id
 GDS
 
-  @sql_params = ($name . '%');
+  @sql_params = ($name . q{%});
   if ( defined $prio_desc ) {
-    $syn_sql .= " AND source.priority_description LIKE ?";
+    $syn_sql .= ' AND source.priority_description LIKE ?';
     push @sql_params, $prio_desc;
   }
   if ( defined $species_id ) {
-    $syn_sql .= " AND xref.species_id  = ?";
+    $syn_sql .= ' AND xref.species_id  = ?';
     push @sql_params, $species_id;
   }
   $sub_sth = $self->dbi->prepare_cached($syn_sql);
@@ -1709,7 +1710,7 @@ sub get_ext_synonyms {
 GES
   my $sth = $self->dbi->prepare_cached($sql);
 
-  $sth->execute( '$source_name' );
+  $sth->execute( $source_name );
   my ( $acc, $label, $syn );
   $sth->bind_columns( \$acc, \$label, \$syn );
 
