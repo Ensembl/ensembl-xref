@@ -146,8 +146,8 @@ sub run {
 sub _get_gene_adaptor {
   my ( $self, $project, $species_name, $dba ) = @_;
 
-  my $registry = "Bio::EnsEMBL::Registry";
-  
+  my $registry = 'Bio::EnsEMBL::Registry';
+
   my ($gene_adaptor);
 
   if ( defined $project && $project eq 'ensembl' ) {
