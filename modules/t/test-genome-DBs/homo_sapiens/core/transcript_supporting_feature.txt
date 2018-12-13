@@ -1,5 +1,4 @@
-21742	dna_align_feature	1449321
-21742	dna_align_feature	11290104
-21742	protein_align_feature	813252
-21742	protein_align_feature	813424
-21742	protein_align_feature	813184
+1132060	dna_align_feature	29181630
+1132063	dna_align_feature	29181639
+1132063	dna_align_feature	29181640
+1132063	dna_align_feature	29181641

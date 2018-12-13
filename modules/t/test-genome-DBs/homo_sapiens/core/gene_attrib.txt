@@ -1,3 +1,79 @@
-18256	10	This is a note on gene 18256
-18259	10	Another note on gene 18259
-18256	20	ENSG_PARENT_GENE
+325004	3	dJ610C12.2
+325004	3	RP4-610C12.2
+325004	4	CFTRP3
+325004	52	Havana
+325004	53	vega@sanger.ac.uk
+325004	142	37.26
+325004	395	OTTHUMG00000032151
+325004	407	No overlapping RefSeq annotation found
+325005	3	dJ610C12.3
+325005	3	RP4-610C12.3
+325005	3	RP4-610C12.4
+325005	4	LINC01597
+325005	52	Havana
+325005	53	vega@sanger.ac.uk
+325005	142	51.32
+325005	395	OTTHUMG00000133197
+325005	407	No overlapping RefSeq annotation found
+325006	407	No overlapping RefSeq annotation found
+325006	142	44.64
+325007	3	dJ610C12.1
+325007	3	RP4-610C12.1
+325007	4	LINC01598
+325007	52	Havana
+325007	53	vega@sanger.ac.uk
+325007	142	41.94
+325007	395	OTTHUMG00000032154
+325007	407	No overlapping RefSeq annotation found
+325008	3	C20orf80
+325008	4	FRG1B
+325008	52	Havana
+325008	53	vega@sanger.ac.uk
+325008	142	35.24
+325008	395	OTTHUMG00000032157
+325008	407	Overlapping RefSeq Gene ID 284802 matches and has similar biotype of pseudogene
+325009	3	MLLT10L
+325009	4	MLLT10P1
+325009	52	Havana
+325009	53	vega@sanger.ac.uk
+325009	142	40.84
+325009	395	OTTHUMG00000032156
+325009	407	Overlapping RefSeq annotation not matched
+325010	407	No overlapping RefSeq annotation found
+325010	142	52.63
+325011	4	RP11-462H3.2
+325011	52	Havana
+325011	53	vega@sanger.ac.uk
+325011	142	43.12
+325011	395	OTTHUMG00000191872
+325011	407	No overlapping RefSeq annotation found
+325012	4	RP11-755J8.1
+325012	52	Havana
+325012	53	vega@sanger.ac.uk
+325012	142	35.76
+325012	395	OTTHUMG00000189351
+325012	407	No overlapping RefSeq annotation found
+325013	407	No overlapping RefSeq annotation found
+325013	142	34.58
+325014	407	No overlapping RefSeq annotation found
+325014	142	59.66
+325015	4	DEFB115
+325015	52	Havana
+325015	53	vega@sanger.ac.uk
+325015	142	40.99
+325015	395	OTTHUMG00000159284
+325015	407	Overlapping RefSeq Gene ID 245929 matches and has similar biotype of protein_coding
+325016	3	dJ854E16.1
+325016	4	RP5-854E16.1
+325016	52	Havana
+325016	53	vega@sanger.ac.uk
+325016	395	OTTHUMG00000032158
+325016	407	No overlapping RefSeq annotation found
+325016	142	60.03
+325017	3	dJ854E16.2
+325017	4	RP5-854E16.2
+325017	52	Havana
+325017	53	vega@sanger.ac.uk
+325017	142	54.38
+325017	395	OTTHUMG00000032162
+325017	407	No overlapping RefSeq annotation found
