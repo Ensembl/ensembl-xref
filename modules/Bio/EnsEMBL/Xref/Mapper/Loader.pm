@@ -51,13 +51,13 @@ use parent qw( Bio::EnsEMBL::Xref::Mapper );
 use DBI;
 
 sub new {
-  my($class, $mapper) = @_;
+  my( $class, $mapper ) = @_;
 
   my $self ={};
   bless $self,$class;
-  $self->core($mapper->core);
-  $self->xref($mapper->xref);
-  $self->mapper($mapper);
+  $self->core( $mapper->core );
+  $self->xref( $mapper->xref );
+  $self->mapper( $mapper );
   return $self;
 }
 
@@ -70,10 +70,23 @@ sub new {
 sub mapper{
   my ($self, $arg) = @_;
 
-  (defined $arg) &&
-    ($self->{_mapper} = $arg );
+  if ( defined $arg ) {
+    $self->{_mapper} = $arg;
+  }
   return $self->{_mapper};
 }
+
+
+## This will be the new function to house what is in the update() function
+# sub run {
+#   my ($self, $arg) = @_;
+
+#   my $core_dba = $self->{core_dba};
+#   my $xref_dba = $self->{xref_dba};
+#   my $verbose  = $self->{verbose} // 0;
+
+#   # ...
+# }
 
 
 =head2 update
@@ -81,10 +94,9 @@ sub mapper{
 
 =cut
 
-sub update{
+sub update {
   my ($self, $arg) = @_;
   # remove xref, object_xref, identity_xref, depenedent_xref, go_xref, unmapped_object, (interpro???), external_synonym, projections.
-
 
   my $verbose = $self->mapper->verbose;
   my $core_dbi = $self->core->dbc;
@@ -93,75 +105,33 @@ sub update{
   #####################################
   # first remove all the projections. #
   #####################################
-  print "Deleting all PROJECTIONs from this database\n" if $verbose;
 
-  my $sql = "DELETE es FROM xref x, external_synonym es WHERE x.xref_id = es.xref_id and x.info_type = 'PROJECTION'";
-  my $sth = $core_dbi->prepare($sql);
-  my $affected_rows = $sth->execute();
-  print "\tDeleted $affected_rows PROJECTED external_synonym row(s)\n" if $verbose;
+  <core_tmp_functions>->delete_projected_xrefs();
 
-  # Delete all ontologies, as they are done by a separate pipeline
-  $sql = <<SQL;
-DELETE ontology_xref, object_xref, xref, dependent_xref
-FROM ontology_xref, object_xref, xref
-LEFT JOIN dependent_xref on xref_id = dependent_xref_id
-WHERE ontology_xref.object_xref_id = object_xref.object_xref_id AND object_xref.xref_id = xref.xref_id
-SQL
-  $sth = $core_dbi->prepare($sql);
-  $affected_rows = $sth->execute();
-  print "\tDeleted $affected_rows PROJECTED ontology_xref row(s)\n" if $verbose;
-
-  $sql = "DELETE object_xref FROM object_xref, xref WHERE object_xref.xref_id = xref.xref_id AND xref.info_type = 'PROJECTION'";
-  $sth = $core_dbi->prepare($sql);
-  $affected_rows = $sth->execute();
-  print "\tDeleted $affected_rows PROJECTED object_xref row(s)\n" if $verbose;
-
-  $sql = "DELETE xref FROM xref WHERE xref.info_type = 'PROJECTION'";
-  $sth = $core_dbi->prepare($sql);
-  $affected_rows = $sth->execute();
-  print "\tDeleted $affected_rows PROJECTED xref row(s)\n" if $verbose;
-
-  $sth->finish;
 
   #########################################
   # Get source_id to external_db_id       #
   #########################################
 
-  my %name_to_external_db_id;
-  $sql = "select external_db_id, db_name from external_db";
-  $sth = $core_dbi->prepare($sql);
-  $sth->execute();
-  my ($id, $name);
-  $sth->bind_columns(\$id, \$name);
-  while($sth->fetch()){
-    $name_to_external_db_id{$name} = $id;
-   }
-  $sth->finish;
+  $self->name_to_external_db_id = %{ <core_tmp_functions>->get_xref_external_dbs() };
 
   my %source_id_to_external_db_id;
-
-  $sql = 'select s.source_id, s.name from source s, xref x where x.source_id = s.source_id group by s.source_id'; # only get those of interest
-  $sth = $xref_dbi->prepare($sql);
-  $sth->execute();
-  $sth->bind_columns(\$id, \$name);
-  while($sth->fetch()){
-    if(defined($name_to_external_db_id{$name})){
-      $source_id_to_external_db_id{$id} = $name_to_external_db_id{$name};
+  my %source_list = <base_tmp_functions>->get_valid_source_id_to_external_db_id();
+  while( my ( $name, $id ) = each %source_list ) {
+    if ( defined $self->name_to_external_db_id{ $name } ) {
+      $source_id_to_external_db_id{ $id } = $self->name_to_external_db_id{ $name };
     }
-    elsif( $name =~ /notransfer$/){
-    }
-    else{
-      die "ERROR: Could not find $name in external_db table please add this too continue";
+    elsif ( $name =~ m/notransfer$/xms) {}
+    else {
+      confess "ERROR: Could not find $name in external_db table please add this too continue";
     }
   }
-  $sth->finish;
 
-
-  $sth = $xref_dbi->prepare("update xref set dumped = null where dumped != 'NO_DUMP_ANOTHER_PRIORITY'"); # just incase this is being ran again
+  $sth = $xref_dbi->prepare(
+    'UPDATE xref SET dumped = NULL WHERE dumped != "NO_DUMP_ANOTHER_PRIORITY"'
+  ); # just incase this is being ran again
   $sth->execute;
   $sth->finish;
-
-
 
 
   ######################################
@@ -169,94 +139,36 @@ SQL
   # Delete the existing ones           #
   ######################################
   my ($count);
-  $sth = $xref_dbi->prepare('select s.name, count(*) from xref x, object_xref ox, source s where ox.xref_id = x.xref_id and x.source_id = s.source_id group by s.name');
+
+  my $name_to_external_db_sql = (<<'SQL');
+    SELECT s.name, COUNT(s.name)
+    FROM xref x, object_xref ox, source s
+    WHERE ox.xref_id = x.xref_id AND
+          x.source_id = s.source_id
+    GROUP BY s.name
+SQL
+
+  $sth = $xref_dbi->prepare($name_to_external_db_sql);
   $sth->execute();
   $sth->bind_columns(\$name,\$count);
 
-  my $synonym_sth  =  $core_dbi->prepare('DELETE external_synonym FROM external_synonym, xref WHERE external_synonym.xref_id = xref.xref_id AND xref.external_db_id = ?');
-  my $go_sth       =  $core_dbi->prepare('DELETE ontology_xref.* FROM ontology_xref, object_xref, xref WHERE ontology_xref.object_xref_id = object_xref.object_xref_id AND object_xref.xref_id = xref.xref_id  AND xref.external_db_id = ?');
-  my $identity_sth =  $core_dbi->prepare('DELETE identity_xref FROM identity_xref, object_xref, xref WHERE identity_xref.object_xref_id = object_xref.object_xref_id AND object_xref.xref_id = xref.xref_id AND xref.external_db_id = ?');
-  my $object_sth   =  $core_dbi->prepare('DELETE object_xref FROM object_xref, xref WHERE object_xref.xref_id = xref.xref_id AND xref.external_db_id = ?');
-  my $master_sth    = $core_dbi->prepare('DELETE ox, d FROM xref mx, xref x, dependent_xref d LEFT JOIN object_xref ox ON ox.object_xref_id = d.object_xref_id WHERE mx.xref_id = d.master_xref_id AND dependent_xref_id = x.xref_id AND mx.external_db_id = ?');
-  my $dependent_sth = $core_dbi->prepare('DELETE d FROM dependent_xref d, xref x WHERE d.dependent_xref_id = x.xref_id and x.external_db_id = ?');
-  my $xref_sth     =  $core_dbi->prepare('DELETE FROM xref WHERE xref.external_db_id = ?');
-  my $unmapped_sth =  $core_dbi->prepare('DELETE FROM unmapped_object WHERE type="xref" and external_db_id = ?');
-
-
-  my $transaction_start_sth  =  $core_dbi->prepare('start transaction');
-  my $transaction_end_sth    =  $core_dbi->prepare('commit');
-
-#
-# ?? Is it faster to delete them all in one go with a external_db_id in (....) ???
-# alternative load ottt etc that are not obtained from xrefs into xref table and then delete tables fully??
-#
-
-
-
-#  my $test =1;  # Can take a while so make optional when testing
-#  if(!$test){
-  $transaction_start_sth->execute();
   while($sth->fetch()){
-    if(!defined($name_to_external_db_id{$name})){
+    if ( !defined $self->name_to_external_db_id{$name} ){
       next;  #must end in notransfer
     }
 
-    my $ex_id = $name_to_external_db_id{$name};
-
-    print "Deleting data for $name from core before updating from new xref database\n" if ($verbose);
-    $affected_rows = $synonym_sth->execute($ex_id);
-    print "\tDeleted $affected_rows external_synonym row(s)\n" if $verbose;
-    $affected_rows = $go_sth->execute($ex_id);
-    print "\tDeleted $affected_rows ontology_xref row(s)\n" if $verbose;
-    $affected_rows = $identity_sth->execute($ex_id);
-    print "\tDeleted $affected_rows identity_xref row(s)\n" if $verbose;
-    $affected_rows = $object_sth->execute($ex_id);
-    print "\tDeleted $affected_rows object_xref row(s)\n" if $verbose;
-    $affected_rows = $master_sth->execute($ex_id);
-    print "\tDeleted $affected_rows xref, object_xref and dependent_xref row(s)\n" if $verbose;
-    $affected_rows = $dependent_sth->execute($ex_id);
-    print "\tDeleted $affected_rows dependent_xref row(s)\n" if $verbose;
-    $affected_rows = $xref_sth->execute($ex_id);
-    print "\tDeleted $affected_rows xref row(s)\n" if $verbose;
-    $affected_rows = $unmapped_sth->execute($ex_id);
-    print "\tDeleted $affected_rows unmapped_object row(s)\n" if $verbose;
+    <core_tmp_functions>->delete_by_external_db_id( $self->name_to_external_db_id{$name} );
   }
   $sth->finish;
-  $transaction_end_sth->execute();
-#}
-  $synonym_sth->finish;
-  $go_sth->finish;
-  $identity_sth->finish;
-  $object_sth->finish;
-  $dependent_sth->finish;
-  $xref_sth->finish;
-  $unmapped_sth->finish;
-
 
 
   ##########################################
   # Get the offsets for object_xref, xref  #
   ##########################################
 
-  $sth = $core_dbi->prepare('select MAX(xref_id) from xref');
-  my $xref_offset;
-  $sth->execute;
-  $sth->bind_columns(\$xref_offset);
-  $sth->fetch();
-  $sth->finish;
-  $xref_offset = 0 if(!defined($xref_offset));
-
-  $self->add_meta_pair("xref_offset", $xref_offset);
-
-  $sth = $core_dbi->prepare('select MAX(object_xref_id) from object_xref');
-  my $object_xref_offset;
-  $sth->execute;
-  $sth->bind_columns(\$object_xref_offset);
-  $sth->fetch();
-  $sth->finish;
-  $object_xref_offset = 0 if(!defined($object_xref_offset));
-
-  $self->add_meta_pair("object_xref_offset", $object_xref_offset);
+  my %offsets = <core_tmp_functions>->parsing_stored_data();
+  my $xref_offset = $offset{ 'xref' };
+  my $object_xref_offset = $offset{ 'object_xref' };
 
 
   ####################
@@ -266,328 +178,14 @@ SQL
   my %analysis_ids = $self->get_analysis();
   my $checksum_analysis_id; #do not populate until we know we need this
 
-
-  print "xref offset is $xref_offset, object_xref offset is $object_xref_offset\n" if ($verbose);
-
-  #####################################
-  # Now add the new ones              #
-  #####################################
-
-     ###########################
-     # SQL to get data from xref
-     ###########################
-
-  my $seq_sql =(<<DIRS);
-SELECT x.xref_id, x.accession, x.label, x.version, x.description, x.info_text,
-       ox.object_xref_id, ox.ensembl_id, ox.ensembl_object_type,
-       i.query_identity, i.target_identity, i.hit_start, i.hit_end,
-       i.translation_start, i.translation_end, i.cigar_line, i.score, i.evalue
-  FROM xref x, object_xref ox, identity_xref i
-    WHERE ox.ox_status = "DUMP_OUT" AND
-          i.object_xref_id = ox.object_xref_id AND
-          ox.xref_id = x.xref_id AND
-          x.source_id = ? AND
-          x.info_type = ? order by x.xref_id
-DIRS
-
-     my $seq_sth = $xref_dbi->prepare($seq_sql);
+  print "xref offset is $xref_offset, object_xref offset is $object_xref_offset\n";
 
 
-    ###########################
-     # SQL to get data from xref without identity xref
-     ###########################
+  ##########################################
+  # Now add the new ones from xref to core #
+  ##########################################
 
-
-  my $dir_sql =(<<DIRS);
-SELECT x.xref_id, x.accession, x.label, x.version, x.description, x.info_text,
-       ox.object_xref_id, ox.ensembl_id, ox.ensembl_object_type
-  FROM xref x, object_xref ox
-    WHERE ox.ox_status = "DUMP_OUT" AND
-          ox.xref_id = x.xref_id AND
-          x.source_id = ? AND
-          x.info_type = ? order by x.xref_id
-DIRS
-
-     my $dir_sth = $xref_dbi->prepare($dir_sql);
-
-#     $dependent_sth = $xref_dbi->prepare('select  x.xref_id, x.accession, x.label, x.version, x.description, x.info_text, ox.object_xref_id, ox.ensembl_id, ox.ensembl_object_type, d.master_xref_id from xref x, object_xref ox,  dependent_xref d where ox.ox_status = "DUMP_OUT" and ox.xref_id = x.xref_id and d.object_xref_id = ox.object_xref_id and x.source_id = ? and x.info_type = ? order by x.xref_id, ox.ensembl_id');
-
-  my $dep_sql =(<<DSQL);
-SELECT  x.xref_id, x.accession, x.label, x.version, x.description, x.info_text,
-        ox.object_xref_id, ox.ensembl_id, ox.ensembl_object_type, ox.master_xref_id
-   FROM xref x, object_xref ox
-     WHERE ox.ox_status = "DUMP_OUT" and
-           ox.xref_id = x.xref_id and
-           x.source_id = ? and
-           x.info_type = ?
-     ORDER BY x.xref_id, ox.ensembl_id
-DSQL
-
- $dependent_sth = $xref_dbi->prepare($dep_sql);
-
-
-  my $go_sql =(<<GSQL);
-  SELECT  x.xref_id, x.accession, x.label, x.version, x.description, x.info_text, ox.object_xref_id, ox.ensembl_id, ox.ensembl_object_type, ox.master_xref_id, g.linkage_type,
-       i.query_identity, i.target_identity, i.hit_start, i.hit_end,
-       i.translation_start, i.translation_end, i.cigar_line, i.score, i.evalue
-    FROM (xref x, object_xref ox, go_xref g, identity_xref i)
-      WHERE ox.ox_status = "DUMP_OUT" and
-            i.object_xref_id = ox.object_xref_id AND
-            g.object_xref_id = ox.object_xref_id and
-            x.xref_id = ox.xref_id and
-            x.source_id = ? and x.info_type = ?
-            order by x.xref_id, ox.ensembl_id
-GSQL
-
-     $go_sth = $xref_dbi->prepare($go_sql);
-
-  my $go_count_sql = (<<GCNTSQL);
-  SELECT  count(*)
-    FROM (xref x, object_xref ox, go_xref g)
-      WHERE ox.ox_status = "DUMP_OUT" and
-            g.object_xref_id = ox.object_xref_id and
-            x.xref_id = ox.xref_id and
-            x.source_id = ? and x.info_type = ?
-GCNTSQL
-
-     # SQL to add data to core
-     #########################
-
-     my $add_identity_xref_sth  = $core_dbi->prepare('insert ignore into identity_xref (object_xref_id, xref_identity, ensembl_identity, xref_start, xref_end, ensembl_start, ensembl_end, cigar_line, score, evalue) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-     my $add_go_xref_sth        = $core_dbi->prepare('insert ignore into ontology_xref (object_xref_id, source_xref_id, linkage_type) values (?, ?, ?)');
-     my $add_dependent_xref_sth = $core_dbi->prepare('insert ignore into dependent_xref (object_xref_id, master_xref_id, dependent_xref_id) values (?, ?, ?)');
-     my $add_syn_sth            = $core_dbi->prepare('insert ignore into external_synonym (xref_id, synonym) values (?, ?)');
-     my $add_release_info_sth   = $core_dbi->prepare('update external_db set db_release = ? where external_db_id = ?');
-
-  $sth = $xref_dbi->prepare('select s.name, s.source_id, count(*), x.info_type, s.priority_description, s.source_release from xref x, object_xref ox, source s where ox.xref_id = x.xref_id  and x.source_id = s.source_id and ox_status = "DUMP_OUT" group by s.name, s.source_id, x.info_type');
-  $sth->execute();
-  my ($type, $source_id, $where_from, $release_info);
-  $sth->bind_columns(\$name,\$source_id, \$count, \$type, \$where_from, \$release_info);
-
-  $transaction_start_sth->execute();
-
-  while($sth->fetch()){
-
-    next if(!defined($name_to_external_db_id{$name}));
-
-    if(defined($where_from) and $where_from ne ""){
-      $where_from = "Generated via $where_from";
-    }
-    my $ex_id = $name_to_external_db_id{$name};
-
-    print "updating ($source_id) $name in core (for $type xrefs)\n" if ($verbose);
-
-    my @xref_list=();  # process at end. Add synonyms and set dumped = 1;
-
-    my $go_count_sth = $xref_dbi->prepare($go_count_sql);
-    $go_count_sth->execute($source_id, $type);
-    my ($go_data_present) = $go_count_sth->fetchrow_array;
-    $go_count_sth->finish;
-
-    # dump SEQUENCE_MATCH, DEPENDENT, DIRECT, COORDINATE_OVERLAP, INFERRED_PAIR, (MISC?? same as direct come from official naming)
-
-    ### If DIRECT ,         xref, object_xref,                  (order by xref_id)  # maybe linked to more than one?
-    ### if INFERRED_PAIR    xref, object_xref
-    ### if MISC             xref, object_xref
-
-
-    if($type eq "DIRECT" or $type eq "INFERRED_PAIR" or $type eq "MISC"){
-      if ($go_data_present) {
-       my $count = 0;
-       $go_sth->execute($source_id, $type);
-       my ($xref_id, $acc, $label, $version, $desc, $info,  $object_xref_id, $ensembl_id, $ensembl_type, $master_xref_id, $linkage_type);
-       my ( $query_identity, $target_identity, $hit_start, $hit_end, $translation_start, $translation_end, $cigar_line, $score, $evalue);
-       $go_sth->bind_columns(\$xref_id, \$acc, \$label, \$version, \$desc, \$info, \$object_xref_id, \$ensembl_id, \$ensembl_type, \$master_xref_id, \$linkage_type,
-                             \$query_identity, \$target_identity, \$hit_start, \$hit_end, \$translation_start, \$translation_end, \$cigar_line, \$score, \$evalue);
-       my $last_xref = 0;
-       while($go_sth->fetch){
-     if($last_xref != $xref_id){
-       push @xref_list, $xref_id;
-       $count++;
-       $xref_id = $self->add_xref($xref_offset, $xref_id, $ex_id, $acc, $label, $version, $desc, $type, $info || $where_from, $core_dbi);
-       $last_xref = $xref_id;
-     }
-         $object_xref_id = $self->add_object_xref($object_xref_offset, $object_xref_id, $ensembl_id, $ensembl_type, ($xref_id+$xref_offset), $analysis_ids{$ensembl_type}, $core_dbi);
-         $add_go_xref_sth->execute( ($object_xref_id+$object_xref_offset), 0, $linkage_type);
-         $add_identity_xref_sth->execute( ($object_xref_id+$object_xref_offset), $query_identity, $target_identity, $hit_start, $hit_end,
-                                         $translation_start, $translation_end, $cigar_line, $score, $evalue) if $translation_start;
-       }
-       print "Direct GO $count\n" if ($verbose);
-     }
-     else{
-       my $count = 0;
-       $seq_sth->execute($source_id, $type);
-       my ($xref_id, $acc, $label, $version, $desc, $info, $object_xref_id, $ensembl_id, $ensembl_type);
-       my ( $query_identity, $target_identity, $hit_start, $hit_end, $translation_start, $translation_end, $cigar_line, $score, $evalue);
-       $seq_sth->bind_columns(\$xref_id, \$acc, \$label, \$version, \$desc, \$info, \$object_xref_id, \$ensembl_id, \$ensembl_type,
-                             \$query_identity, \$target_identity, \$hit_start, \$hit_end, \$translation_start, \$translation_end, \$cigar_line, \$score, \$evalue);
-       my $last_xref = 0;
-       while($seq_sth->fetch){
-         if($last_xref != $xref_id){
-      push @xref_list, $xref_id;
-      $count++;
-      $xref_id = $self->add_xref($xref_offset, $xref_id, $ex_id, $acc, $label, $version, $desc, $type, $info || $where_from, $core_dbi);
-      $last_xref = $xref_id;
-        }
-        $object_xref_id = $self->add_object_xref($object_xref_offset, $object_xref_id, $ensembl_id, $ensembl_type, ($xref_id+$xref_offset), $analysis_ids{$ensembl_type}, $core_dbi);
-        $add_identity_xref_sth->execute( ($object_xref_id+$object_xref_offset), $query_identity, $target_identity, $hit_start, $hit_end,
-                                         $translation_start, $translation_end, $cigar_line, $score, $evalue) if $translation_start;
-      }
-      print "DIRECT $count\n" if ($verbose);
-     }
-    }
-    ### IF CHECKSUM,        xref, object_xref
-    # 1:m mapping between object & xref
-    elsif($type eq 'CHECKSUM') {
-      #If we had a checksum then get the analysis. Avoids unecessary analysis entries
-      if(! defined $checksum_analysis_id) {
-        $checksum_analysis_id = $self->get_single_analysis('xrefchecksum');
-      }
-      my $count = 0;
-      $dir_sth->execute($source_id, $type);
-      my $last_xref = 0;
-      while(my $row = $dir_sth->fetchrow_arrayref()) {
-        my ($xref_id, $acc, $label, $version, $desc, $info, $object_xref_id, $ensembl_id, $ensembl_type) = @{$row};
-        if($last_xref != $xref_id) {
-          push @xref_list, $xref_id;
-          $count++;
-          $xref_id = $self->add_xref($xref_offset, $xref_id, $ex_id, $acc, $label, $version, $desc, $type, $info || $where_from, $core_dbi);
-          $last_xref = $xref_id;
-        }
-        $object_xref_id = $self->add_object_xref($object_xref_offset, $object_xref_id, $ensembl_id, $ensembl_type, ($xref_id+$xref_offset), $checksum_analysis_id, $core_dbi);
-      }
-      print "CHECKSUM $count\n" if ($verbose);
-    }
-
-    ### If DEPENDENT,       xref, object_xref , dependent_xref  (order by xref_id)  # maybe linked to more than one?
-
-   elsif($type eq "DEPENDENT"){
-     if ($go_data_present) {
-       my $count = 0;
-       $go_sth->execute($source_id, $type);
-       my ($xref_id, $acc, $label, $version, $desc, $info,  $object_xref_id, $ensembl_id, $ensembl_type, $master_xref_id, $linkage_type);
-       my ( $query_identity, $target_identity, $hit_start, $hit_end, $translation_start, $translation_end, $cigar_line, $score, $evalue);
-       $go_sth->bind_columns(\$xref_id, \$acc, \$label, \$version, \$desc, \$info, \$object_xref_id, \$ensembl_id, \$ensembl_type, \$master_xref_id, \$linkage_type,
-                             \$query_identity, \$target_identity, \$hit_start, \$hit_end, \$translation_start, \$translation_end, \$cigar_line, \$score, \$evalue);
-       my $last_xref = 0;
-       while($go_sth->fetch){
-     if($last_xref != $xref_id){
-       push @xref_list, $xref_id;
-       $count++;
-       $xref_id = $self->add_xref($xref_offset, $xref_id, $ex_id, $acc, $label, $version, $desc, $type, $info || $where_from, $core_dbi);
-       $last_xref = $xref_id;
-     }
-         $object_xref_id = $self->add_object_xref($object_xref_offset, $object_xref_id, $ensembl_id, $ensembl_type, ($xref_id+$xref_offset), $analysis_ids{$ensembl_type}, $core_dbi);
-     if(defined($master_xref_id)){  # need to sort this out as all should habe one really. (interpro generates go without these!!)
-       $add_dependent_xref_sth->execute(($object_xref_id+$object_xref_offset), ($master_xref_id+$xref_offset), ($xref_id+$xref_offset) );
-       $add_go_xref_sth->execute( ($object_xref_id+$object_xref_offset), ($master_xref_id+$xref_offset), $linkage_type);
-           $add_identity_xref_sth->execute( ($object_xref_id+$object_xref_offset), $query_identity, $target_identity, $hit_start, $hit_end,
-                                         $translation_start, $translation_end, $cigar_line, $score, $evalue) if $translation_start;
-     }
-     else {
-         $add_go_xref_sth->execute( ($object_xref_id+$object_xref_offset), 0, $linkage_type);
-     }
-       }
-       print "GO $count\n" if ($verbose);
-     }
-     else{
-       my $count = 0;
-       my $ox_count = 0;
-       my @master_problems;
-       my $err_master_count=0;
-       $dependent_sth->execute($source_id, $type);
-       my ($xref_id, $acc, $label, $version, $desc, $info, $object_xref_id, $ensembl_id, $ensembl_type, $master_xref_id);
-       $dependent_sth->bind_columns(\$xref_id, \$acc, \$label, \$version, \$desc, \$info, \$object_xref_id, \$ensembl_id, \$ensembl_type, \$master_xref_id);
-       my $last_xref = 0;
-       my $last_ensembl = 0;
-       while($dependent_sth->fetch){
-     if($last_xref != $xref_id){
-       push @xref_list, $xref_id;
-       $count++;
-       $xref_id = $self->add_xref($xref_offset, $xref_id, $ex_id, $acc, $label || $acc, $version, $desc, $type, $info || $where_from, $core_dbi);
-     }
-     if($last_xref != $xref_id or $last_ensembl != $ensembl_id){
-       $object_xref_id = $self->add_object_xref($object_xref_offset, $object_xref_id, $ensembl_id, $ensembl_type, ($xref_id+$xref_offset), $analysis_ids{$ensembl_type}, $core_dbi);
-       if (defined($master_xref_id)){ # need to sort this out for FlyBase since there are EMBL direct entries from the GFF and dependent xrefs from Uniprot
-         $add_dependent_xref_sth->execute(($object_xref_id+$object_xref_offset), ($master_xref_id+$xref_offset), ($xref_id+$xref_offset) );
-       }
-       else{
-         if($err_master_count < 10){
-           push @master_problems, $acc;
-         }
-         $err_master_count++;
-       }
-       $ox_count++;
-     }
-     $last_xref = $xref_id;
-     $last_ensembl = $ensembl_id;
-       }
-       if(@master_problems){
-     print "WARNING:: for $name $err_master_count problem master xrefs\nExamples are :-\t";
-     print join ", ",@master_problems;
-     print "\n";
-       }
-       print "DEP $count xrefs, $ox_count object_xrefs\n" if ($verbose);
-     }
-   }
-   ### If SEQUENCE_MATCH   xref, object_xref,  identity_xref   (order by xref_id)  # maybe linked to more than one?
-
-    elsif($type eq "SEQUENCE_MATCH"){
-      my $count = 0;
-      $seq_sth->execute($source_id, $type);
-      my ($xref_id, $acc, $label, $version, $desc, $info, $object_xref_id, $ensembl_id, $ensembl_type);
-      my ( $query_identity, $target_identity, $hit_start, $hit_end, $translation_start, $translation_end, $cigar_line, $score, $evalue);
-      $seq_sth->bind_columns(\$xref_id, \$acc, \$label, \$version, \$desc, \$info, \$object_xref_id, \$ensembl_id, \$ensembl_type,
-                 \$query_identity, \$target_identity, \$hit_start, \$hit_end, \$translation_start, \$translation_end, \$cigar_line, \$score, \$evalue);
-      my $last_xref = 0;
-      while($seq_sth->fetch){
-        if($last_xref != $xref_id){
-      push @xref_list, $xref_id;
-      $count++;
-      $xref_id = $self->add_xref($xref_offset, $xref_id, $ex_id, $acc, $label, $version, $desc, $type, $info || $where_from, $core_dbi);
-      $last_xref = $xref_id;
-        }
-        $object_xref_id = $self->add_object_xref ($object_xref_offset, $object_xref_id, $ensembl_id, $ensembl_type, ($xref_id+$xref_offset), $analysis_ids{$ensembl_type}, $core_dbi);
-    $add_identity_xref_sth->execute( ($object_xref_id+$object_xref_offset), $query_identity, $target_identity, $hit_start, $hit_end,
-                     $translation_start, $translation_end, $cigar_line, $score, $evalue);
-      }
-      print "SEQ $count\n" if ($verbose);
-    }
-    else{
-      print "PROBLEM:: what type is $type\n";
-    }
-
-
-    # Transfer data for synonym and set xref database xrefs to dumped.
-    if(@xref_list){
-      my $syn_count = 0;
-      my $syn_sql = "select xref_id, synonym from synonym where xref_id in(".join(", ",@xref_list).")";
-      my $syn_sth    = $xref_dbi->prepare($syn_sql);
-      $syn_sth->execute();
-
-      my ($xref_id, $syn);
-      $syn_sth->bind_columns(\$xref_id, \$syn);
-      while($syn_sth->fetch()){
-    $add_syn_sth->execute(($xref_id+$xref_offset), $syn);
-    $syn_count++;
-      }
-      $syn_sth->finish;
-
-      print "\tadded $syn_count synonyms\n" if($syn_count);
-      my $xref_dumped_sth = $xref_dbi->prepare("update xref set dumped = 'MAPPED' where xref_id in (".join(", ",@xref_list).")");
-      $xref_dumped_sth->execute() || die "Could not set dumped status";
-      $xref_dumped_sth->finish;
-    }
-
-    # Update the core databases release in for source form the xref database
-    if(defined($release_info) and $release_info ne "1"){
-       $add_release_info_sth->execute($release_info, $ex_id) || die "Failed to add release info **$release_info** for external source $ex_id\n";
-    }
-  }
-  $sth->finish;
-  $seq_sth->finish;
-  $dir_sth->finish;
-  $transaction_end_sth->execute();
+  $self->map_xrefs_from_xrefdb_to_coredb();
 
 
   #######################################
@@ -595,51 +193,20 @@ GCNTSQL
   # 1) make sure the reason exist/create them and get the ids for these.
   # 2) Process where dumped is null and type = DIRECT, DEPENDENT, SEQUENCE_MATCH, MISC seperately
   ########################################
-  my %summary_failed;
-  my %desc_failed;
   my %reason_id;
 
   # Get the cutoff values
-  $sth = $xref_dbi->prepare("select distinct s.name, m.percent_query_cutoff, m.percent_target_cutoff from source s, source_mapping_method sm, mapping m where sm.source_id = s.source_id and sm.method = m.method");
-  $sth->execute();
-  my ($source_name, $q_cut, $t_cut);
-  $sth->bind_columns(\$source_name, \$q_cut, \$t_cut);
+  my $failed_sources = <base_tmp_functions>->get_unmapped_regions();
 
-  while ($sth->fetch) {
-    $summary_failed{$source_name} = "Failed to match at thresholds";
-    $desc_failed{$source_name}    = "Unable to match at the thresholds of $q_cut\% for the query or $t_cut\% for the target";
-  }
-  $sth->finish;
-
-  $summary_failed{"NO_STABLE_ID"} = "Failed to find Stable ID";
-  $desc_failed{"NO_STABLE_ID"}    = "Stable ID that this xref was linked to no longer exists";
-
-  $summary_failed{"FAILED_MAP"} = "Failed to match";
-  $desc_failed{"FAILED_MAP"}    = "Unable to match to any ensembl entity at all";
-
-  $summary_failed{"NO_MAPPING"} = "No mapping done";
-  $desc_failed{"NO_MAPPING"}    = "No mapping done for this type of xref";
-
-  $summary_failed{"MASTER_FAILED"} = "Master failed";
-  $desc_failed{"MASTER_FAILED"}    = "The dependent xref was not matched due to the master xref not being mapped";
-
-  $summary_failed{"NO_MASTER"} = "No Master";
-  $desc_failed{"NO_MASTER"}    = "The dependent xref was not matched due to there being no master xref";
-
-
+  my %summary_failed = $failed_sources->summary;
+  my %desc_failed    = $failed_sources->desc;
 
   foreach my $key (keys %desc_failed){
-    $sth = $core_dbi->prepare("select unmapped_reason_id from unmapped_reason where full_description like '".$desc_failed{$key}."'");
-    $sth->execute();
-    my $failed_id=undef;
-    $sth->bind_columns(\$failed_id);
-    $sth->fetch;
-    $sth->finish;
-    if(!defined($failed_id)){
-      $sth = $core_dbi->prepare('insert into unmapped_reason (summary_description, full_description) values("'.$summary_failed{$key}.'", "'.$desc_failed{$key}.'")');
-      $sth->execute();
-      $failed_id = $sth->{'mysql_insertid'};
-      $sth->finish
+    my $failed_id = <core_tmp_functions>->get_unmapped_reasons( $desc_failed{$key} );
+
+    if(!defined $failed_id ) {
+      $failed_id = <core_tmp_functions>->add_unmapped_reason(
+        $summary_failed{$key}, $desc_failed{$key} );
     }
     $reason_id{$key} = $failed_id;
   }
@@ -650,79 +217,15 @@ GCNTSQL
   # DIRECT #
   ##########
 
-  my $dbname;
-  $sql =(<<DIR);
-  SELECT  x.xref_id, x.accession, x.version, x.label, x.description, x.info_type, x.info_text, s.name
-    FROM source s,xref x
-      LEFT JOIN  object_xref ox ON ox.xref_id = x.xref_id
-      WHERE x.source_id = s.source_id
-        AND x.dumped is null
-        AND ox.ox_status != 'FAILED_PRIORITY'
-        AND x.info_type = 'DIRECT'
-DIR
+  $self->load_direct_xref_low_priority( $xref_offset );
 
-  my $direct_unmapped_sth = $xref_dbi->prepare($sql);
-  my ($xref_id, $acc, $version, $label, $desc, $info);
-  $direct_unmapped_sth->execute();
-  $direct_unmapped_sth->bind_columns(\$xref_id, \$acc, \$version, \$label, \$desc, \$type, \$info, \$dbname);
-
-  my $set_unmapped_sth       =  $core_dbi->prepare("insert into unmapped_object (type, analysis_id, external_db_id, identifier, unmapped_reason_id ) values ('xref', ?, ?, ?, ?)");
-
-  my @xref_list = ();
-  my $analysis_id = $analysis_ids{'Transcript'};   # No real analysis here but in table it is set to not NULL
-  while($direct_unmapped_sth->fetch()){
-    my $ex_id = $name_to_external_db_id{$dbname};
-    if(defined($name_to_external_db_id{$dbname})){
-      $xref_id = $self->add_xref($xref_offset, $xref_id, $ex_id, $acc, $label, $version, $desc, 'UNMAPPED', $info, $core_dbi);
-      $set_unmapped_sth->execute($analysis_id, $ex_id, $acc, $reason_id{"NO_STABLE_ID"});
-      push @xref_list, $xref_id;
-    }
-  }
-  $direct_unmapped_sth->finish;
-  $set_unmapped_sth->finish;
-
-
-  if(@xref_list){
-    my $xref_dumped_sth = $xref_dbi->prepare("update xref set dumped = 'UNMAPPED_NO_STABLE_ID' where xref_id in (".join(", ",@xref_list).")");
-    $xref_dumped_sth->execute();
-    $xref_dumped_sth->finish;
-  }
 
   ########
   # MISC #
   ########
 
-  $sql =(<<MIS);
-  SELECT  x.xref_id, x.accession, x.version, x.label, x.description, x.info_type, x.info_text, s.name
-    FROM xref x, source s
-      WHERE x.source_id = s.source_id
-        AND x.dumped is null
-        AND x.info_type = 'MISC'
-MIS
+  $self->load_misc_xref( $xref_offset );
 
-  my $misc_unmapped_sth = $xref_dbi->prepare($sql);
-  $misc_unmapped_sth->execute();
-  $misc_unmapped_sth->bind_columns(\$xref_id, \$acc, \$version, \$label, \$desc, \$type, \$info, \$dbname);
-
-  @xref_list = ();
-  $analysis_id = $analysis_ids{'Transcript'};   # No real analysis here but in table it is set to not NULL
-  while($misc_unmapped_sth->fetch()){
-    my $ex_id = $name_to_external_db_id{$dbname};
-    if(defined($name_to_external_db_id{$dbname})){
-      $xref_id = $self->add_xref($xref_offset, $xref_id, $ex_id, $acc, $label, $version, $desc, 'UNMAPPED', $info, $core_dbi);
-      $set_unmapped_sth->execute($analysis_id, $ex_id, $acc, $reason_id{"NO_MAPPING"});
-      push @xref_list, $xref_id;
-    }
-  }
-  $misc_unmapped_sth->finish;
-  $set_unmapped_sth->finish;
-
-
-  if(@xref_list){
-    my $xref_dumped_sth = $xref_dbi->prepare("update xref set dumped = 'UNMAPPED_NO_MAPPING' where xref_id in (".join(", ",@xref_list).")");
-    $xref_dumped_sth->execute();
-    $xref_dumped_sth->finish;
-  }
 
   #############
   # DEPENDENT #
@@ -892,23 +395,370 @@ WEL
   $sth_stat->execute();
   $sth_stat->finish;
 
+} ## end sub update
 
 
+sub map_xrefs_from_xrefdb_to_coredb {
+  my ( $self, $xref_offset ) = @_;
+
+  $transaction_start_sth->execute();
+
+  while ( my $xref_handle = <base_tmp_functions>->get_dump_out_xrefs() ) {
+
+    next if(!defined $name_to_external_db_id{$xref_handle->name} );
+
+    if( defined $xref_handle->where_from and $xref_handle->where_from ne q{} ){
+      $xref_handle->where_from = "Generated via $where_from";
+    }
+    my $ex_id = $self->name_to_external_db_id{ $xref_handle->name };
+
+    if ( $verbose ) {
+      print "updating ($xref_handle->source_id) $xref_handle->name in core (for $type xrefs)\n";
+    }
+
+    my @xref_list=();  # process at end. Add synonyms and set dumped = 1;
+
+    # dump SEQUENCE_MATCH, DEPENDENT, DIRECT, COORDINATE_OVERLAP, INFERRED_PAIR, (MISC?? same as direct come from official naming)
+
+    ### If DIRECT ,         xref, object_xref,                  (order by xref_id)  # maybe linked to more than one?
+    ### if INFERRED_PAIR    xref, object_xref
+    ### if MISC             xref, object_xref
+
+    if ( $xref_handle->type eq 'DIRECT' or $xref_handle->type eq 'INFERRED_PAIR' or
+         $xref_handle->type eq 'MISC'   or $xref_handle->type eq 'SEQUENCE_MATCH' ) {
+      push @xref_list, $self->load_identity_xref(
+        $xref_handle->source_id, $xref_handle->type, $xref_offset, $ex_id );
+    }
+    elsif ($xref_handle->type eq 'CHECKSUM') {
+      if(! defined $checksum_analysis_id) {
+        $checksum_analysis_id = $self->get_single_analysis( 'xrefchecksum' );
+      }
+
+      push @xref_list, $self->load_checksum_xref(
+        $xref_handle->source_id, $xref_handle->type, $xref_offset, $ex_id );
+    }
+    elsif ( $xref_handle->type eq 'DEPENDENT' ) {
+      push @xref_list, $self->load_dependent_xref(
+        $xref_handle->source_id, $xref_handle->type, $xref_offset, $ex_id );
+    }
+    else {
+      print "PROBLEM:: what type is $type\n";
+    }
+
+
+    # Transfer data for synonym and set xref database xrefs to dumped.
+    if ( @xref_list ) {
+      $self->load_synonyms( @xref_list );
+
+      <base_tmp_functions>->mark_mapped_xrefs( @xref_list, 'MAPPED' );
+    }
+
+    # Update the core databases release in for source form the xref database
+    if ( defined $xref_handle->release_info and $xref_handle->release_info ne q{1} ){
+       my $add_release_info_sth   = $core_dbi->prepare('UPDATE external_db SET db_release = ? WHERE external_db_id = ?');
+       $add_release_info_sth->execute($xref_handle->release_info, $ex_id) ||
+         confess "Failed to add release info **$xref_handle->release_info** for external source $ex_id\n";
+    }
+  } ## end while for getting dump out xrefs
+  $transaction_end_sth->execute();
+
+  return;
 }
 
+
+sub load_direct_xref_low_priority {
+  my ( $self, $xref_offset ) = @_;
+
+  my @xref_list = ();
+  my $analysis_id = $analysis_ids{'Transcript'};   # No real analysis here but in table it is set to not NULL
+  while ( my $direct_handle = <base_tmp_functions>->get_insert_direct_xref_low_priority() ) {
+    if( defined $self->name_to_external_db_id{ $direct_handle->dbname } ) {
+      $xref_id = $self->add_xref(
+        $xref_offset,
+        $direct_handle->xref_id,
+        $self->name_to_external_db_id{ $direct_handle->dbname },
+        $direct_handle->acc,
+        $direct_handle->label,
+        $direct_handle->version,
+        $direct_handle->desc,
+        'UNMAPPED',
+        $direct_handle->info,
+        $core_dbi
+      );
+
+      <core_tmp_functions>->add_unmapped_object(
+        $analysis_id,
+        $self->name_to_external_db_id{ $direct_handle->dbname },
+        $acc,
+        $reason_id{'NO_STABLE_ID'} );
+
+      push @xref_list, $xref_id;
+    }
+  }
+
+  if(@xref_list){
+    <base_tmp_functions>->mark_mapped_xrefs( @xref_list, 'UNMAPPED_NO_STABLE_ID' );
+  }
+
+  return;
+}
+
+
+
+sub load_misc_xref {
+  my ( $self, $xref_offset ) = @_;
+
+  @xref_list = ();
+  $analysis_id = $analysis_ids{'Transcript'};   # No real analysis here but in table it is set to not NULL
+  while( my $misc_handle = <base_tmp_functions>->get_insert_misc_xref() ){
+    if ( defined $name_to_external_db_id{ $dbname } ) {
+      $xref_id = $self->add_xref(
+        $xref_offset,
+        $misc_handle->xref_id,
+        $self->name_to_external_db_id{ $misc_handle->dbname },
+        $misc_handle->acc,
+        $misc_handle->label,
+        $misc_handle->version,
+        $misc_handle->desc,
+        'UNMAPPED',
+        $misc_handle->info,
+        $core_dbi);
+
+      <core_tmp_functions>->add_unmapped_object(
+        $analysis_id,
+        $self->name_to_external_db_id{ $misc_handle->dbname },
+        $acc,
+        $reason_id{'NO_MAPPING'} );
+      push @xref_list, $xref_id;
+    }
+  }
+  $misc_unmapped_sth->finish;
+  $set_unmapped_sth->finish;
+
+  if(@xref_list){
+    <base_tmp_functions>->mark_mapped_xrefs( @xref_list, 'UNMAPPED_NO_MAPPING' );
+  }
+
+  return;
+}
+
+
+
+sub load_identity_xref {
+   my ( $self, $source_id, $type, $xref_offset, $ex_id ) = @_;
+
+  my $last_xref = 0;
+  my @xref_list = ();
+  while ( my $identity_xref_handle = <base_tmp_functions>->get_identity_xref( $source_id, $type ) ) {
+    if( $last_xref != $identity_xref_handle->xref_id ) {
+      push @xref_list, $identity_xref_handle->xref_id;
+      $count++;
+      $xref_id = <core_tmp_functions>->add_xref(
+        $xref_offset,
+        $identity_xref_handle->xref_id,
+        $self->name_to_external_db_id{ $identity_xref_handle->dbname },
+        $identity_xref_handle->acc,
+        $identity_xref_handle->label,
+        $identity_xref_handle->version,
+        $identity_xref_handle->desc,
+        $identity_xref_handle->type,
+        $identity_xref_handle->info || $where_from);
+      $last_xref = $xref_id;
+    }
+
+    $object_xref_id = <core_tmp_functions>->add_object_xref(
+      $identity_xref_handle->object_xref_offset,
+      $identity_xref_handle->object_xref_id,
+      $identity_xref_handle->ensembl_id,
+      $identity_xref_handle->ensembl_type,
+      ( $xref_id + $xref_offset),
+      $identity_xref_handle->analysis_ids{ $identity_xref_handle->ensembl_type },
+      $core_dbi);
+
+    if $translation_start {
+      <core_tmp_functions>->$add_identity_xref( {
+        object_xref_id   => ( $identity_xref_handle->object_xref_id + $object_xref_offset ),
+        query_identity   => $identity_xref_handle->query_identity,
+        ensembl_identity => $identity_xref_handle->target_identity,
+        xref_start       => $identity_xref_handle->hit_start,
+        xref_end         => $identity_xref_handle->hit_end,
+        ensembl_start    => $identity_xref_handle->translation_start,
+        ensembl_end      => $identity_xref_handle->translation_end,
+        cigar_line       => $identity_xref_handle->cigar_line,
+        score            => $identity_xref_handle->score,
+        evalue           => $identity_xref_handle->evalue
+      } );
+    }
+  }
+
+  return @xref_list;
+}
+
+
+
+sub load_checksum_xref {
+  my ( $self, $source_id, $type, $xref_offset, $ex_id ) = @_;
+  my $count = 0;
+  my $last_xref = 0;
+  my @xref_list = ();
+  while( my $checksum_xref_handle = <base_tmp_functions>->get_insert_checksum_xref( $source_id, $type ) ) {
+    if($last_xref != $checksum_xref_handle->xref_id) {
+      push @xref_list, $checksum_xref_handle->xref_id;
+      $count++;
+      $xref_id = $self->add_xref(
+        $xref_offset, $xref_id, $ex_id,
+        $checksum_xref_handle->acc,
+        $checksum_xref_handle->label,
+        $checksum_xref_handle->version,
+        $checksum_xref_handle->desc,
+        $checksum_xref_handle->type,
+        $checksum_xref_handle->info || $where_from, $core_dbi);
+      $last_xref = $xref_id;
+    }
+    my $object_xref_id = $self->add_object_xref(
+      $object_xref_offset,
+      $checksum_xref_handle->object_xref_id,
+      $checksum_xref_handle->ensembl_id,
+      $checksum_xref_handle->ensembl_type,
+      ( $checksum_xref_handle->xref_id + $xref_offset ),
+      $checksum_analysis_id,
+      $core_dbi);
+  }
+  if ( $verbose ) {
+    print "CHECKSUM $count\n";
+  }
+
+  return @xref_list;
+}
+
+
+
+sub load_dependent_xref {
+  my ( $self, $source_id, $type, $xref_offset, $ex_id ) = @_;
+
+  my $count = 0;
+  my $ox_count = 0;
+  my @master_problems;
+  my $err_master_count=0;
+  # $dependent_sth->execute($source_id, $type);
+  # my ($xref_id, $acc, $label, $version, $desc, $info, $object_xref_id, $ensembl_id, $ensembl_type, $master_xref_id);
+  # $dependent_sth->bind_columns(\$xref_id, \$acc, \$label, \$version, \$desc, \$info, \$object_xref_id, \$ensembl_id, \$ensembl_type, \$master_xref_id);
+  my $last_xref = 0;
+  my $last_ensembl = 0;
+  my @xref_list = ();
+  while ( my $dependent_xref_handle = <base_tmp_functions>->get_insert_dependent_xref( $source_id, $type ) ) {
+    if($last_xref != $xref_id) {
+      push @xref_list, $xref_id;
+      $count++;
+      $xref_id = $self->add_xref(
+        $xref_offset, $xref_id, $ex_id,
+        $dependent_xref_handle->acc,
+        $dependent_xref_handle->label || $dependent_xref_handle->acc,
+        $dependent_xref_handle->version,
+        $dependent_xref_handle->desc,
+        $dependent_xref_handle->type,
+        $dependent_xref_handle->info || $where_from,
+        $core_dbi);
+      $last_xref = $xref_id;
+    }
+    if ( $last_xref != $xref_id or $last_ensembl != $ensembl_id ) {
+      my $object_xref_id = $self->add_object_xref(
+        $object_xref_offset,
+        $dependent_xref_handle->object_xref_id,
+        $dependent_xref_handle->ensembl_id,
+        $dependent_xref_handle->ensembl_type,
+        ( $dependent_xref_handle->xref_id + $xref_offset ),
+        $analysis_ids{ $dependent_xref_handle->ensembl_type },
+        $core_dbi
+      );
+
+      if ( defined $master_xref_id ) { # need to sort this out for FlyBase since there are EMBL direct entries from the GFF and dependent xrefs from Uniprot
+        # $add_dependent_xref_sth->execute(($object_xref_id+$object_xref_offset), ($master_xref_id+$xref_offset), ($xref_id+$xref_offset) );
+        <core_tmp_functions>->add_dependent_xref(
+          ( $object_xref_id + $object_xref_offset ),
+          ( $master_xref_id + $xref_offset ),
+          ( $xref_id+$xref_offset )
+        );
+      }
+      else {
+        if ( $err_master_count < 10 ) {
+          push @master_problems, $acc;
+        }
+        $err_master_count++;
+      }
+      $ox_count++;
+    }
+    $last_xref = $xref_id;
+    $last_ensembl = $ensembl_id;
+  }
+  if ( @master_problems ){
+    print "WARNING:: for $name $err_master_count problem master xrefs\nExamples are :-\t";
+    print join ', ', @master_problems;
+    print "\n";
+  }
+
+  if ( $verbose ) {
+    print "DEP $count xrefs, $ox_count object_xrefs\n";
+  }
+
+  return @xref_list;
+}
+
+
+
+sub load_synonyms {
+  my ( $self, $xref_list) = @_;
+
+  my $syn_count = 0;
+  # my $syn_sql = 'SELECT xref_id, synonym FROM synonym WHERE xref_id IN ( ? )';
+  # my $syn_sth    = $xref_dbi->prepare_cached( $syn_sql );
+  # $syn_sth->execute( join ', ', @xref_list );
+
+  my ($xref_id, $syn);
+
+  # my $add_syn_sth = $core_dbi->prepare_cached(
+  #   'INSERT IGNORE INTO external_synonym (xref_id, synonym) VALUES (?, ?)');
+
+  # $syn_sth->bind_columns(\$xref_id, \$syn);
+  while( my $syn_handle = <base_tmp_functions>->get_synonyms_for_xref( @{ $xref_list } ) ){
+    # $add_syn_sth->execute( ($xref_id+$xref_offset), $syn);
+    <core_tmp_functions>->add_xref_synonym(
+      $syn_handle->xref_id, $syn_handle->syn );
+    $syn_count++;
+  }
+
+  if ( $syn_count ) {
+    print "\tadded $syn_count synonyms\n";
+  }
+
+  return;
+}
+
+
+
+=head2 get_analysis
+
+
+=cut
 
 sub get_analysis{
   my $self = shift;
-  my %typeToLogicName = ( 'Gene'        => 'xrefexoneratedna',
-                          'Transcript'  => 'xrefexoneratedna',
-                          'Translation' => 'xrefexonerateprotein');
+  my %type_to_logic_name = ( 'Gene'        => 'xrefexoneratedna',
+                             'Transcript'  => 'xrefexoneratedna',
+                             'Translation' => 'xrefexonerateprotein', );
   my %analysis_id;
   foreach my $key (qw(Gene Transcript Translation)){
-    my $logic_name = $typeToLogicName{$key};
+    my $logic_name = $type_to_logic_name{$key};
     $analysis_id{$key} = $self->get_single_analysis($logic_name);
   }
   return %analysis_id;
-}
+} ## end sub get_analysis
+
+
+=head2 get_single_analysis
+
+
+=cut
 
 sub get_single_analysis {
   my ($self, $logic_name) = @_;
@@ -937,8 +787,13 @@ sub get_single_analysis {
   }
 
   return $analysis_id;
-}
+} ## end sub get_single_analysis
 
+
+=head2 add_xref
+
+
+=cut
 
 sub add_xref {
   my ($self, $offset, $xref_id, $external_db_id, $dbprimary_acc, $display_label, $version, $description, $info_type, $info_text, $dbc)  = @_;
@@ -954,7 +809,13 @@ sub add_xref {
   } else {
     return $new_xref_id - $offset;
   }
-}
+} ## end sub add_xref
+
+
+=head2 add_object_xref
+
+
+=cut
 
 sub add_object_xref {
   my ($self, $offset, $object_xref_id, $ensembl_id, $ensembl_object_type, $xref_id, $analysis_id, $dbc) = @_;
@@ -970,8 +831,6 @@ sub add_object_xref {
   } else {
     return $new_object_xref_id - $offset;
   }
-}
-
-
+} ## end sub add_object_xref
 
 1;
