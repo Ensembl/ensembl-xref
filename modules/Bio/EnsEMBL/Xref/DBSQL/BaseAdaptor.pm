@@ -1416,7 +1416,7 @@ sub add_synonym {
   my ( $self, $xref_id, $syn ) = @_;
   my $add_synonym_sth =
     $self->dbi->prepare_cached(
-      'INSERT IGNORE INTO synonym ( xref_id, synonym ) VALUES(?,?)');
+      'INSERT IGNORE INTO synonym ( xref_id, synonym ) VALUES( ?, ? )');
   $add_synonym_sth->execute( $xref_id, $syn ) or
     confess ( $self->dbi->errstr() . "\n $xref_id\n $syn\n\n" . $add_synonym_sth->errstr() . "\n" );
 
@@ -1459,7 +1459,7 @@ sub get_label_to_acc {
   my ( $self, $name, $species_id, $prio_desc ) = @_;
   my %hash1 = ();
 
-  my $sql = (<<"GLA");
+  my $sql = (<<'GLA');
   SELECT  xref.accession, xref.label
   FROM xref, source
   WHERE
@@ -1483,7 +1483,7 @@ GLA
   }
 
   # Remember synonyms
-  $sql = (<<"GLS");
+  $sql = (<<'GLS');
   SELECT  xref.accession, synonym.synonym
   FROM xref, source, synonym
   WHERE
@@ -1527,7 +1527,7 @@ sub get_acc_to_label {
   my ( $self, $name, $species_id, $prio_desc ) = @_;
   my %hash1 = ();
 
-  my $sql = (<<"GLA");
+  my $sql = (<<'GLA');
   SELECT  xref.accession, xref.label
   FROM xref, source
   WHERE
