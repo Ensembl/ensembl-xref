@@ -1,0 +1,2982 @@
+LOCUS       NP_055050                157 aa            linear   PRI 23-SEP-2018
+DEFINITION  ubiquitin-like protein 4A [Homo sapiens].
+ACCESSION   NP_055050
+VERSION     NP_055050.1
+DBSOURCE    REFSEQ: accession NM_014235.4
+KEYWORDS    RefSeq.
+SOURCE      Homo sapiens (human)
+  ORGANISM  Homo sapiens
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
+            Catarrhini; Hominidae; Homo.
+REFERENCE   1  (residues 1 to 157)
+  AUTHORS   Hein MY, Hubner NC, Poser I, Cox J, Nagaraj N, Toyoda Y, Gak IA,
+            Weisswange I, Mansfeld J, Buchholz F, Hyman AA and Mann M.
+  TITLE     A human interactome in three quantitative dimensions organized by
+            stoichiometries and abundances
+  JOURNAL   Cell 163 (3), 712-723 (2015)
+   PUBMED   26496610
+REFERENCE   2  (residues 1 to 157)
+  AUTHORS   Kuwabara N, Minami R, Yokota N, Matsumoto H, Senda T, Kawahara H
+            and Kato R.
+  TITLE     Structure of a BAG6 (Bcl-2-associated athanogene 6)-Ubl4a
+            (ubiquitin-like protein 4a) complex reveals a novel binding
+            interface that functions in tail-anchored protein biogenesis
+  JOURNAL   J. Biol. Chem. 290 (15), 9387-9398 (2015)
+   PUBMED   25713138
+REFERENCE   3  (residues 1 to 157)
+  AUTHORS   Mock JY, Chartron JW, Zaslaver M, Xu Y, Ye Y and Clemons WM Jr.
+  TITLE     Bag6 complex contains a minimal tail-anchor-targeting module and a
+            mock BAG domain
+  JOURNAL   Proc. Natl. Acad. Sci. U.S.A. 112 (1), 106-111 (2015)
+   PUBMED   25535373
+  REMARK    GeneRIF: Both TRC35 and Ubl4A have distinct C-terminal binding
+            sites on Bag6 defining a minimal Bag6 complex.
+REFERENCE   4  (residues 1 to 157)
+  AUTHORS   Darby JF, Krysztofinska EM, Simpson PJ, Simon AC, Leznicki P,
+            Sriskandarajah N, Bishop DS, Hale LR, Alfano C, Conte MR,
+            Martinez-Lumbreras S, Thapaliya A, High S and Isaacson RL.
+  TITLE     Solution structure of the SGTA dimerisation domain and
+            investigation of its interactions with the ubiquitin-like domains
+            of BAG6 and UBL4A
+  JOURNAL   PLoS ONE 9 (11), e113281 (2014)
+   PUBMED   25415308
+  REMARK    GeneRIF: Data show that molecular chaperone BAG6_ubiquitin-like
+            domain (UBL) and ubiquitin-like 4A UBL4A_UBL compete for the same
+            binding site on N-terminal dimerisation domain of SGTA protein
+            (SGTA_NT).
+            Publication Status: Online-Only
+REFERENCE   5  (residues 1 to 157)
+  AUTHORS   Taipale M, Tucker G, Peng J, Krykbaeva I, Lin ZY, Larsen B, Choi H,
+            Berger B, Gingras AC and Lindquist S.
+  TITLE     A quantitative chaperone interaction network reveals the
+            architecture of cellular protein homeostasis pathways
+  JOURNAL   Cell 158 (2), 434-448 (2014)
+   PUBMED   25036637
+REFERENCE   6  (residues 1 to 157)
+  AUTHORS   Yang F, Skaletsky H and Wang PJ.
+  TITLE     Ubl4b, an X-derived retrogene, is specifically expressed in
+            post-meiotic germ cells in mammals
+  JOURNAL   Gene Expr. Patterns 7 (1-2), 131-136 (2007)
+   PUBMED   16872915
+REFERENCE   7  (residues 1 to 157)
+  AUTHORS   Kim SC, Sprung R, Chen Y, Xu Y, Ball H, Pei J, Cheng T, Kho Y, Xiao
+            H, Xiao L, Grishin NV, White M, Yang XJ and Zhao Y.
+  TITLE     Substrate and functional diversity of lysine acetylation revealed
+            by a proteomics survey
+  JOURNAL   Mol. Cell 23 (4), 607-618 (2006)
+   PUBMED   16916647
+REFERENCE   8  (residues 1 to 157)
+  AUTHORS   Chen EY, Zollo M, Mazzarella R, Ciccodicola A, Chen CN, Zuo L,
+            Heiner C, Burough F, Repetto M, Schlessinger D and D'Urso M.
+  TITLE     Long-range sequence analysis in Xq28: thirteen known and six
+            candidate genes in 219.4 kb of high GC DNA between the RCP/GCP and
+            G6PD loci
+  JOURNAL   Hum. Mol. Genet. 5 (5), 659-668 (1996)
+   PUBMED   8733135
+REFERENCE   9  (residues 1 to 157)
+  AUTHORS   Toniolo D, Persico M and Alcalay M.
+  TITLE     A 'housekeeping' gene on the X chromosome encodes a protein similar
+            to ubiquitin
+  JOURNAL   Proc. Natl. Acad. Sci. U.S.A. 85 (3), 851-855 (1988)
+   PUBMED   2829204
+REFERENCE   10 (residues 1 to 157)
+  AUTHORS   Toniolo,D., Persico,M.G., Battistuzzi,G. and Luzzatto,L.
+  TITLE     Partial purification and characterization of the messenger RNA for
+            human glucose-6-phosphate dehydrogenase
+  JOURNAL   Mol. Biol. Med. 2 (2), 89-103 (1984)
+   PUBMED   6533418
+COMMENT     VALIDATED REFSEQ: This record has undergone validation or
+            preliminary review. The reference sequence was derived from
+            DA012854.1, BC043346.2, DR003955.1, BM711450.1 and CK826435.1.
+            
+            Publication Note:  This RefSeq record includes a subset of the
+            publications that are available for this gene. Please see the Gene
+            record to access additional publications.
+            
+            ##Evidence-Data-START##
+            Transcript exon combination :: AK000405.1, SRR1660803.252682.1
+                                           [ECO:0000332]
+            RNAseq introns              :: single sample supports all introns
+                                           SAMEA2155550, SAMEA2163105
+                                           [ECO:0000348]
+            ##Evidence-Data-END##
+FEATURES             Location/Qualifiers
+     source          1..157
+                     /organism="Homo sapiens"
+                     /db_xref="taxon:9606"
+                     /chromosome="X"
+                     /map="Xq28"
+     Protein         1..157
+                     /product="ubiquitin-like protein 4A"
+                     /note="ubiquitin-like 4; ubiquitin-like protein GDX"
+                     /calculated_mol_wt=17645
+     Region          1..74
+                     /region_name="GDX_N"
+                     /note="ubiquitin-like domain of GDX; cd01807"
+                     /db_xref="CDD:176402"
+     variation       14
+                     /replace="r"
+                     /db_xref="dbSNP:1382005748"
+     variation       17
+                     /replace="v"
+                     /db_xref="dbSNP:1178647111"
+     variation       18
+                     /replace="p"
+                     /db_xref="dbSNP:782307044"
+     variation       24
+                     /replace="y"
+                     /db_xref="dbSNP:782165041"
+     variation       29
+                     /replace="q"
+                     /db_xref="dbSNP:1238393189"
+     variation       33
+                     /replace="n"
+                     /db_xref="dbSNP:782024019"
+     variation       34
+                     /replace="l"
+                     /db_xref="dbSNP:1193369066"
+     variation       35
+                     /replace="n"
+                     /db_xref="dbSNP:782395028"
+     variation       39
+                     /replace="c"
+                     /db_xref="dbSNP:782254388"
+     variation       43
+                     /replace="l"
+                     /db_xref="dbSNP:1393842392"
+     variation       44
+                     /replace="l"
+                     /db_xref="dbSNP:782626625"
+     variation       53
+                     /replace="e"
+                     /db_xref="dbSNP:370563061"
+     variation       56
+                     /replace="f"
+                     /db_xref="dbSNP:1401707201"
+     variation       56
+                     /replace="l"
+                     /db_xref="dbSNP:376857252"
+     variation       57
+                     /replace="l"
+                     /db_xref="dbSNP:782531758"
+     variation       61
+                     /replace="i"
+                     /db_xref="dbSNP:143278263"
+     variation       61
+                     /replace="v"
+                     /db_xref="dbSNP:1354344061"
+     variation       62
+                     /replace="e"
+                     /db_xref="dbSNP:782758096"
+     variation       62
+                     /replace="r"
+                     /db_xref="dbSNP:1412366328"
+     variation       66
+                     /replace="r"
+                     /db_xref="dbSNP:1285641732"
+     variation       70
+                     /replace="l"
+                     /db_xref="dbSNP:1356573812"
+     variation       71
+                     /replace="i"
+                     /db_xref="dbSNP:782495618"
+     variation       71
+                     /replace="v"
+                     /db_xref="dbSNP:782123581"
+     variation       73
+                     /replace="s"
+                     /db_xref="dbSNP:913973365"
+     variation       74
+                     /replace="l"
+                     /db_xref="dbSNP:149580851"
+     variation       75
+                     /replace="e"
+                     /db_xref="dbSNP:1283940537"
+     variation       76
+                     /replace="k"
+                     /db_xref="dbSNP:782044578"
+     variation       77
+                     /replace="v"
+                     /db_xref="dbSNP:782026249"
+     variation       82
+                     /replace="d"
+                     /db_xref="dbSNP:374503557"
+     variation       82
+                     /replace="g"
+                     /db_xref="dbSNP:369463648"
+     variation       83
+                     /replace="q"
+                     /db_xref="dbSNP:782359606"
+     variation       85
+                     /replace="*"
+                     /db_xref="dbSNP:782215116"
+     variation       88
+                     /replace="a"
+                     /db_xref="dbSNP:138227292"
+     variation       88
+                     /replace="p"
+                     /db_xref="dbSNP:781921631"
+     variation       89
+                     /replace="a"
+                     /db_xref="dbSNP:782643777"
+     variation       89
+                     /replace="n"
+                     /db_xref="dbSNP:782283486"
+     variation       90
+                     /replace="p"
+                     /db_xref="dbSNP:782517386"
+     Site            90
+                     /site_type="phosphorylation"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Phosphoserine. {ECO:0000244|PubMed:18669648,
+                     ECO:0000244|PubMed:19690332, ECO:0000244|PubMed:20068231,
+                     ECO:0000244|PubMed:23186163}; propagated from
+                     UniProtKB/Swiss-Prot (P11441.1)"
+     variation       91
+                     /replace="l"
+                     /db_xref="dbSNP:782230135"
+     variation       91
+                     /replace="p"
+                     /db_xref="dbSNP:782615632"
+     variation       92
+                     /replace="p"
+                     /db_xref="dbSNP:782493351"
+     variation       93
+                     /replace="l"
+                     /db_xref="dbSNP:782174250"
+     variation       93
+                     /replace="s"
+                     /db_xref="dbSNP:781782880"
+     Region          <95..149
+                     /region_name="RE_Alw26IDE"
+                     /note="Type II restriction endonuclease (RE_Alw26IDE);
+                     cl19566"
+                     /db_xref="CDD:302924"
+     Region          96..138
+                     /region_name="Required and sufficient for interaction with
+                     BAG6. {ECO:0000269|PubMed:25535373,
+                     ECO:0000269|PubMed:25713138}"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="propagated from UniProtKB/Swiss-Prot (P11441.1)"
+     variation       99
+                     /replace="i"
+                     /db_xref="dbSNP:782530589"
+     variation       102
+                     /replace="i"
+                     /db_xref="dbSNP:781866836"
+     variation       104
+                     /replace="t"
+                     /db_xref="dbSNP:377663564"
+     variation       105
+                     /replace="g"
+                     /db_xref="dbSNP:150392222"
+     variation       105
+                     /replace="r"
+                     /db_xref="dbSNP:781938597"
+     variation       108
+                     /replace="s"
+                     /db_xref="dbSNP:782021191"
+     variation       108
+                     /replace="t"
+                     /db_xref="dbSNP:782405603"
+     variation       109
+                     /replace="a"
+                     /db_xref="dbSNP:993144880"
+     variation       109
+                     /replace="v"
+                     /db_xref="dbSNP:782395991"
+     variation       110
+                     /replace="v"
+                     /db_xref="dbSNP:1374745394"
+     variation       112
+                     /replace="a"
+                     /db_xref="dbSNP:201886422"
+     variation       112
+                     /replace="v"
+                     /db_xref="dbSNP:782247131"
+     variation       113
+                     /replace="s"
+                     /db_xref="dbSNP:781974592"
+     variation       114
+                     /replace="r"
+                     /db_xref="dbSNP:897466793"
+     variation       116
+                     /replace="l"
+                     /db_xref="dbSNP:1340719458"
+     variation       118
+                     /replace="q"
+                     /db_xref="dbSNP:782344230"
+     variation       123
+                     /replace="y"
+                     /db_xref="dbSNP:782054334"
+     variation       124
+                     /replace="q"
+                     /db_xref="dbSNP:781895687"
+     variation       126
+                     /replace="s"
+                     /db_xref="dbSNP:782780367"
+     variation       126
+                     /replace="y"
+                     /db_xref="dbSNP:372299383"
+     variation       129
+                     /replace="h"
+                     /db_xref="dbSNP:782123473"
+     variation       131
+                     /replace="m"
+                     /db_xref="dbSNP:781978076"
+     variation       131
+                     /replace="t"
+                     /db_xref="dbSNP:782357218"
+     variation       132
+                     /replace="m"
+                     /db_xref="dbSNP:782387958"
+     variation       133
+                     /replace="d"
+                     /db_xref="dbSNP:781933473"
+     variation       133
+                     /replace="g"
+                     /db_xref="dbSNP:782771399"
+     variation       134
+                     /replace="d"
+                     /db_xref="dbSNP:1332467411"
+     variation       134
+                     /replace="n"
+                     /db_xref="dbSNP:782305376"
+     variation       136
+                     /replace="*"
+                     /db_xref="dbSNP:1394297342"
+     variation       137
+                     /replace="q"
+                     /db_xref="dbSNP:1385439085"
+     variation       137
+                     /replace="r"
+                     /db_xref="dbSNP:782273749"
+     variation       137
+                     /replace="r"
+                     /db_xref="dbSNP:913878735"
+     variation       141
+                     /replace="h"
+                     /db_xref="dbSNP:141549549"
+     variation       143
+                     /replace="v"
+                     /db_xref="dbSNP:202239760"
+     variation       145
+                     /replace="l"
+                     /db_xref="dbSNP:782371138"
+     variation       145
+                     /replace="p"
+                     /db_xref="dbSNP:782235821"
+     variation       148
+                     /replace="i"
+                     /db_xref="dbSNP:976111106"
+     variation       151
+                     /replace="t"
+                     /db_xref="dbSNP:1276330802"
+     variation       151
+                     /replace="v"
+                     /db_xref="dbSNP:782604846"
+     variation       152
+                     /replace="-"
+                     /db_xref="dbSNP:1320284883"
+     variation       153
+                     /replace="k"
+                     /db_xref="dbSNP:782461694"
+     variation       154
+                     /replace="s"
+                     /db_xref="dbSNP:782191064"
+     variation       156
+                     /replace="f"
+                     /db_xref="dbSNP:782682012"
+     variation       157
+                     /replace="r"
+                     /db_xref="dbSNP:782819598"
+     CDS             1..157
+                     /gene="UBL4A"
+                     /gene_synonym="DX254E; DXS254E; G6PD; GDX; GET5; MDY2;
+                     TMA24; UBL4"
+                     /coded_by="NM_014235.4:87..560"
+                     /db_xref="CCDS:CCDS14754.1"
+                     /db_xref="GeneID:8266"
+                     /db_xref="HGNC:HGNC:12505"
+                     /db_xref="MIM:312070"
+ORIGIN      
+        1 mqltvkalqg recslqvped elvstlkqlv seklnvpvrq qrllfkgkal adgkrlsdys
+       61 igpnsklnlv vkplekvlle egeaqrlads pppqvwqlis kvlarhfsaa dasrvleqlq
+      121 rdyerslsrl tlddierlas rflhpevtet mekgfsk
+//
+LOCUS       NP_001272836             342 aa            linear   ROD 23-SEP-2018
+DEFINITION  CD2 antigen cytoplasmic tail-binding protein 2 [Mus musculus].
+ACCESSION   NP_001272836
+VERSION     NP_001272836.1
+DBSOURCE    REFSEQ: accession NM_001285907.1
+KEYWORDS    RefSeq.
+SOURCE      Mus musculus (house mouse)
+  ORGANISM  Mus musculus
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Glires; Rodentia; Myomorpha;
+            Muroidea; Muridae; Murinae; Mus; Mus.
+REFERENCE   1  (residues 1 to 342)
+  AUTHORS   Okazaki N, F-Kikuno R, Ohara R, Inamoto S, Koseki H, Hiraoka S,
+            Saga Y, Seino S, Nishimura M, Kaisho T, Hoshino K, Kitamura H,
+            Nagase T, Ohara O and Koga H.
+  TITLE     Prediction of the coding sequences of mouse homologues of KIAA
+            gene: IV. The complete nucleotide sequences of 500 mouse
+            KIAA-homologous cDNAs identified by screening of terminal sequences
+            of cDNA clones randomly sampled from size-fractionated libraries
+  JOURNAL   DNA Res. 11 (3), 205-218 (2004)
+   PUBMED   15368895
+REFERENCE   2  (residues 1 to 342)
+  AUTHORS   Stryke D, Kawamoto M, Huang CC, Johns SJ, King LA, Harper CA, Meng
+            EC, Lee RE, Yee A, L'Italien L, Chuang PT, Young SG, Skarnes WC,
+            Babbitt PC and Ferrin TE.
+  TITLE     BayGenomics: a resource of insertional mutations in mouse embryonic
+            stem cells
+  JOURNAL   Nucleic Acids Res. 31 (1), 278-281 (2003)
+   PUBMED   12520002
+COMMENT     VALIDATED REFSEQ: This record has undergone validation or
+            preliminary review. The reference sequence was derived from
+            AC122537.4, AK167249.1 and AK034689.1.
+            
+            Transcript Variant: This variant (1) represents the longest
+            transcript. Variants 1-5 encode the same protein.
+            
+            Sequence Note: This RefSeq record was created from transcript and
+            genomic sequence data to make the sequence consistent with the
+            reference genome assembly. The genomic coordinates used for the
+            transcript record were based on transcript alignments.
+            
+            ##Evidence-Data-START##
+            Transcript exon combination :: AK167249.1 [ECO:0000332]
+            RNAseq introns              :: single sample supports all introns
+                                           SAMN01164134, SAMN01164138
+                                           [ECO:0000348]
+            ##Evidence-Data-END##
+FEATURES             Location/Qualifiers
+     source          1..342
+                     /organism="Mus musculus"
+                     /strain="C57BL/6"
+                     /db_xref="taxon:10090"
+                     /chromosome="7"
+                     /map="7"
+     Protein         1..342
+                     /product="CD2 antigen cytoplasmic tail-binding protein 2"
+                     /note="CD2 tail-binding protein 2; CD2 cytoplasmic
+                     domain-binding protein 2"
+                     /calculated_mol_wt=37563
+     Site            44
+                     /site_type="acetylation"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="N6-acetyllysine. {ECO:0000244|PubMed:23806337};
+                     propagated from UniProtKB/Swiss-Prot (Q9CWK3.1)"
+     Site            46
+                     /site_type="phosphorylation"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Phosphoserine. {ECO:0000250|UniProtKB:O95400};
+                     propagated from UniProtKB/Swiss-Prot (Q9CWK3.1)"
+     Site            49
+                     /site_type="phosphorylation"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Phosphoserine. {ECO:0000244|PubMed:21183079};
+                     propagated from UniProtKB/Swiss-Prot (Q9CWK3.1)"
+     Site            117
+                     /site_type="phosphorylation"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Phosphoserine. {ECO:0000250|UniProtKB:O95400};
+                     propagated from UniProtKB/Swiss-Prot (Q9CWK3.1)"
+     Site            196
+                     /site_type="phosphorylation"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Phosphoserine. {ECO:0000250|UniProtKB:O95400};
+                     propagated from UniProtKB/Swiss-Prot (Q9CWK3.1)"
+     Region          282..339
+                     /region_name="GYF"
+                     /note="Contains conserved Gly-Tyr-Phe residues;
+                     smart00444"
+                     /db_xref="CDD:214666"
+     Site            298..314
+                     /site_type="other"
+                     /note="proline binding motif"
+                     /db_xref="CDD:238027"
+     Site            order(308,313..314)
+                     /site_type="other"
+                     /note="proline interaction residues"
+                     /db_xref="CDD:238027"
+     CDS             1..342
+                     /gene="Cd2bp2"
+                     /gene_synonym="1500011B02Rik; 2410024K20Rik; AW048183"
+                     /coded_by="NM_001285907.1:321..1349"
+                     /db_xref="CCDS:CCDS21859.1"
+                     /db_xref="GeneID:70233"
+                     /db_xref="MGI:MGI:1917483"
+ORIGIN      
+        1 mpkrkvtfqg vgdedgedei svpkkklvdp vaaaggpgsr fkgkhsldsd eedddeegss
+       61 kydilasedv egqeaatlps eggvritpfn lqeemeeghf dadgnyflnq daqirdswld
+      121 nidwvriker ppdkhqvsds eeedslgqtp msaqallegl lelllpretv agalrrlgar
+      181 gggkgsnskg tgrpnspqrl drlsgladqm vargnlgvyq etrerlamrl kglgcraqgs
+      241 hdptpppsld mfaeevaege letptptqre eaesagdglm dvmweykwen tgdaelygpf
+      301 tsaqmqtwvs egyfpdgvyc rkldppggqf ynskridfel yt
+//
+LOCUS       NP_073207                245 aa            linear   PRI 23-SEP-2018
+DEFINITION  paired mesoderm homeobox protein 1 isoform pmx-1b [Homo sapiens].
+ACCESSION   NP_073207
+VERSION     NP_073207.1
+DBSOURCE    REFSEQ: accession NM_022716.3
+KEYWORDS    RefSeq.
+SOURCE      Homo sapiens (human)
+  ORGANISM  Homo sapiens
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
+            Catarrhini; Hominidae; Homo.
+REFERENCE   1  (residues 1 to 245)
+  AUTHORS   Tucker NR, Dolmatova EV, Lin H, Cooper RR, Ye J, Hucker WJ, Jameson
+            HS, Parsons VA, Weng LC, Mills RW, Sinner MF, Imakaev M,
+            Leyton-Mange J, Vlahakes G, Benjamin EJ, Lunetta KL, Lubitz SA,
+            Mirny L, Milan DJ and Ellinor PT.
+  TITLE     Diminished PRRX1 Expression Is Associated With Increased Risk of
+            Atrial Fibrillation and Shortening of the Cardiac Action Potential
+  JOURNAL   Circ Cardiovasc Genet 10 (5) (2017)
+   PUBMED   28974514
+  REMARK    GeneRIF: identified a functional genetic variant that alters PRRX1
+            expression, ultimately resulting in electrophysiological
+            alterations in atrial myocytes that may promote Atrial
+            fibrillation.
+REFERENCE   2  (residues 1 to 245)
+  AUTHORS   Li Y, Wang W, Wang F, Wu Q, Li W, Zhong X, Tian K, Zeng T, Gao L,
+            Liu Y, Li S, Jiang X, Du G and Zhou Y.
+  TITLE     Paired related homeobox 1 transactivates dopamine D2 receptor to
+            maintain propagation and tumorigenicity of glioma-initiating cells
+  JOURNAL   J Mol Cell Biol 9 (4), 302-314 (2017)
+   PUBMED   28486630
+  REMARK    GeneRIF: The glioma-initiating cells self-renewal function
+            regulated by PRRX1 is mediated by dopamine D2 receptor (DRD2).
+            PRRX1 directly binds to the DRD2 promoter and transactivates its
+            expression in glioma-initiating cells.
+REFERENCE   3  (residues 1 to 245)
+  AUTHORS   Fan M, Shen J, Liu H, Wen Z, Yang J, Yang P, Liu K, Chang Y, Duan J
+            and Lu K.
+  TITLE     Downregulation of PRRX1 via the p53-dependent signaling pathway
+            predicts poor prognosis in hepatocellular carcinoma
+  JOURNAL   Oncol. Rep. 38 (2), 1083-1090 (2017)
+   PUBMED   28677793
+  REMARK    GeneRIF: Low PRRX1 expression is associated with hepatocellular
+            carcinoma.
+REFERENCE   4  (residues 1 to 245)
+  AUTHORS   Wang B, Chen Q, Cao Y, Ma X, Yin C, Jia Y, Zang A and Fan W.
+  TITLE     LGR5 Is a Gastric Cancer Stem Cell Marker Associated with Stemness
+            and the EMT Signature Genes NANOG, NANOGP8, PRRX1, TWIST1, and BMI1
+  JOURNAL   PLoS ONE 11 (12), e0168904 (2016)
+   PUBMED   28033430
+  REMARK    GeneRIF: LGR5-expressing fraction of CD54+ cells represents gastric
+            cancer CSCs, in which LGR5 is closely associated with stemness and
+            EMT core genes
+            Publication Status: Online-Only
+REFERENCE   5  (residues 1 to 245)
+  AUTHORS   Lv ZD, Yang ZC, Liu XP, Jin LY, Dong Q, Qu HL, Li FN, Kong B, Sun
+            J, Zhao JJ and Wang HB.
+  TITLE     Silencing of Prrx1b suppresses cellular proliferation, migration,
+            invasion and epithelial-mesenchymal transition in triple-negative
+            breast cancer
+  JOURNAL   J. Cell. Mol. Med. 20 (9), 1640-1650 (2016)
+   PUBMED   27027510
+  REMARK    GeneRIF: Prrx1b may be an important regulator of
+            epithelial-mesenchymal transition in Triple-negative breast cancer
+            cells.
+REFERENCE   6  (residues 1 to 245)
+  AUTHORS   Kataoka K, Yoshitomo-Nakagawa K, Shioda S and Nishizawa M.
+  TITLE     A set of Hox proteins interact with the Maf oncoprotein to inhibit
+            its DNA binding, transactivation, and transforming activities
+  JOURNAL   J. Biol. Chem. 276 (1), 819-826 (2001)
+   PUBMED   11036080
+REFERENCE   7  (residues 1 to 245)
+  AUTHORS   Nakamura T, Yamazaki Y, Hatano Y and Miura I.
+  TITLE     NUP98 is fused to PMX1 homeobox gene in human acute myelogenous
+            leukemia with chromosome translocation t(1;11)(q23;p15)
+  JOURNAL   Blood 94 (2), 741-747 (1999)
+   PUBMED   10397741
+REFERENCE   8  (residues 1 to 245)
+  AUTHORS   Grueneberg DA, Henry RW, Brauer A, Novina CD, Cheriyath V, Roy AL
+            and Gilman M.
+  TITLE     A multifunctional DNA-binding protein that promotes the formation
+            of serum response factor/homeodomain complexes: identity to TFII-I
+  JOURNAL   Genes Dev. 11 (19), 2482-2493 (1997)
+   PUBMED   9334314
+REFERENCE   9  (residues 1 to 245)
+  AUTHORS   Grueneberg DA, Simon KJ, Brennan K and Gilman M.
+  TITLE     Sequence-specific targeting of nuclear signal transduction pathways
+            by homeodomain proteins
+  JOURNAL   Mol. Cell. Biol. 15 (6), 3318-3326 (1995)
+   PUBMED   7760827
+REFERENCE   10 (residues 1 to 245)
+  AUTHORS   Grueneberg DA, Natesan S, Alexandre C and Gilman MZ.
+  TITLE     Human and Drosophila homeodomain proteins that enhance the
+            DNA-binding activity of serum response factor
+  JOURNAL   Science 257 (5073), 1089-1095 (1992)
+   PUBMED   1509260
+COMMENT     REVIEWED REFSEQ: This record has been curated by NCBI staff. The
+            reference sequence was derived from BC074993.2, AV750422.1,
+            Z97200.1 and KF455066.1.
+            
+            Summary: The DNA-associated protein encoded by this gene is a
+            member of the paired family of homeobox proteins localized to the
+            nucleus. The protein functions as a transcription co-activator,
+            enhancing the DNA-binding activity of serum response factor, a
+            protein required for the induction of genes by growth and
+            differentiation factors. The protein regulates muscle creatine
+            kinase, indicating a role in the establishment of diverse
+            mesodermal muscle types. Alternative splicing yields two isoforms
+            that differ in abundance and expression patterns. [provided by
+            RefSeq, Jul 2008].
+            
+            Transcript Variant: This variant (pmx-1b) encodes the longer
+            isoform (pmx-1b).
+            
+            Publication Note:  This RefSeq record includes a subset of the
+            publications that are available for this gene. Please see the Gene
+            record to access additional publications.
+            
+            ##Evidence-Data-START##
+            Transcript exon combination :: BC074993.2, SRR1660805.86612.1
+                                           [ECO:0000332]
+            RNAseq introns              :: single sample supports all introns
+                                           SAMEA1965299, SAMEA1966682
+                                           [ECO:0000348]
+            ##Evidence-Data-END##
+FEATURES             Location/Qualifiers
+     source          1..245
+                     /organism="Homo sapiens"
+                     /db_xref="taxon:9606"
+                     /chromosome="1"
+                     /map="1q24.2"
+     Protein         1..245
+                     /product="paired mesoderm homeobox protein 1 isoform
+                     pmx-1b"
+                     /note="homeobox protein PHOX1; paired mesoderm homeobox 1
+                     isoform pmx-1b"
+                     /calculated_mol_wt=27165
+     variation       4
+                     /replace="r"
+                     /db_xref="dbSNP:980757253"
+     variation       4
+                     /replace="t"
+                     /db_xref="dbSNP:938234243"
+     variation       5
+                     /replace="c"
+                     /db_xref="dbSNP:1476502323"
+     variation       5
+                     /replace="y"
+                     /db_xref="dbSNP:138970767"
+     variation       6
+                     /replace="r"
+                     /db_xref="dbSNP:748513691"
+     variation       7
+                     /replace="n"
+                     /db_xref="dbSNP:1417001664"
+     variation       7
+                     /replace="q"
+                     /db_xref="dbSNP:1462039714"
+     variation       8
+                     /replace="i"
+                     /db_xref="dbSNP:772523348"
+     variation       9
+                     /replace="l"
+                     /db_xref="dbSNP:1387125418"
+     variation       11
+                     /replace="g"
+                     /db_xref="dbSNP:778274576"
+     variation       11
+                     /replace="q"
+                     /db_xref="dbSNP:1296706757"
+     variation       11
+                     /replace="r"
+                     /db_xref="dbSNP:747563259"
+     variation       12
+                     /replace="q"
+                     /db_xref="dbSNP:377126967"
+     variation       13
+                     /replace="p"
+                     /db_xref="dbSNP:1215045317"
+     variation       13
+                     /replace="r"
+                     /db_xref="dbSNP:200885791"
+     variation       13
+                     /replace="s"
+                     /db_xref="dbSNP:775130367"
+     variation       14
+                     /replace="a"
+                     /db_xref="dbSNP:774222912"
+     variation       14
+                     /replace="t"
+                     /db_xref="dbSNP:768368980"
+     variation       14
+                     /replace="v"
+                     /db_xref="dbSNP:1464363985"
+     variation       15
+                     /replace="l"
+                     /db_xref="dbSNP:1185680180"
+     variation       15
+                     /replace="l"
+                     /db_xref="dbSNP:1263510916"
+     variation       15
+                     /replace="r"
+                     /db_xref="dbSNP:1440483766"
+     variation       16
+                     /replace="s"
+                     /db_xref="dbSNP:761732223"
+     variation       17
+                     /replace="g"
+                     /db_xref="dbSNP:1167146574"
+     variation       17
+                     /replace="s"
+                     /db_xref="dbSNP:370044964"
+     variation       18
+                     /replace="l"
+                     /db_xref="dbSNP:1409882371"
+     variation       21
+                     /replace="n"
+                     /db_xref="dbSNP:1453606467"
+     Site            21
+                     /site_type="phosphorylation"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Phosphoserine. {ECO:0000250|UniProtKB:P63014};
+                     propagated from UniProtKB/Swiss-Prot (P54821.2)"
+     variation       22
+                     /replace="p"
+                     /db_xref="dbSNP:1289974282"
+     variation       23
+                     /replace="g"
+                     /db_xref="dbSNP:1387589935"
+     variation       23
+                     /replace="v"
+                     /db_xref="dbSNP:1319221832"
+     variation       24
+                     /replace="h"
+                     /db_xref="dbSNP:750366855"
+     variation       25
+                     /replace="l"
+                     /db_xref="dbSNP:199691593"
+     variation       27
+                     /replace="i"
+                     /db_xref="dbSNP:1355740920"
+     variation       28
+                     /replace="l"
+                     /db_xref="dbSNP:1234780365"
+     variation       30
+                     /replace="a"
+                     /db_xref="dbSNP:1285851729"
+     variation       30
+                     /replace="e"
+                     /db_xref="dbSNP:1213848347"
+     variation       31
+                     /replace="i"
+                     /db_xref="dbSNP:1315825158"
+     variation       32
+                     /replace="n"
+                     /db_xref="dbSNP:1262486932"
+     variation       33
+                     /replace="k"
+                     /db_xref="dbSNP:766353805"
+     variation       33
+                     /replace="l"
+                     /db_xref="dbSNP:766402696"
+     variation       35
+                     /replace="c"
+                     /db_xref="dbSNP:373448980"
+     variation       35
+                     /replace="s"
+                     /db_xref="dbSNP:755085392"
+     variation       37
+                     /replace="g"
+                     /db_xref="dbSNP:1486095295"
+     variation       38
+                     /replace="h"
+                     /db_xref="dbSNP:1190350731"
+     variation       42
+                     /replace="l"
+                     /db_xref="dbSNP:779222950"
+     variation       43
+                     /replace="g"
+                     /db_xref="dbSNP:1160454259"
+     variation       43
+                     /replace="k"
+                     /db_xref="dbSNP:753011444"
+     variation       46
+                     /replace="g"
+                     /db_xref="dbSNP:1366107031"
+     variation       47
+                     /replace="n"
+                     /db_xref="dbSNP:1464830991"
+     variation       48
+                     /replace="i"
+                     /db_xref="dbSNP:1376467098"
+     variation       48
+                     /replace="k"
+                     /db_xref="dbSNP:758738720"
+     variation       48
+                     /replace="l"
+                     /db_xref="dbSNP:945516523"
+     variation       49
+                     /replace="g"
+                     /db_xref="dbSNP:1441023849"
+     variation       50
+                     /replace="a"
+                     /db_xref="dbSNP:376351453"
+     variation       51
+                     /replace="s"
+                     /db_xref="dbSNP:1305797582"
+     variation       51
+                     /replace="v"
+                     /db_xref="dbSNP:1371971212"
+     variation       52
+                     /replace="q"
+                     /db_xref="dbSNP:771528011"
+     variation       53
+                     /replace="a"
+                     /db_xref="dbSNP:1310331234"
+     variation       53
+                     /replace="t"
+                     /db_xref="dbSNP:1309024586"
+     variation       55
+                     /replace="k"
+                     /db_xref="dbSNP:1465629020"
+     variation       56
+                     /replace="n"
+                     /db_xref="dbSNP:370202431"
+     variation       57
+                     /replace="l"
+                     /db_xref="dbSNP:748836293"
+     variation       58
+                     /replace="g"
+                     /db_xref="dbSNP:768154598"
+     variation       58
+                     /replace="s"
+                     /db_xref="dbSNP:1406921492"
+     variation       59
+                     /replace="k"
+                     /db_xref="dbSNP:1213289345"
+     variation       60
+                     /replace="a"
+                     /db_xref="dbSNP:922640205"
+     variation       61
+                     /replace="a"
+                     /db_xref="dbSNP:932931451"
+     variation       61
+                     /replace="g"
+                     /db_xref="dbSNP:774174102"
+     variation       62
+                     /replace="q"
+                     /db_xref="dbSNP:74674242"
+     variation       62
+                     /replace="r"
+                     /db_xref="dbSNP:570603113"
+     variation       63
+                     /replace="n"
+                     /db_xref="dbSNP:547151958"
+     variation       63
+                     /replace="s"
+                     /db_xref="dbSNP:568696723"
+     variation       64
+                     /replace="l"
+                     /db_xref="dbSNP:766340831"
+     variation       64
+                     /replace="p"
+                     /db_xref="dbSNP:1458232191"
+     variation       67
+                     /replace="l"
+                     /db_xref="dbSNP:753817917"
+     variation       67
+                     /replace="s"
+                     /db_xref="dbSNP:1005904543"
+     variation       68
+                     /replace="p"
+                     /db_xref="dbSNP:759679693"
+     variation       68
+                     /replace="q"
+                     /db_xref="dbSNP:1353607741"
+     variation       68
+                     /replace="t"
+                     /db_xref="dbSNP:1038277948"
+     variation       69
+                     /replace="e"
+                     /db_xref="dbSNP:201153811"
+     variation       70
+                     /replace="l"
+                     /db_xref="dbSNP:372174969"
+     variation       71
+                     /replace="i"
+                     /db_xref="dbSNP:1439996918"
+     variation       74
+                     /replace="n"
+                     /db_xref="dbSNP:1054346061"
+     variation       74
+                     /replace="s"
+                     /db_xref="dbSNP:1304161651"
+     variation       76
+                     /replace="n"
+                     /db_xref="dbSNP:1372893101"
+     variation       76
+                     /replace="np"
+                     /db_xref="dbSNP:892666213"
+     variation       76
+                     /replace="t"
+                     /db_xref="dbSNP:758685257"
+     variation       77
+                     /replace="p"
+                     /db_xref="dbSNP:1010165748"
+     variation       78
+                     /replace="k"
+                     /db_xref="dbSNP:575268204"
+     variation       78
+                     /replace="r"
+                     /db_xref="dbSNP:970789095"
+     variation       79
+                     /replace="q"
+                     /db_xref="dbSNP:200693185"
+     variation       80
+                     /replace="n"
+                     /db_xref="dbSNP:1323852736"
+     variation       81
+                     /replace="n"
+                     /db_xref="dbSNP:370699898"
+     variation       82
+                     /replace="d"
+                     /db_xref="dbSNP:1203655118"
+     variation       87
+                     /replace="e"
+                     /db_xref="dbSNP:780332493"
+     variation       88
+                     /replace="e"
+                     /db_xref="dbSNP:746685127"
+     variation       88
+                     /replace="g"
+                     /db_xref="dbSNP:944046701"
+     variation       90
+                     /replace="k"
+                     /db_xref="dbSNP:1218432646"
+     variation       90
+                     /replace="r"
+                     /db_xref="dbSNP:398122375"
+     variation       90
+                     /replace="r"
+                     /db_xref="dbSNP:79567938"
+     variation       91
+                     /replace="-"
+                     /db_xref="dbSNP:1307094883"
+     variation       91
+                     /replace="k"
+                     /db_xref="dbSNP:555593551"
+     variation       92
+                     /replace="e"
+                     /db_xref="dbSNP:398122376"
+     variation       92
+                     /replace="i"
+                     /db_xref="dbSNP:147354859"
+     variation       92
+                     /replace="r"
+                     /db_xref="dbSNP:1383644368"
+     variation       93
+                     /replace="n"
+                     /db_xref="dbSNP:374406599"
+     variation       94
+                     /replace="q"
+                     /db_xref="dbSNP:1176819558"
+     variation       95
+                     /replace="q"
+                     /db_xref="dbSNP:1485111813"
+     variation       96
+                     /replace="m"
+                     /db_xref="dbSNP:1172618535"
+     variation       96
+                     /replace="r"
+                     /db_xref="dbSNP:1408239376"
+     variation       97
+                     /replace="n"
+                     /db_xref="dbSNP:1188234376"
+     variation       98
+                     /replace="r"
+                     /db_xref="dbSNP:745803147"
+     Region          99..150
+                     /region_name="Homeobox"
+                     /note="Homeobox domain; pfam00046"
+                     /db_xref="CDD:306543"
+     Site            order(100,140,143..144,147)
+                     /site_type="other"
+                     /note="specific DNA base contacts [nucleotide binding]"
+                     /db_xref="CDD:238039"
+     variation       101
+                     /replace="f"
+                     /db_xref="dbSNP:769734367"
+     variation       102
+                     /replace="n"
+                     /db_xref="dbSNP:34501887"
+     variation       102
+                     /replace="s"
+                     /db_xref="dbSNP:1157912949"
+     variation       104
+                     /replace="g"
+                     /db_xref="dbSNP:75715275"
+     variation       104
+                     /replace="s"
+                     /db_xref="dbSNP:764253513"
+     variation       105
+                     /replace="q"
+                     /db_xref="dbSNP:536563046"
+     variation       106
+                     /replace="l"
+                     /db_xref="dbSNP:1374643294"
+     variation       106
+                     /replace="l"
+                     /db_xref="dbSNP:1391209172"
+     variation       108
+                     /replace="v"
+                     /db_xref="dbSNP:1414329830"
+     variation       110
+                     /replace="e"
+                     /db_xref="dbSNP:774611100"
+     variation       111
+                     /replace="c"
+                     /db_xref="dbSNP:761985508"
+     variation       111
+                     /replace="h"
+                     /db_xref="dbSNP:767923329"
+     variation       111
+                     /replace="r"
+                     /db_xref="dbSNP:750814009"
+     variation       113
+                     /replace="s"
+                     /db_xref="dbSNP:387906667"
+     variation       115
+                     /replace="q"
+                     /db_xref="dbSNP:1400715118"
+     variation       115
+                     /replace="r"
+                     /db_xref="dbSNP:756620309"
+     variation       117
+                     /replace="h"
+                     /db_xref="dbSNP:752202563"
+     variation       118
+                     /replace="y"
+                     /db_xref="dbSNP:200583557"
+     variation       119
+                     /replace="p"
+                     /db_xref="dbSNP:777187307"
+     variation       121
+                     /replace="g"
+                     /db_xref="dbSNP:931929789"
+     variation       122
+                     /replace="f"
+                     /db_xref="dbSNP:751218749"
+     variation       123
+                     /replace="a"
+                     /db_xref="dbSNP:1282088171"
+     variation       124
+                     /replace="*"
+                     /db_xref="dbSNP:1435541934"
+     variation       129
+                     /replace="g"
+                     /db_xref="dbSNP:756917059"
+     variation       129
+                     /replace="l"
+                     /db_xref="dbSNP:780981143"
+     variation       130
+                     /replace="g"
+                     /db_xref="dbSNP:1471089409"
+     variation       130
+                     /replace="q"
+                     /db_xref="dbSNP:747075971"
+     variation       130
+                     /replace="r"
+                     /db_xref="dbSNP:1243539054"
+     variation       132
+                     /replace="n"
+                     /db_xref="dbSNP:769070873"
+     variation       133
+                     /replace="l"
+                     /db_xref="dbSNP:749273327"
+     variation       134
+                     /replace="t"
+                     /db_xref="dbSNP:768695225"
+     variation       135
+                     /replace="a"
+                     /db_xref="dbSNP:774365443"
+     variation       136
+                     /replace="a"
+                     /db_xref="dbSNP:377339646"
+     variation       137
+                     /replace="r"
+                     /db_xref="dbSNP:772199894"
+     variation       138
+                     /replace="g"
+                     /db_xref="dbSNP:1336441834"
+     variation       145
+                     /replace="*"
+                     /db_xref="dbSNP:867150048"
+     variation       145
+                     /replace="q"
+                     /db_xref="dbSNP:1270473736"
+     variation       147
+                     /replace="a"
+                     /db_xref="dbSNP:1230967727"
+     variation       147
+                     /replace="t"
+                     /db_xref="dbSNP:1340836613"
+     variation       148
+                     /replace="t"
+                     /db_xref="dbSNP:1272026144"
+     variation       149
+                     /replace="l"
+                     /db_xref="dbSNP:1468821005"
+     variation       150
+                     /replace="c"
+                     /db_xref="dbSNP:1191024290"
+     variation       150
+                     /replace="h"
+                     /db_xref="dbSNP:753046896"
+     variation       150
+                     /replace="r"
+                     /db_xref="dbSNP:772286122"
+     variation       155
+                     /replace="a"
+                     /db_xref="dbSNP:1446279126"
+     variation       155
+                     /replace="t"
+                     /db_xref="dbSNP:773280049"
+     variation       156
+                     /replace="i"
+                     /db_xref="dbSNP:777193663"
+     variation       156
+                     /replace="t"
+                     /db_xref="dbSNP:771417715"
+     variation       156
+                     /replace="v"
+                     /db_xref="dbSNP:147184063"
+     variation       157
+                     /replace="l"
+                     /db_xref="dbSNP:765665200"
+     variation       158
+                     /replace="t"
+                     /db_xref="dbSNP:149731143"
+     Site            160
+                     /site_type="acetylation"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="N6-acetyllysine. {ECO:0000250|UniProtKB:P63013};
+                     propagated from UniProtKB/Swiss-Prot (P54821.2)"
+     variation       161
+                     /replace="k"
+                     /db_xref="dbSNP:751042611"
+     variation       162
+                     /replace="p"
+                     /db_xref="dbSNP:761253714"
+     variation       162
+                     /replace="v"
+                     /db_xref="dbSNP:1352996112"
+     variation       163
+                     /replace="s"
+                     /db_xref="dbSNP:1462368009"
+     variation       164
+                     /replace="i"
+                     /db_xref="dbSNP:767104891"
+     variation       164
+                     /replace="l"
+                     /db_xref="dbSNP:750047066"
+     variation       165
+                     /replace="h"
+                     /db_xref="dbSNP:755834640"
+     variation       165
+                     /replace="i"
+                     /db_xref="dbSNP:1241390485"
+     variation       165
+                     /replace="l"
+                     /db_xref="dbSNP:766154372"
+     variation       167
+                     /replace="c"
+                     /db_xref="dbSNP:753649456"
+     variation       167
+                     /replace="s"
+                     /db_xref="dbSNP:1019591697"
+     variation       167
+                     /replace="t"
+                     /db_xref="dbSNP:1341946248"
+     variation       168
+                     /replace="s"
+                     /db_xref="dbSNP:201661471"
+     variation       170
+                     /replace="r"
+                     /db_xref="dbSNP:1292072443"
+     variation       171
+                     /replace="d"
+                     /db_xref="dbSNP:374262561"
+     variation       172
+                     /replace="m"
+                     /db_xref="dbSNP:1246892874"
+     variation       172
+                     /replace="v"
+                     /db_xref="dbSNP:778735074"
+     variation       173
+                     /replace="t"
+                     /db_xref="dbSNP:1349653336"
+     variation       174
+                     /replace="a"
+                     /db_xref="dbSNP:758374162"
+     variation       174
+                     /replace="t"
+                     /db_xref="dbSNP:748163693"
+     variation       174
+                     /replace="v"
+                     /db_xref="dbSNP:1399323476"
+     variation       175
+                     /replace="l"
+                     /db_xref="dbSNP:201365132"
+     variation       176
+                     /replace="k"
+                     /db_xref="dbSNP:747220791"
+     variation       177
+                     /replace="e"
+                     /db_xref="dbSNP:771291245"
+     variation       178
+                     /replace="l"
+                     /db_xref="dbSNP:1475611608"
+     variation       179
+                     /replace="i"
+                     /db_xref="dbSNP:777067027"
+     variation       179
+                     /replace="v"
+                     /db_xref="dbSNP:1167505948"
+     variation       182
+                     /replace="c"
+                     /db_xref="dbSNP:1453716808"
+     variation       182
+                     /replace="h"
+                     /db_xref="dbSNP:746264594"
+     variation       183
+                     /replace="p"
+                     /db_xref="dbSNP:1479628790"
+     variation       185
+                     /replace="l"
+                     /db_xref="dbSNP:770288919"
+     variation       185
+                     /replace="p"
+                     /db_xref="dbSNP:763555813"
+     variation       186
+                     /replace="r"
+                     /db_xref="dbSNP:1311961199"
+     variation       187
+                     /replace="l"
+                     /db_xref="dbSNP:1397318312"
+     variation       187
+                     /replace="t"
+                     /db_xref="dbSNP:766933694"
+     variation       189
+                     /replace="n"
+                     /db_xref="dbSNP:372098442"
+     variation       192
+                     /replace="c"
+                     /db_xref="dbSNP:1171806058"
+     variation       194
+                     /replace="e"
+                     /db_xref="dbSNP:766027745"
+     variation       194
+                     /replace="g"
+                     /db_xref="dbSNP:753593273"
+     variation       194
+                     /replace="r"
+                     /db_xref="dbSNP:760267315"
+     variation       195
+                     /replace="d"
+                     /db_xref="dbSNP:925093335"
+     variation       195
+                     /replace="r"
+                     /db_xref="dbSNP:1423298383"
+     variation       195
+                     /replace="t"
+                     /db_xref="dbSNP:754704137"
+     variation       196
+                     /replace="a"
+                     /db_xref="dbSNP:758418083"
+     variation       196
+                     /replace="e"
+                     /db_xref="dbSNP:765116280"
+     variation       197
+                     /replace="f"
+                     /db_xref="dbSNP:1483603880"
+     Site            197
+                     /site_type="phosphorylation"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Phosphoserine. {ECO:0000255}; propagated from
+                     UniProtKB/Swiss-Prot (P54821.2)"
+     variation       198
+                     /replace="l"
+                     /db_xref="dbSNP:1464419142"
+     variation       200
+                     /replace="s"
+                     /db_xref="dbSNP:151333816"
+     variation       201
+                     /replace="t"
+                     /db_xref="dbSNP:755301434"
+     variation       202
+                     /replace="t"
+                     /db_xref="dbSNP:1182355391"
+     variation       205
+                     /replace="c"
+                     /db_xref="dbSNP:368848007"
+     variation       205
+                     /replace="y"
+                     /db_xref="dbSNP:779313262"
+     variation       206
+                     /replace="p"
+                     /db_xref="dbSNP:748638512"
+     variation       207
+                     /replace="a"
+                     /db_xref="dbSNP:772578376"
+     variation       207
+                     /replace="p"
+                     /db_xref="dbSNP:1004863847"
+     variation       207
+                     /replace="v"
+                     /db_xref="dbSNP:1360944632"
+     variation       208
+                     /replace="t"
+                     /db_xref="dbSNP:745412967"
+     variation       210
+                     /replace="t"
+                     /db_xref="dbSNP:1353625176"
+     variation       212
+                     /replace="h"
+                     /db_xref="dbSNP:373373102"
+     variation       212
+                     /replace="n"
+                     /db_xref="dbSNP:1381914812"
+     variation       212
+                     /replace="s"
+                     /db_xref="dbSNP:775185451"
+     variation       213
+                     /replace="g"
+                     /db_xref="dbSNP:762735513"
+     variation       213
+                     /replace="r"
+                     /db_xref="dbSNP:531624636"
+     variation       214
+                     /replace="s"
+                     /db_xref="dbSNP:140550541"
+     variation       216
+                     /replace="p"
+                     /db_xref="dbSNP:1374699350"
+     variation       217
+                     /replace="d"
+                     /db_xref="dbSNP:761785582"
+     variation       218
+                     /replace="i"
+                     /db_xref="dbSNP:767497492"
+     variation       218
+                     /replace="t"
+                     /db_xref="dbSNP:1460822653"
+     Region          219..235
+                     /region_name="OAR"
+                     /note="OAR domain; pfam03826"
+                     /db_xref="CDD:309087"
+     variation       219
+                     /replace="d"
+                     /db_xref="dbSNP:1297444584"
+     variation       219
+                     /replace="n"
+                     /db_xref="dbSNP:773128155"
+     variation       220
+                     /replace="r"
+                     /db_xref="dbSNP:760835136"
+     variation       221
+                     /replace="t"
+                     /db_xref="dbSNP:766421515"
+     Region          222..235
+                     /region_name="OAR. {ECO:0000255|PROSITE-ProRule:PRU00138}"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="propagated from UniProtKB/Swiss-Prot (P54821.2)"
+     variation       223
+                     /replace="n"
+                     /db_xref="dbSNP:754082400"
+     variation       226
+                     /replace="d"
+                     /db_xref="dbSNP:1338416766"
+     variation       227
+                     /replace="l"
+                     /db_xref="dbSNP:760448348"
+     variation       227
+                     /replace="p"
+                     /db_xref="dbSNP:867033952"
+     variation       229
+                     /replace="l"
+                     /db_xref="dbSNP:1461459333"
+     variation       230
+                     /replace="n"
+                     /db_xref="dbSNP:1176551020"
+     variation       233
+                     /replace="k"
+                     /db_xref="dbSNP:755246526"
+     variation       234
+                     /replace="c"
+                     /db_xref="dbSNP:765524769"
+     variation       234
+                     /replace="y"
+                     /db_xref="dbSNP:753062905"
+     variation       237
+                     /replace="*"
+                     /db_xref="dbSNP:1160655825"
+     variation       238
+                     /replace="m"
+                     /db_xref="dbSNP:758861054"
+     variation       240
+                     /replace="q"
+                     /db_xref="dbSNP:778365686"
+     variation       241
+                     /replace="l"
+                     /db_xref="dbSNP:1334855472"
+     variation       241
+                     /replace="v"
+                     /db_xref="dbSNP:960692524"
+     variation       242
+                     /replace="s"
+                     /db_xref="dbSNP:201359953"
+     variation       243
+                     /replace="r"
+                     /db_xref="dbSNP:1341271119"
+     variation       243
+                     /replace="t"
+                     /db_xref="dbSNP:755620260"
+     CDS             1..245
+                     /gene="PRRX1"
+                     /gene_synonym="AGOTC; PHOX1; PMX1; PRX-1; PRX1"
+                     /coded_by="NM_022716.3:48..785"
+                     /note="isoform pmx-1b is encoded by transcript variant
+                     pmx-1b"
+                     /db_xref="CCDS:CCDS1290.1"
+                     /db_xref="GeneID:5396"
+                     /db_xref="HGNC:HGNC:9142"
+                     /db_xref="MIM:167420"
+ORIGIN      
+        1 mtssyghvle rqpalggrld spgnldtlqa kknfsvshll dleeagdmva aqadenvgea
+       61 grsllespgl tsgsdtpqqd ndqlnseekk krkqrrnrtt fnssqlqale rvferthypd
+      121 afvredlarr vnltearvqv wfqnrrakfr rneramlank nasllksysg dvtaveqpiv
+      181 prpaprptdy lswgtaspys amatysatca nnspaqginm ansianlrlk akeyslqrnq
+      241 vptvn
+//
+LOCUS       NP_001253986             388 aa            linear   PRI 23-SEP-2018
+DEFINITION  caspase-7 isoform e [Homo sapiens].
+ACCESSION   NP_001253986
+VERSION     NP_001253986.1
+DBSOURCE    REFSEQ: accession NM_001267057.1
+KEYWORDS    RefSeq.
+SOURCE      Homo sapiens (human)
+  ORGANISM  Homo sapiens
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
+            Catarrhini; Hominidae; Homo.
+REFERENCE   1  (residues 1 to 388)
+  AUTHORS   Park JK, Doseff AI and Schmittgen TD.
+  TITLE     MicroRNAs Targeting Caspase-3 and -7 in PANC-1 Cells
+  JOURNAL   Int J Mol Sci 19 (4), E1206 (2018)
+   PUBMED   29659498
+  REMARK    GeneRIF: overexpressed miR-337-3p and miR-17-5p/miR-132-3p/-212-3p
+            can regulate executioner caspases-3 and -7, respectively.
+            Publication Status: Online-Only
+REFERENCE   2  (residues 1 to 388)
+  AUTHORS   Martini C, Bedard M, Lavigne P and Denault JB.
+  TITLE     Characterization of Hsp90 Co-Chaperone p23 Cleavage by Caspase-7
+            Uncovers a Peptidase-Substrate Interaction Involving Intrinsically
+            Disordered Regions
+  JOURNAL   Biochemistry 56 (38), 5099-5111 (2017)
+   PUBMED   28863261
+  REMARK    GeneRIF: Caspase-7 regions involved in the interaction with Hsp90
+            co-chaperone p23 and substrate recognition.
+REFERENCE   3  (residues 1 to 388)
+  AUTHORS   Peng T and Dou QP.
+  TITLE     Everolimus Inhibits Growth of Gemcitabine-Resistant Pancreatic
+            Cancer Cells via Induction of Caspase-Dependent Apoptosis and G2 /M
+            Arrest
+  JOURNAL   J. Cell. Biochem. 118 (9), 2722-2730 (2017)
+   PUBMED   28165150
+  REMARK    GeneRIF: Everolimus also induced higher levels of caspase-3/-7
+            activation in GR over GS cells, and everolimus-mediated mTOR
+            inhibition lead to G2 arrest in GR cells but G1 arrest in GS cells.
+REFERENCE   4  (residues 1 to 388)
+  AUTHORS   Eron SJ, Raghupathi K and Hardy JA.
+  TITLE     Dual Site Phosphorylation of Caspase-7 by PAK2 Blocks Apoptotic
+            Activity by Two Distinct Mechanisms
+  JOURNAL   Structure 25 (1), 27-39 (2017)
+   PUBMED   27889207
+  REMARK    GeneRIF: Results show that caspase-7 is phosphorylated by PAK2 at
+            S239 which inhibits its activity by two divergent mechanisms prior
+            to and following caspase activation: initial phosphorylation
+            allosterically slows activation by upstream initiator caspases by
+            impeding cleavage at the intersubunit linker and a second
+            phosphorylation site directly blocks substrate binding.
+REFERENCE   5  (residues 1 to 388)
+  AUTHORS   Riedl SJ, Fuentes-Prior P, Renatus M, Kairies N, Krapp S, Huber R,
+            Salvesen GS and Bode W.
+  TITLE     Structural basis for the activation of human procaspase-7
+  JOURNAL   Proc. Natl. Acad. Sci. U.S.A. 98 (26), 14790-14795 (2001)
+   PUBMED   11752425
+REFERENCE   6  (residues 1 to 388)
+  AUTHORS   Tiso N, Pallavicini A, Muraro T, Zimbello R, Apolloni E, Valle G,
+            Lanfranchi G and Danieli GA.
+  TITLE     Chromosomal localization of the human genes, CPP32, Mch2, Mch3, and
+            Ich-1, involved in cellular apoptosis
+  JOURNAL   Biochem. Biophys. Res. Commun. 225 (3), 983-989 (1996)
+   PUBMED   8780721
+REFERENCE   7  (residues 1 to 388)
+  AUTHORS   Lippke JA, Gu Y, Sarnecki C, Caron PR and Su MS.
+  TITLE     Identification and characterization of CPP32/Mch2 homolog 1, a
+            novel cysteine protease similar to CPP32
+  JOURNAL   J. Biol. Chem. 271 (4), 1825-1828 (1996)
+   PUBMED   8567622
+REFERENCE   8  (residues 1 to 388)
+  AUTHORS   Fernandes-Alnemri T, Takahashi A, Armstrong R, Krebs J, Fritz L,
+            Tomaselli KJ, Wang L, Yu Z, Croce CM, Salveson G et al.
+  TITLE     Mch3, a novel human apoptotic cysteine protease highly related to
+            CPP32
+  JOURNAL   Cancer Res. 55 (24), 6045-6052 (1995)
+   PUBMED   8521391
+REFERENCE   9  (residues 1 to 388)
+  AUTHORS   Fernandes-Alnemri T, Litwack G and Alnemri ES.
+  TITLE     CPP32, a novel human apoptotic protein with homology to
+            Caenorhabditis elegans cell death protein Ced-3 and mammalian
+            interleukin-1 beta-converting enzyme
+  JOURNAL   J. Biol. Chem. 269 (49), 30761-30764 (1994)
+   PUBMED   7983002
+REFERENCE   10 (residues 1 to 388)
+  AUTHORS   Olson,R.E., Morello,J.A. and Kieff,E.D.
+  TITLE     Antibiotic treatment of oral anaerobic infections
+  JOURNAL   J Oral Surg 33 (8), 619-621 (1975)
+   PUBMED   1056466
+COMMENT     REVIEWED REFSEQ: This record has been curated by NCBI staff. The
+            reference sequence was derived from U67206.1, AL627395.14,
+            AK301437.1, BC015799.1, BM976488.1 and BQ006259.1.
+            
+            Summary: This gene encodes a member of the cysteine-aspartic acid
+            protease (caspase) family. Sequential activation of caspases plays
+            a central role in the execution-phase of cell apoptosis. Caspases
+            exist as inactive proenzymes which undergo proteolytic processing
+            at conserved aspartic residues to produce two subunits, large and
+            small, that dimerize to form the active enzyme. The precursor of
+            the encoded protein is cleaved by caspase 3 and 10, is activated
+            upon cell death stimuli and induces apoptosis. Alternatively
+            spliced transcript variants encoding multiple isoforms have been
+            observed for this gene. [provided by RefSeq, May 2012].
+            
+            Transcript Variant: This variant (f) lacks an internal exon in the
+            5' region and initiates translation at an alternate upstream start
+            codon, compared to variant d. The encoded isoform (e) is longer and
+            has a distinct N-terminus, compared to isoform delta.
+            
+            Sequence Note: This RefSeq record was created from transcript and
+            genomic sequence data to make the sequence consistent with the
+            reference genome assembly. The genomic coordinates used for the
+            transcript record were based on transcript alignments.
+            
+            Publication Note:  This RefSeq record includes a subset of the
+            publications that are available for this gene. Please see the Gene
+            record to access additional publications.
+            
+            ##Evidence-Data-START##
+            Transcript exon combination :: ERR279868.3327.1, AK301437.1
+                                           [ECO:0000332]
+            RNAseq introns              :: single sample supports all introns
+                                           SAMEA1965299, SAMEA1968540
+                                           [ECO:0000348]
+            ##Evidence-Data-END##
+FEATURES             Location/Qualifiers
+     source          1..388
+                     /organism="Homo sapiens"
+                     /db_xref="taxon:9606"
+                     /chromosome="10"
+                     /map="10q25.3"
+     Protein         1..388
+                     /product="caspase-7 isoform e"
+                     /EC_number="3.4.22.60"
+                     /note="caspase 7, apoptosis-related cysteine protease;
+                     ICE-like apoptotic protease 3; apoptotic protease MCH-3;
+                     caspase 7, apoptosis-related cysteine peptidase"
+                     /calculated_mol_wt=43597
+     variation       1
+                     /replace="i"
+                     /db_xref="dbSNP:1302749947"
+     variation       1
+                     /replace="l"
+                     /db_xref="dbSNP:1422920679"
+     variation       1
+                     /replace="t"
+                     /db_xref="dbSNP:768334849"
+     variation       2
+                     /replace="c"
+                     /db_xref="dbSNP:966880197"
+     variation       2
+                     /replace="h"
+                     /db_xref="dbSNP:1346587887"
+     variation       3
+                     /replace="a"
+                     /db_xref="dbSNP:770055553"
+     variation       3
+                     /replace="t"
+                     /db_xref="dbSNP:1452938522"
+     variation       4
+                     /replace="e"
+                     /db_xref="dbSNP:1478101375"
+     variation       4
+                     /replace="g"
+                     /db_xref="dbSNP:1157495205"
+     variation       4
+                     /replace="r"
+                     /db_xref="dbSNP:541192156"
+     variation       6
+                     /replace="p"
+                     /db_xref="dbSNP:28411397"
+     variation       6
+                     /replace="r"
+                     /db_xref="dbSNP:1388579913"
+     variation       7
+                     /replace="v"
+                     /db_xref="dbSNP:530027717"
+     variation       9
+                     /replace="l"
+                     /db_xref="dbSNP:1321119419"
+     variation       9
+                     /replace="l"
+                     /db_xref="dbSNP:1402404009"
+     variation       10
+                     /replace="g"
+                     /db_xref="dbSNP:1438440469"
+     variation       10
+                     /replace="s"
+                     /db_xref="dbSNP:1393515117"
+     variation       11
+                     /replace="a"
+                     /db_xref="dbSNP:1328245262"
+     variation       12
+                     /replace="f"
+                     /db_xref="dbSNP:1331916757"
+     variation       12
+                     /replace="s"
+                     /db_xref="dbSNP:1238517690"
+     variation       14
+                     /replace="c"
+                     /db_xref="dbSNP:762586860"
+     variation       14
+                     /replace="p"
+                     /db_xref="dbSNP:1352867539"
+     variation       14
+                     /replace="r"
+                     /db_xref="dbSNP:1277887028"
+     variation       15
+                     /replace="a"
+                     /db_xref="dbSNP:548170399"
+     variation       15
+                     /replace="p"
+                     /db_xref="dbSNP:749820659"
+     variation       16
+                     /replace="a"
+                     /db_xref="dbSNP:575255504"
+     variation       16
+                     /replace="e"
+                     /db_xref="dbSNP:1215922271"
+     variation       17
+                     /replace="h"
+                     /db_xref="dbSNP:1451822046"
+     variation       17
+                     /replace="p"
+                     /db_xref="dbSNP:1425706730"
+     variation       17
+                     /replace="s"
+                     /db_xref="dbSNP:561371390"
+     variation       18
+                     /replace="i"
+                     /db_xref="dbSNP:538305269"
+     variation       18
+                     /replace="n"
+                     /db_xref="dbSNP:1476753124"
+     variation       18
+                     /replace="p"
+                     /db_xref="dbSNP:531563540"
+     variation       18
+                     /replace="t"
+                     /db_xref="dbSNP:549874372"
+     variation       19
+                     /replace="i"
+                     /db_xref="dbSNP:7921977"
+     variation       20
+                     /replace="a"
+                     /db_xref="dbSNP:1473271609"
+     variation       20
+                     /replace="l"
+                     /db_xref="dbSNP:921584824"
+     variation       20
+                     /replace="p"
+                     /db_xref="dbSNP:1417066753"
+     variation       21
+                     /replace="n"
+                     /db_xref="dbSNP:532591597"
+     variation       21
+                     /replace="r"
+                     /db_xref="dbSNP:547614018"
+     variation       23
+                     /replace="g"
+                     /db_xref="dbSNP:1391132537"
+     variation       23
+                     /replace="r"
+                     /db_xref="dbSNP:1193659855"
+     variation       24
+                     /replace="q"
+                     /db_xref="dbSNP:923045272"
+     variation       24
+                     /replace="r"
+                     /db_xref="dbSNP:1327075145"
+     variation       24
+                     /replace="w"
+                     /db_xref="dbSNP:1382563217"
+     variation       25
+                     /replace="y"
+                     /db_xref="dbSNP:1337652021"
+     variation       26
+                     /replace="n"
+                     /db_xref="dbSNP:1445080317"
+     variation       26
+                     /replace="r"
+                     /db_xref="dbSNP:1410508127"
+     variation       27
+                     /replace="a"
+                     /db_xref="dbSNP:1293276943"
+     variation       27
+                     /replace="p"
+                     /db_xref="dbSNP:1333350554"
+     variation       29
+                     /replace="p"
+                     /db_xref="dbSNP:1266432456"
+     variation       29
+                     /replace="q"
+                     /db_xref="dbSNP:931760977"
+     variation       29
+                     /replace="s"
+                     /db_xref="dbSNP:886173541"
+     variation       31
+                     /replace="q"
+                     /db_xref="dbSNP:940538642"
+     variation       32
+                     /replace="p"
+                     /db_xref="dbSNP:769359939"
+     variation       33
+                     /replace="m"
+                     /db_xref="dbSNP:1339083931"
+     variation       33
+                     /replace="r"
+                     /db_xref="dbSNP:899089737"
+     variation       34
+                     /replace="a"
+                     /db_xref="dbSNP:866409790"
+     variation       35
+                     /replace="s"
+                     /db_xref="dbSNP:1247978892"
+     variation       35
+                     /replace="v"
+                     /db_xref="dbSNP:1001424614"
+     variation       36
+                     /replace="r"
+                     /db_xref="dbSNP:1442522432"
+     variation       36
+                     /replace="t"
+                     /db_xref="dbSNP:774652701"
+     variation       37
+                     /replace="l"
+                     /db_xref="dbSNP:773602269"
+     variation       37
+                     /replace="p"
+                     /db_xref="dbSNP:1422893254"
+     variation       37
+                     /replace="s"
+                     /db_xref="dbSNP:772372293"
+     variation       38
+                     /replace="a"
+                     /db_xref="dbSNP:1036299787"
+     variation       38
+                     /replace="f"
+                     /db_xref="dbSNP:1474203044"
+     variation       38
+                     /replace="s"
+                     /db_xref="dbSNP:1189473070"
+     variation       39
+                     /replace="a"
+                     /db_xref="dbSNP:1013993472"
+     variation       40
+                     /replace="a"
+                     /db_xref="dbSNP:1013433021"
+     variation       40
+                     /replace="s"
+                     /db_xref="dbSNP:1461267866"
+     variation       41
+                     /replace="p"
+                     /db_xref="dbSNP:566127159"
+     variation       41
+                     /replace="q"
+                     /db_xref="dbSNP:1372629017"
+     variation       44
+                     /replace="*"
+                     /db_xref="dbSNP:1312353668"
+     variation       44
+                     /replace="s"
+                     /db_xref="dbSNP:10553596"
+     variation       47
+                     /replace="l"
+                     /db_xref="dbSNP:966765634"
+     variation       48
+                     /replace="*"
+                     /db_xref="dbSNP:1353598528"
+     variation       49
+                     /replace="l"
+                     /db_xref="dbSNP:764999068"
+     variation       49
+                     /replace="l"
+                     /db_xref="dbSNP:978235189"
+     variation       49
+                     /replace="p"
+                     /db_xref="dbSNP:1314030450"
+     variation       50
+                     /replace="e"
+                     /db_xref="dbSNP:1032408725"
+     variation       51
+                     /replace="g"
+                     /db_xref="dbSNP:536993190"
+     variation       52
+                     /replace="l"
+                     /db_xref="dbSNP:775492427"
+     variation       52
+                     /replace="p"
+                     /db_xref="dbSNP:1253390925"
+     variation       53
+                     /replace="*"
+                     /db_xref="dbSNP:1383231973"
+     variation       53
+                     /replace="h"
+                     /db_xref="dbSNP:762837938"
+     variation       54
+                     /replace="p"
+                     /db_xref="dbSNP:1205379764"
+     variation       54
+                     /replace="t"
+                     /db_xref="dbSNP:1381100757"
+     variation       55
+                     /replace="l"
+                     /db_xref="dbSNP:1245682881"
+     variation       56
+                     /replace="l"
+                     /db_xref="dbSNP:958048787"
+     variation       58
+                     /replace="e"
+                     /db_xref="dbSNP:751018670"
+     variation       59
+                     /replace="p"
+                     /db_xref="dbSNP:140427264"
+     variation       60
+                     /replace="r"
+                     /db_xref="dbSNP:1183567076"
+     variation       60
+                     /replace="r"
+                     /db_xref="dbSNP:1256769331"
+     variation       61
+                     /replace="k"
+                     /db_xref="dbSNP:958293524"
+     variation       61
+                     /replace="r"
+                     /db_xref="dbSNP:977027695"
+     variation       62
+                     /replace="d"
+                     /db_xref="dbSNP:766821503"
+     variation       62
+                     /replace="l"
+                     /db_xref="dbSNP:577721654"
+     variation       62
+                     /replace="q"
+                     /db_xref="dbSNP:1258382379"
+     variation       64
+                     /replace="g"
+                     /db_xref="dbSNP:974998284"
+     variation       65
+                     /replace="s"
+                     /db_xref="dbSNP:1242983402"
+     variation       66
+                     /replace="d"
+                     /db_xref="dbSNP:1391709945"
+     variation       66
+                     /replace="i"
+                     /db_xref="dbSNP:1190773198"
+     variation       67
+                     /replace="s"
+                     /db_xref="dbSNP:1450354162"
+     variation       68
+                     /replace="g"
+                     /db_xref="dbSNP:1173192692"
+     variation       69
+                     /replace="a"
+                     /db_xref="dbSNP:1303995070"
+     variation       69
+                     /replace="s"
+                     /db_xref="dbSNP:569635400"
+     variation       69
+                     /replace="v"
+                     /db_xref="dbSNP:933029257"
+     variation       72
+                     /replace="p"
+                     /db_xref="dbSNP:1222629208"
+     variation       72
+                     /replace="s"
+                     /db_xref="dbSNP:1267575652"
+     variation       73
+                     /replace="g"
+                     /db_xref="dbSNP:932824541"
+     variation       75
+                     /replace="*"
+                     /db_xref="dbSNP:1384893469"
+     variation       75
+                     /replace="p"
+                     /db_xref="dbSNP:1242322807"
+     variation       78
+                     /replace="i"
+                     /db_xref="dbSNP:760037965"
+     variation       79
+                     /replace="i"
+                     /db_xref="dbSNP:776136915"
+     variation       79
+                     /replace="s"
+                     /db_xref="dbSNP:11555408"
+     variation       83
+                     /replace="l"
+                     /db_xref="dbSNP:759300961"
+     variation       84
+                     /replace="r"
+                     /db_xref="dbSNP:765674065"
+     variation       85
+                     /replace="t"
+                     /db_xref="dbSNP:753061397"
+     variation       86
+                     /replace="g"
+                     /db_xref="dbSNP:1268359750"
+     variation       87
+                     /replace="e"
+                     /db_xref="dbSNP:764437283"
+     variation       87
+                     /replace="g"
+                     /db_xref="dbSNP:1362707521"
+     variation       87
+                     /replace="r"
+                     /db_xref="dbSNP:147218371"
+     variation       88
+                     /replace="*"
+                     /db_xref="dbSNP:1409918710"
+     variation       88
+                     /replace="l"
+                     /db_xref="dbSNP:1230945619"
+     variation       89
+                     /replace="r"
+                     /db_xref="dbSNP:1298562394"
+     variation       90
+                     /replace="f"
+                     /db_xref="dbSNP:367975864"
+     variation       92
+                     /replace="h"
+                     /db_xref="dbSNP:1280747468"
+     variation       92
+                     /replace="r"
+                     /db_xref="dbSNP:1217532833"
+     variation       94
+                     /replace="-"
+                     /db_xref="dbSNP:753028349"
+     variation       99
+                     /replace="p"
+                     /db_xref="dbSNP:1220275666"
+     variation       101
+                     /replace="r"
+                     /db_xref="dbSNP:757268582"
+     variation       102
+                     /replace="t"
+                     /db_xref="dbSNP:372133111"
+     variation       103
+                     /replace="s"
+                     /db_xref="dbSNP:115389257"
+     variation       104
+                     /replace="s"
+                     /db_xref="dbSNP:1190186014"
+     variation       105
+                     /replace="c"
+                     /db_xref="dbSNP:555949483"
+     variation       105
+                     /replace="h"
+                     /db_xref="dbSNP:747902181"
+     variation       105
+                     /replace="r"
+                     /db_xref="dbSNP:1170301091"
+     variation       106
+                     /replace="f"
+                     /db_xref="dbSNP:771905854"
+     variation       108
+                     /replace="c"
+                     /db_xref="dbSNP:777515440"
+     variation       108
+                     /replace="h"
+                     /db_xref="dbSNP:1317524156"
+     variation       108
+                     /replace="r"
+                     /db_xref="dbSNP:968052246"
+     variation       109
+                     /replace="p"
+                     /db_xref="dbSNP:770345595"
+     variation       109
+                     /replace="t"
+                     /db_xref="dbSNP:372587822"
+     variation       110
+                     /replace="t"
+                     /db_xref="dbSNP:776251154"
+     variation       111
+                     /replace="s"
+                     /db_xref="dbSNP:745391337"
+     variation       112
+                     /replace="t"
+                     /db_xref="dbSNP:1418662734"
+     variation       113
+                     /replace="p"
+                     /db_xref="dbSNP:557619133"
+     variation       113
+                     /replace="s"
+                     /db_xref="dbSNP:1271960584"
+     variation       114
+                     /replace="t"
+                     /db_xref="dbSNP:1255369851"
+     variation       117
+                     /replace="a"
+                     /db_xref="dbSNP:754057113"
+     variation       117
+                     /replace="i"
+                     /db_xref="dbSNP:1302011574"
+     variation       121
+                     /replace="i"
+                     /db_xref="dbSNP:573181470"
+     variation       121
+                     /replace="s"
+                     /db_xref="dbSNP:1450071218"
+     variation       121
+                     /replace="t"
+                     /db_xref="dbSNP:78946854"
+     variation       122
+                     /replace="s"
+                     /db_xref="dbSNP:1449113773"
+     variation       123
+                     /replace="e"
+                     /db_xref="dbSNP:757007038"
+     variation       123
+                     /replace="n"
+                     /db_xref="dbSNP:781217863"
+     variation       126
+                     /replace="-"
+                     /db_xref="dbSNP:1289833368"
+     variation       127
+                     /replace="s"
+                     /db_xref="dbSNP:749226548"
+     variation       129
+                     /replace="n"
+                     /db_xref="dbSNP:755678381"
+     variation       130
+                     /replace="n"
+                     /db_xref="dbSNP:751341575"
+     variation       130
+                     /replace="t"
+                     /db_xref="dbSNP:779747389"
+     variation       131
+                     /replace="q"
+                     /db_xref="dbSNP:148675407"
+     variation       131
+                     /replace="r"
+                     /db_xref="dbSNP:748867946"
+     variation       132
+                     /replace="f"
+                     /db_xref="dbSNP:778465107"
+     variation       133
+                     /replace="i"
+                     /db_xref="dbSNP:748482735"
+     variation       135
+                     /replace="a"
+                     /db_xref="dbSNP:1007374600"
+     variation       135
+                     /replace="n"
+                     /db_xref="dbSNP:772439876"
+     variation       136
+                     /replace="t"
+                     /db_xref="dbSNP:771060412"
+     variation       137
+                     /replace="q"
+                     /db_xref="dbSNP:569056797"
+     variation       137
+                     /replace="r"
+                     /db_xref="dbSNP:553424343"
+     variation       137
+                     /replace="w"
+                     /db_xref="dbSNP:866310961"
+     variation       139
+                     /replace="*"
+                     /db_xref="dbSNP:112348087"
+     variation       139
+                     /replace="q"
+                     /db_xref="dbSNP:574914362"
+     variation       140
+                     /replace="v"
+                     /db_xref="dbSNP:1198184660"
+     variation       141
+                     /replace="p"
+                     /db_xref="dbSNP:141263741"
+     variation       142
+                     /replace="a"
+                     /db_xref="dbSNP:778997457"
+     variation       142
+                     /replace="t"
+                     /db_xref="dbSNP:745599234"
+     variation       143
+                     /replace="h"
+                     /db_xref="dbSNP:761651639"
+     variation       144
+                     /replace="*"
+                     /db_xref="dbSNP:767482831"
+     variation       144
+                     /replace="q"
+                     /db_xref="dbSNP:1253144779"
+     Region          145..386
+                     /region_name="CASc"
+                     /note="Caspase, interleukin-1 beta converting enzyme (ICE)
+                     homologues; Cysteine-dependent aspartate-directed
+                     proteases that mediate programmed cell death (apoptosis).
+                     Caspases are synthesized as inactive zymogens and
+                     activated by proteolysis of the peptide...; cd00032"
+                     /db_xref="CDD:237997"
+     variation       145
+                     /replace="c"
+                     /db_xref="dbSNP:750352264"
+     variation       145
+                     /replace="y"
+                     /db_xref="dbSNP:756166681"
+     variation       146
+                     /replace="i"
+                     /db_xref="dbSNP:1229571038"
+     variation       146
+                     /replace="k"
+                     /db_xref="dbSNP:1375956846"
+     variation       147
+                     /replace="t"
+                     /db_xref="dbSNP:1186334169"
+     variation       148
+                     /replace="d"
+                     /db_xref="dbSNP:780164862"
+     variation       148
+                     /replace="k"
+                     /db_xref="dbSNP:976852133"
+     variation       152
+                     /replace="l"
+                     /db_xref="dbSNP:1173641226"
+     variation       152
+                     /replace="l"
+                     /db_xref="dbSNP:150759529"
+     variation       153
+                     /replace="g"
+                     /db_xref="dbSNP:753352343"
+     variation       154
+                     /replace="k"
+                     /db_xref="dbSNP:1384634512"
+     variation       155
+                     /replace="c"
+                     /db_xref="dbSNP:1322906513"
+     variation       157
+                     /replace="i"
+                     /db_xref="dbSNP:754454767"
+     variation       158
+                     /replace="*"
+                     /db_xref="dbSNP:1366927064"
+     variation       158
+                     /replace="v"
+                     /db_xref="dbSNP:778574118"
+     variation       160
+                     /replace="-"
+                     /db_xref="dbSNP:1309909076"
+     variation       162
+                     /replace="y"
+                     /db_xref="dbSNP:747814573"
+     variation       163
+                     /replace="s"
+                     /db_xref="dbSNP:772423333"
+     variation       164
+                     /replace="a"
+                     /db_xref="dbSNP:1328288110"
+     variation       169
+                     /replace="v"
+                     /db_xref="dbSNP:766145432"
+     variation       170
+                     /replace="g"
+                     /db_xref="dbSNP:776631002"
+     variation       171
+                     /replace="f"
+                     /db_xref="dbSNP:115183028"
+     variation       171
+                     /replace="v"
+                     /db_xref="dbSNP:764785125"
+     Site            order(172,230,269,276,315..320,324..325)
+                     /site_type="other"
+                     /note="substrate pocket [chemical binding]"
+                     /db_xref="CDD:237997"
+     variation       172
+                     /replace="q"
+                     /db_xref="dbSNP:965965084"
+     variation       173
+                     /replace="n"
+                     /db_xref="dbSNP:181777209"
+     variation       174
+                     /replace="g"
+                     /db_xref="dbSNP:756416731"
+     variation       174
+                     /replace="r"
+                     /db_xref="dbSNP:757905204"
+     variation       175
+                     /replace="t"
+                     /db_xref="dbSNP:763674969"
+     variation       178
+                     /replace="r"
+                     /db_xref="dbSNP:1354052074"
+     variation       179
+                     /replace="a"
+                     /db_xref="dbSNP:199874997"
+     variation       179
+                     /replace="g"
+                     /db_xref="dbSNP:1310236383"
+     variation       180
+                     /replace="k"
+                     /db_xref="dbSNP:566556942"
+     variation       181
+                     /replace="a"
+                     /db_xref="dbSNP:114786731"
+     variation       181
+                     /replace="g"
+                     /db_xref="dbSNP:1482095638"
+     variation       181
+                     /replace="t"
+                     /db_xref="dbSNP:781449882"
+     variation       182
+                     /replace="f"
+                     /db_xref="dbSNP:980466998"
+     variation       183
+                     /replace="l"
+                     /db_xref="dbSNP:1383138083"
+     variation       183
+                     /replace="l"
+                     /db_xref="dbSNP:143659216"
+     variation       184
+                     /replace="q"
+                     /db_xref="dbSNP:755685059"
+     variation       184
+                     /replace="r"
+                     /db_xref="dbSNP:1231909365"
+     variation       185
+                     /replace="c"
+                     /db_xref="dbSNP:1180483833"
+     variation       185
+                     /replace="g"
+                     /db_xref="dbSNP:1201867676"
+     variation       187
+                     /replace="*"
+                     /db_xref="dbSNP:202060178"
+     variation       187
+                     /replace="q"
+                     /db_xref="dbSNP:146796754"
+     variation       187
+                     /replace="r"
+                     /db_xref="dbSNP:1163801628"
+     variation       188
+                     /replace="n"
+                     /db_xref="dbSNP:1294364195"
+     variation       188
+                     /replace="r"
+                     /db_xref="dbSNP:1357831324"
+     variation       188
+                     /replace="s"
+                     /db_xref="dbSNP:2229998"
+     variation       189
+                     /replace="l"
+                     /db_xref="dbSNP:1215770998"
+     variation       189
+                     /replace="p"
+                     /db_xref="dbSNP:1427246939"
+     variation       192
+                     /replace="d"
+                     /db_xref="dbSNP:557341293"
+     variation       193
+                     /replace="-"
+                     /db_xref="dbSNP:1309256601"
+     variation       193
+                     /replace="l"
+                     /db_xref="dbSNP:748453320"
+     variation       194
+                     /replace="i"
+                     /db_xref="dbSNP:770732568"
+     variation       195
+                     /replace="i"
+                     /db_xref="dbSNP:776342160"
+     variation       197
+                     /replace="d"
+                     /db_xref="dbSNP:759399881"
+     variation       197
+                     /replace="n"
+                     /db_xref="dbSNP:144555540"
+     variation       197
+                     /replace="s"
+                     /db_xref="dbSNP:765015515"
+     variation       199
+                     /replace="f"
+                     /db_xref="dbSNP:762432682"
+     variation       203
+                     /replace="e"
+                     /db_xref="dbSNP:763656398"
+     variation       204
+                     /replace="i"
+                     /db_xref="dbSNP:569130136"
+     variation       205
+                     /replace="p"
+                     /db_xref="dbSNP:539802026"
+     variation       205
+                     /replace="q"
+                     /db_xref="dbSNP:1239630143"
+     variation       206
+                     /replace="d"
+                     /db_xref="dbSNP:368309877"
+     variation       207
+                     /replace="l"
+                     /db_xref="dbSNP:115421189"
+     variation       209
+                     /replace="*"
+                     /db_xref="dbSNP:755104278"
+     variation       209
+                     /replace="r"
+                     /db_xref="dbSNP:1480776750"
+     variation       210
+                     /replace="k"
+                     /db_xref="dbSNP:779179291"
+     variation       211
+                     /replace="a"
+                     /db_xref="dbSNP:1289845582"
+     variation       216
+                     /replace="n"
+                     /db_xref="dbSNP:1276622573"
+     variation       217
+                     /replace="t"
+                     /db_xref="dbSNP:1231978190"
+     variation       218
+                     /replace="d"
+                     /db_xref="dbSNP:1389201992"
+     variation       218
+                     /replace="n"
+                     /db_xref="dbSNP:747318342"
+     variation       219
+                     /replace="a"
+                     /db_xref="dbSNP:1266684109"
+     variation       219
+                     /replace="g"
+                     /db_xref="dbSNP:372396520"
+     variation       220
+                     /replace="s"
+                     /db_xref="dbSNP:779873226"
+     variation       221
+                     /replace="f"
+                     /db_xref="dbSNP:1018566256"
+     variation       222
+                     /replace="f"
+                     /db_xref="dbSNP:763050011"
+     variation       223
+                     /replace="a"
+                     /db_xref="dbSNP:537094698"
+     variation       223
+                     /replace="t"
+                     /db_xref="dbSNP:749103359"
+     variation       223
+                     /replace="v"
+                     /db_xref="dbSNP:768539831"
+     variation       224
+                     /replace="s"
+                     /db_xref="dbSNP:1419853141"
+     variation       225
+                     /replace="t"
+                     /db_xref="dbSNP:558082924"
+     variation       226
+                     /replace="l"
+                     /db_xref="dbSNP:374718188"
+     Site            order(229,271)
+                     /site_type="active"
+                     /db_xref="CDD:237997"
+     variation       229
+                     /replace="y"
+                     /db_xref="dbSNP:760415288"
+     variation       233
+                     /replace="k"
+                     /db_xref="dbSNP:779523386"
+     variation       234
+                     /replace="i"
+                     /db_xref="dbSNP:761367047"
+     variation       238
+                     /replace="k"
+                     /db_xref="dbSNP:1340132363"
+     variation       238
+                     /replace="r"
+                     /db_xref="dbSNP:1158873843"
+     variation       239
+                     /replace="d"
+                     /db_xref="dbSNP:1390297671"
+     variation       239
+                     /replace="h"
+                     /db_xref="dbSNP:536786215"
+     variation       240
+                     /replace="d"
+                     /db_xref="dbSNP:1245854098"
+     variation       241
+                     /replace="v"
+                     /db_xref="dbSNP:1403777248"
+     variation       242
+                     /replace="i"
+                     /db_xref="dbSNP:1325635940"
+     variation       243
+                     /replace="s"
+                     /db_xref="dbSNP:1366254656"
+     variation       244
+                     /replace="v"
+                     /db_xref="dbSNP:1348709237"
+     variation       247
+                     /replace="*"
+                     /db_xref="dbSNP:1251863075"
+     variation       247
+                     /replace="l"
+                     /db_xref="dbSNP:193124738"
+     variation       247
+                     /replace="r"
+                     /db_xref="dbSNP:1409797039"
+     variation       248
+                     /replace="r"
+                     /db_xref="dbSNP:760013015"
+     variation       248
+                     /replace="t"
+                     /db_xref="dbSNP:765774624"
+     variation       249
+                     /replace="t"
+                     /db_xref="dbSNP:1283898459"
+     variation       249
+                     /replace="v"
+                     /db_xref="dbSNP:369067741"
+     variation       250
+                     /replace="h"
+                     /db_xref="dbSNP:116709623"
+     variation       251
+                     /replace="l"
+                     /db_xref="dbSNP:1274291651"
+     variation       252
+                     /replace="m"
+                     /db_xref="dbSNP:764271040"
+     variation       252
+                     /replace="r"
+                     /db_xref="dbSNP:143354631"
+     variation       254
+                     /replace="g"
+                     /db_xref="dbSNP:748986164"
+     variation       254
+                     /replace="n"
+                     /db_xref="dbSNP:1202191990"
+     variation       256
+                     /replace="s"
+                     /db_xref="dbSNP:201040237"
+     variation       258
+                     /replace="t"
+                     /db_xref="dbSNP:1392203608"
+     variation       259
+                     /replace="l"
+                     /db_xref="dbSNP:1439424209"
+     variation       262
+                     /replace="q"
+                     /db_xref="dbSNP:754779330"
+     variation       263
+                     /replace="a"
+                     /db_xref="dbSNP:773710326"
+     variation       263
+                     /replace="p"
+                     /db_xref="dbSNP:75516871"
+     variation       265
+                     /replace="f"
+                     /db_xref="dbSNP:748184526"
+     variation       266
+                     /replace="l"
+                     /db_xref="dbSNP:141266925"
+     variation       266
+                     /replace="l"
+                     /db_xref="dbSNP:772829055"
+     variation       267
+                     /replace="f"
+                     /db_xref="dbSNP:770669926"
+     variation       267
+                     /replace="i"
+                     /db_xref="dbSNP:746527405"
+     variation       270
+                     /replace="t"
+                     /db_xref="dbSNP:745389318"
+     variation       270
+                     /replace="v"
+                     /db_xref="dbSNP:552479055"
+     variation       272
+                     /replace="*"
+                     /db_xref="dbSNP:373690332"
+     variation       272
+                     /replace="q"
+                     /db_xref="dbSNP:376348175"
+     variation       273
+                     /replace="r"
+                     /db_xref="dbSNP:768958115"
+     variation       274
+                     /replace="t"
+                     /db_xref="dbSNP:564423703"
+     variation       275
+                     /replace="k"
+                     /db_xref="dbSNP:187106799"
+     Site            order(277,300..301,308,311,314,337,345,351,371,376..377,
+                     379,382..383)
+                     /site_type="other"
+                     /note="dimer interface [polypeptide binding]"
+                     /db_xref="CDD:237997"
+     Site            order(278,299)
+                     /site_type="other"
+                     /note="proteolytic cleavage site"
+                     /db_xref="CDD:237997"
+     variation       280
+                     /replace="i"
+                     /db_xref="dbSNP:772117398"
+     variation       281
+                     /replace="q"
+                     /db_xref="dbSNP:370774542"
+     variation       282
+                     /replace="a"
+                     /db_xref="dbSNP:773227567"
+     variation       283
+                     /replace="g"
+                     /db_xref="dbSNP:766559562"
+     variation       283
+                     /replace="n"
+                     /db_xref="dbSNP:760778461"
+     variation       284
+                     /replace="l"
+                     /db_xref="dbSNP:375409071"
+     variation       284
+                     /replace="s"
+                     /db_xref="dbSNP:146952079"
+     variation       286
+                     /replace="r"
+                     /db_xref="dbSNP:1320134816"
+     variation       287
+                     /replace="m"
+                     /db_xref="dbSNP:1303643710"
+     variation       287
+                     /replace="v"
+                     /db_xref="dbSNP:367682197"
+     variation       288
+                     /replace="s"
+                     /db_xref="dbSNP:781305492"
+     variation       288
+                     /replace="y"
+                     /db_xref="dbSNP:757208505"
+     variation       289
+                     /replace="d"
+                     /db_xref="dbSNP:749886205"
+     variation       290
+                     /replace="k"
+                     /db_xref="dbSNP:1222168681"
+     variation       292
+                     /replace="d"
+                     /db_xref="dbSNP:755592768"
+     variation       293
+                     /replace="h"
+                     /db_xref="dbSNP:1324713497"
+     variation       293
+                     /replace="n"
+                     /db_xref="dbSNP:1203971200"
+     variation       294
+                     /replace="p"
+                     /db_xref="dbSNP:942487002"
+     variation       295
+                     /replace="*"
+                     /db_xref="dbSNP:1283138300"
+     variation       295
+                     /replace="q"
+                     /db_xref="dbSNP:370400085"
+     variation       296
+                     /replace="h"
+                     /db_xref="dbSNP:1246102884"
+     variation       297
+                     /replace="e"
+                     /db_xref="dbSNP:748959752"
+     variation       297
+                     /replace="k"
+                     /db_xref="dbSNP:1242144593"
+     variation       299
+                     /replace="l"
+                     /db_xref="dbSNP:1480099589"
+     variation       299
+                     /replace="p"
+                     /db_xref="dbSNP:930939327"
+     variation       301
+                     /replace="d"
+                     /db_xref="dbSNP:769035146"
+     variation       304
+                     /replace="l"
+                     /db_xref="dbSNP:535164025"
+     variation       305
+                     /replace="h"
+                     /db_xref="dbSNP:748534536"
+     variation       305
+                     /replace="l"
+                     /db_xref="dbSNP:1464329147"
+     variation       306
+                     /replace="f"
+                     /db_xref="dbSNP:772529292"
+     variation       307
+                     /replace="t"
+                     /db_xref="dbSNP:1392280106"
+     variation       308
+                     /replace="c"
+                     /db_xref="dbSNP:116560793"
+     variation       309
+                     /replace="f"
+                     /db_xref="dbSNP:765459466"
+     variation       310
+                     /replace="m"
+                     /db_xref="dbSNP:200665202"
+     variation       310
+                     /replace="t"
+                     /db_xref="dbSNP:770977304"
+     variation       312
+                     /replace="l"
+                     /db_xref="dbSNP:137956734"
+     variation       312
+                     /replace="s"
+                     /db_xref="dbSNP:938507851"
+     variation       313
+                     /replace="r"
+                     /db_xref="dbSNP:765514741"
+     variation       314
+                     /replace="c"
+                     /db_xref="dbSNP:770071040"
+     variation       314
+                     /replace="h"
+                     /db_xref="dbSNP:1469170274"
+     variation       316
+                     /replace="l"
+                     /db_xref="dbSNP:775867698"
+     variation       316
+                     /replace="s"
+                     /db_xref="dbSNP:1127684"
+     variation       318
+                     /replace="s"
+                     /db_xref="dbSNP:1242767276"
+     variation       319
+                     /replace="r"
+                     /db_xref="dbSNP:1185526734"
+     variation       319
+                     /replace="r"
+                     /db_xref="dbSNP:200326742"
+     variation       322
+                     /replace="s"
+                     /db_xref="dbSNP:112264603"
+     variation       325
+                     /replace="g"
+                     /db_xref="dbSNP:1385921856"
+     variation       328
+                     /replace="e"
+                     /db_xref="dbSNP:1042128768"
+     variation       328
+                     /replace="q"
+                     /db_xref="dbSNP:773169485"
+     variation       328
+                     /replace="r"
+                     /db_xref="dbSNP:903604697"
+     variation       331
+                     /replace="s"
+                     /db_xref="dbSNP:868234989"
+     variation       332
+                     /replace="a"
+                     /db_xref="dbSNP:1399150351"
+     variation       332
+                     /replace="f"
+                     /db_xref="dbSNP:760579502"
+     variation       332
+                     /replace="s"
+                     /db_xref="dbSNP:191429899"
+     variation       333
+                     /replace="t"
+                     /db_xref="dbSNP:1381622796"
+     variation       334
+                     /replace="l"
+                     /db_xref="dbSNP:545011125"
+     variation       334
+                     /replace="p"
+                     /db_xref="dbSNP:1449949091"
+     variation       337
+                     /replace="h"
+                     /db_xref="dbSNP:754523047"
+     variation       338
+                     /replace="e"
+                     /db_xref="dbSNP:1038826941"
+     variation       338
+                     /replace="r"
+                     /db_xref="dbSNP:764815610"
+     variation       339
+                     /replace="k"
+                     /db_xref="dbSNP:752406752"
+     variation       340
+                     /replace="e"
+                     /db_xref="dbSNP:2227310"
+     variation       341
+                     /replace="l"
+                     /db_xref="dbSNP:778154041"
+     variation       342
+                     /replace="k"
+                     /db_xref="dbSNP:997856753"
+     variation       343
+                     /replace="v"
+                     /db_xref="dbSNP:1262221431"
+     variation       344
+                     /replace="l"
+                     /db_xref="dbSNP:747418413"
+     variation       344
+                     /replace="t"
+                     /db_xref="dbSNP:1257115107"
+     variation       345
+                     /replace="q"
+                     /db_xref="dbSNP:2227309"
+     variation       348
+                     /replace="t"
+                     /db_xref="dbSNP:781723563"
+     variation       349
+                     /replace="g"
+                     /db_xref="dbSNP:116437863"
+     variation       352
+                     /replace="a"
+                     /db_xref="dbSNP:61755278"
+     variation       353
+                     /replace="r"
+                     /db_xref="dbSNP:780420016"
+     variation       355
+                     /replace="a"
+                     /db_xref="dbSNP:771971818"
+     variation       355
+                     /replace="s"
+                     /db_xref="dbSNP:749560623"
+     variation       356
+                     /replace="r"
+                     /db_xref="dbSNP:1161968610"
+     variation       357
+                     /replace="l"
+                     /db_xref="dbSNP:772834414"
+     variation       357
+                     /replace="q"
+                     /db_xref="dbSNP:974261027"
+     variation       358
+                     /replace="l"
+                     /db_xref="dbSNP:1467944141"
+     variation       358
+                     /replace="s"
+                     /db_xref="dbSNP:531534527"
+     variation       359
+                     /replace="e"
+                     /db_xref="dbSNP:1032292028"
+     variation       359
+                     /replace="g"
+                     /db_xref="dbSNP:770709414"
+     variation       360
+                     /replace="p"
+                     /db_xref="dbSNP:776647432"
+     variation       360
+                     /replace="s"
+                     /db_xref="dbSNP:1292769590"
+     variation       361
+                     /replace="q"
+                     /db_xref="dbSNP:373028643"
+     variation       363
+                     /replace="h"
+                     /db_xref="dbSNP:764799303"
+     variation       364
+                     /replace="v"
+                     /db_xref="dbSNP:752318908"
+     variation       365
+                     /replace="p"
+                     /db_xref="dbSNP:377322540"
+     variation       368
+                     /replace="r"
+                     /db_xref="dbSNP:373624501"
+     variation       373
+                     /replace="m"
+                     /db_xref="dbSNP:751802124"
+     variation       374
+                     /replace="p"
+                     /db_xref="dbSNP:61755279"
+     variation       375
+                     /replace="l"
+                     /db_xref="dbSNP:35322299"
+     variation       375
+                     /replace="r"
+                     /db_xref="dbSNP:757651058"
+     variation       376
+                     /replace="g"
+                     /db_xref="dbSNP:767336011"
+     variation       377
+                     /replace="g"
+                     /db_xref="dbSNP:1203503592"
+     variation       379
+                     /replace="t"
+                     /db_xref="dbSNP:992823142"
+     variation       380
+                     /replace="l"
+                     /db_xref="dbSNP:1009773282"
+     variation       380
+                     /replace="n"
+                     /db_xref="dbSNP:1263887069"
+     variation       381
+                     /replace="t"
+                     /db_xref="dbSNP:1448129176"
+     variation       383
+                     /replace="e"
+                     /db_xref="dbSNP:918142766"
+     variation       385
+                     /replace="y"
+                     /db_xref="dbSNP:781535747"
+     variation       386
+                     /replace="l"
+                     /db_xref="dbSNP:751003132"
+     variation       388
+                     /replace="k"
+                     /db_xref="dbSNP:78202169"
+     variation       388
+                     /replace="q"
+                     /db_xref="dbSNP:61757658"
+     CDS             1..388
+                     /gene="CASP7"
+                     /gene_synonym="CASP-7; CMH-1; ICE-LAP3; LICE2; MCH3"
+                     /coded_by="NM_001267057.1:87..1253"
+                     /note="isoform e is encoded by transcript variant f"
+                     /db_xref="CCDS:CCDS73200.1"
+                     /db_xref="GeneID:840"
+                     /db_xref="HGNC:HGNC:1508"
+                     /db_xref="MIM:601761"
+ORIGIN      
+        1 mragtrvalg sstpaerttp sqgrckprpa lpraappsaa prllvslslk gpqtlaaerr
+       61 retvpvpaal ppwerwqmir avlksrglri qqmkiqwmls qtgprlyrps sapdsgtlyf
+      121 tskkkknvtm rsikttrdrv ptyqynmnfe klgkciiinn knfdkvtgmg vrngtdkdae
+      181 alfkcfrslg fdvivyndcs cakmqdllkk aseedhtnaa cfacillshg eenviygkdg
+      241 vtpikdltah frgdrcktll ekpklffiqa crgtelddgi qadsgpindt danprykipv
+      301 eadflfayst vpgyyswrsp grgswfvqal csileehgkd leimqiltrv ndrvarhfes
+      361 qsddphfhek kqipcvvsml tkelyfsq
+//
+LOCUS       NP_001268968             192 aa            linear   MAM 23-SEP-2018
+DEFINITION  leucine-rich repeat-containing protein 51 [Bos taurus].
+ACCESSION   NP_001268968 XP_005216238
+VERSION     NP_001268968.1
+DBSOURCE    REFSEQ: accession NM_001282039.1
+KEYWORDS    RefSeq.
+SOURCE      Bos taurus (cattle)
+  ORGANISM  Bos taurus
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Laurasiatheria; Cetartiodactyla; Ruminantia;
+            Pecora; Bovidae; Bovinae; Bos.
+REFERENCE   1  (residues 1 to 192)
+  AUTHORS   Harhay GP, Sonstegard TS, Keele JW, Heaton MP, Clawson ML, Snelling
+            WM, Wiedmann RT, Van Tassell CP and Smith TP.
+  TITLE     Characterization of 954 bovine full-CDS cDNA sequences
+  JOURNAL   BMC Genomics 6, 166 (2005)
+   PUBMED   16305752
+  REMARK    Publication Status: Online-Only
+REFERENCE   2  (residues 1 to 192)
+  AUTHORS   Smith TP, Grosse WM, Freking BA, Roberts AJ, Stone RT, Casas E,
+            Wray JE, White J, Cho J, Fahrenkrug SC, Bennett GL, Heaton MP,
+            Laegreid WW, Rohrer GA, Chitko-McKown CG, Pertea G, Holt I,
+            Karamycheva S, Liang F, Quackenbush J and Keele JW.
+  TITLE     Sequence evaluation of four pooled-tissue normalized bovine cDNA
+            libraries and construction of a gene index for cattle
+  JOURNAL   Genome Res. 11 (4), 626-630 (2001)
+   PUBMED   11282978
+COMMENT     PROVISIONAL REFSEQ: This record has not yet been subject to final
+            NCBI review. The reference sequence was derived from BC109501.1 and
+            BT020631.1.
+            On Aug 31, 2013 this sequence version replaced XP_005216238.1.
+            
+            Transcript Variant: This variant (3) has an alternate 5' UTR exon,
+            compared to variant 1. Variants 1, 2 and 3 encode the same protein.
+            
+            ##Evidence-Data-START##
+            RNAseq introns :: single sample supports all introns SAMN03145491,
+                              SAMN03145497 [ECO:0000348]
+            ##Evidence-Data-END##
+FEATURES             Location/Qualifiers
+     source          1..192
+                     /organism="Bos taurus"
+                     /db_xref="taxon:9913"
+                     /chromosome="15"
+                     /map="15"
+                     /breed="mixed"
+     Protein         1..192
+                     /product="leucine-rich repeat-containing protein 51"
+                     /note="leucine rich repeat containing 51"
+                     /calculated_mol_wt=21976
+     Region          50..71
+                     /region_name="LRR 1"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="propagated from UniProtKB/Swiss-Prot (Q5EAD8.1)"
+     Region          52..80
+                     /region_name="leucine-rich repeat"
+                     /note="leucine-rich repeat [structural motif]"
+                     /db_xref="CDD:275380"
+     Region          80..139
+                     /region_name="LRR_8"
+                     /note="Leucine rich repeat; pfam13855"
+                     /db_xref="CDD:290566"
+     Region          80..101
+                     /region_name="LRR 2"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="propagated from UniProtKB/Swiss-Prot (Q5EAD8.1)"
+     Region          81..103
+                     /region_name="leucine-rich repeat"
+                     /note="leucine-rich repeat [structural motif]"
+                     /db_xref="CDD:275380"
+     Region          103..141
+                     /region_name="LRR_4"
+                     /note="Leucine Rich repeats (2 copies); pfam12799"
+                     /db_xref="CDD:289563"
+     Region          103..124
+                     /region_name="LRR 3"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="propagated from UniProtKB/Swiss-Prot (Q5EAD8.1)"
+     Region          104..128
+                     /region_name="leucine-rich repeat"
+                     /note="leucine-rich repeat [structural motif]"
+                     /db_xref="CDD:275380"
+     CDS             1..192
+                     /gene="LRRC51"
+                     /coded_by="NM_001282039.1:117..695"
+                     /db_xref="BGD:BT24729"
+                     /db_xref="GeneID:515066"
+ORIGIN      
+        1 mnkrnymnts vqeppldysf rsihvtqdll seeprtglrp vrhaksgksm tqslwlnnnv
+       61 ltdlrdfnha vsqllehpen lawidlsfnd ltsidpvltt ffnlsvlylh gnsiqrlgev
+      121 nklaalprlr sltlhgnpie eekgyrqyvl ctlphittfd fsgvtkadrt taevwkrmni
+      181 kpkkvrikhn al
+//

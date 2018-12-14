@@ -1,0 +1,822 @@
+LOCUS       NR_137283               2414 bp    RNA     linear   ROD 03-JUN-2016
+DEFINITION  Mus musculus RIKEN cDNA G530011O06 gene (G530011O06Rik), transcript
+            variant 1, long non-coding RNA.
+ACCESSION   NR_137283
+VERSION     NR_137283.1
+KEYWORDS    RefSeq.
+SOURCE      Mus musculus (house mouse)
+  ORGANISM  Mus musculus
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Glires; Rodentia; Myomorpha;
+            Muroidea; Muridae; Murinae; Mus; Mus.
+REFERENCE   1  (bases 1 to 2414)
+  AUTHORS   Zambrowicz BP, Abuin A, Ramirez-Solis R, Richter LJ, Piggott J,
+            BeltrandelRio H, Buxton EC, Edwards J, Finch RA, Friddle CJ, Gupta
+            A, Hansen G, Hu Y, Huang W, Jaing C, Key BW Jr, Kipp P, Kohlhauff
+            B, Ma ZQ, Markesich D, Payne R, Potter DG, Qian N, Shaw J, Schrick
+            J, Shi ZZ, Sparks MJ, Van Sligtenhorst I, Vogel P, Walke W, Xu N,
+            Zhu Q, Person C and Sands AT.
+  TITLE     Wnk1 kinase deficiency lowers blood pressure in mice: a gene-trap
+            screen to identify potential targets for therapeutic intervention
+  JOURNAL   Proc. Natl. Acad. Sci. U.S.A. 100 (24), 14109-14114 (2003)
+   PUBMED   14610273
+COMMENT     VALIDATED REFSEQ: This record has undergone validation or
+            preliminary review. The reference sequence was derived from
+            AC151712.3.
+            
+            Transcript Variant: This variant (1) represents the Y chromosome
+            allele.
+            
+            Sequence Note: The RefSeq transcript was derived from the reference
+            genome assembly. The genomic coordinates were determined from
+            alignments.
+PRIMARY     REFSEQ_SPAN         PRIMARY_IDENTIFIER PRIMARY_SPAN        COMP
+            1-630               AC151712.3         89649-90278
+            631-2414            AC151712.3         91776-93559
+FEATURES             Location/Qualifiers
+     source          1..2414
+                     /organism="Mus musculus"
+                     /mol_type="transcribed RNA"
+                     /strain="C57BL/6"
+                     /db_xref="taxon:10090"
+                     /chromosome="X"
+                     /chromosome="Y"
+                     /map="X"
+     gene            1..2414
+                     /gene="G530011O06Rik"
+                     /note="RIKEN cDNA G530011O06 gene"
+                     /db_xref="GeneID:654820"
+                     /db_xref="MGI:MGI:3603513"
+     ncRNA           1..2414
+                     /ncRNA_class="lncRNA"
+                     /gene="G530011O06Rik"
+                     /product="RIKEN cDNA G530011O06 gene, transcript variant
+                     1"
+                     /db_xref="GeneID:654820"
+                     /db_xref="MGI:MGI:3603513"
+ORIGIN      
+        1 ttctgctttc ccctaaccag gctcctgggc tcagcgctct gcaatccaat ctcactgtgg
+       61 actcctgtct catctctgtg tctctgaggc acctgtctgg tgtgataata gaatgagtgg
+      121 agtacgggtc ctcttaacga ctgacttgtt ccagaacctc agaactgaag tctgccaaaa
+      181 gctatgatgc caggcagaca tcggcaatac tctcttcccg tccctcgtaa tgaataagaa
+      241 gccttctgca gtctgtggcg ctgaggcaca ggcctggttt ctgccttcca tccgatccaa
+      301 agcaattcca gattcttcca ggatgttttt taggcacagg catcggaact gcaggcatgc
+      361 ccgtatctct tcaaccatgc ctgtgcttcc agccacagtt gtggcattgc actttcatgc
+      421 cattcctgct tcaccgaaat gctgctctca tttcactctt caccgttgga gtccatgtct
+      481 attaatggtg tatgtctgca gcggagtgag tgctacaaaa gatggactct acctataatc
+      541 atggcccaaa ctggaatacc ttttattact atcctctagc tcctgaaagg aaaccccagg
+      601 ccgtgaaatt caagctgcag ctgagtaagg gtgcttctca gccattcggt attcctcagg
+      661 tgatagccca aaaaacttag aatacccaag atacaagata caatttgcaa aacacatgaa
+      721 actcaagaag aacgaagacc aaagtgtgga cactttgccc cttctcagaa ctgggaacaa
+      781 aacacccatg gaaggagtta cagagacaaa gtttggagct gagacgaaag gtggaccatc
+      841 tagagactgc cttatccagg gatccacccc ataatcagct tccaaacgct gacaccattg
+      901 cacacaccag caagatttta tcgaaaggac ccagatatag ctgacgaaat ccaggcccat
+      961 ccatgttcct gaaaatgtga agactccatt ctttttatgg cagaatacaa ttcccatatg
+     1021 tgtatatacc atattcttaa aatccactct tctgtcaagg gaactttagg ttgattctat
+     1081 atcttagcta ttgtaaatag tatagcaata aatatggctg agcaagtatc tctatgttag
+     1141 gatatggagt cctttgggta catgaccagg atttgtataa ctagttgtgt gtgtgtgtgt
+     1201 gtgtgtgtgt gtgtgtgtgt gtgtgtgtgt gtgtgtgtat ttgtataact agttgtgtgt
+     1261 gtgtgtgtgt gtgtgtaccc ttcaaactga gcttcattgt gaatacacta ctttgcattg
+     1321 ccaccagcag tgtataaagg ttcctttcac ttctgtattc acaccagcat ctgttgttgt
+     1381 atctaatagg actttagaaa cattcttttt tttttttttt tcctcattgg accatgtctg
+     1441 gctgaagtga gttagccacc tacaggcttt caaagcagaa cttcccgatt catcctgcca
+     1501 aaaggatata ctcattcgag agatggcttc ctgttggtac acagaaggaa cactgaagta
+     1561 agcctgggac aggataaagc caatgtgtca gagacaggaa atcttacttc tgagtattca
+     1621 gggagaaagg agcattgctc aatgcactag gaattctaca aaaatggtta ccccccccct
+     1681 gagattacac agcctaggaa ccatgctggc cctcaatcag tgcaattttg aaactgcacc
+     1741 gctgcaccac taaacaatta cactttcctt ttaaggctgt taacctttct gtctggtagt
+     1801 tttaaacaca gttatctaca ctgtatattt gcctaaaagc agtctttatg gcaccatcac
+     1861 aagctgggtc attccatact catttaaatt aagggaaccc agagaaagga ggcgacattc
+     1921 acatatgatg tcctgtaagt gtggttattt ggactccaga gcacttgtct ctgtatatct
+     1981 gtaactttga ttctgcatct gattataaag tggatagttt tatttaaaaa gcatggtccg
+     2041 gctctcccat ttaactcgaa aaagagacac actaaaggag ttaattccaa agtggataaa
+     2101 ttgatatttt ggccagtaag atgagggcat gaggggaaag ctgcactcac gtcagctctg
+     2161 tgccccactg tgctctgccg accaggtgca aagagaaata tgaggatctg agggtgcttt
+     2221 ggtttttatt gccaaaggca gccgtgatga acattccaga ccctggggca gaagttagac
+     2281 agagctgcca gaaggaacaa tgaaagggat cctaatagtt tagtttgtac ataaaaccga
+     2341 gccaaggaga actgagtaag cacagacggt attactgtaa tacatctgat atgtttacat
+     2401 cgacgtttta ctct
+//
+LOCUS       NM_001034099            1124 bp    mRNA    linear   PRI 04-JUN-2016
+DEFINITION  Pan troglodytes F379 retina specific protein (F379), mRNA.
+ACCESSION   NM_001034099
+VERSION     NM_001034099.1
+KEYWORDS    RefSeq.
+SOURCE      Pan troglodytes (chimpanzee)
+  ORGANISM  Pan troglodytes
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
+            Catarrhini; Hominidae; Pan.
+REFERENCE   1  (bases 1 to 1124)
+  AUTHORS   Wong A, Vallender EJ, Heretis K, Ilkin Y, Lahn BT, Martin CL and
+            Ledbetter DH.
+  TITLE     Diverse fates of paralogs following segmental duplication of
+            telomeric genes
+  JOURNAL   Genomics 84 (2), 239-247 (2004)
+   PUBMED   15233989
+COMMENT     PREDICTED REFSEQ: This record has not been reviewed and the
+            function is unknown. The reference sequence was derived from
+            AY341945.1.
+            
+            ##Evidence-Data-START##
+            Transcript exon combination :: AY341941.1, AY341944.1 [ECO:0000332]
+            ##Evidence-Data-END##
+FEATURES             Location/Qualifiers
+     source          1..1124
+                     /organism="Pan troglodytes"
+                     /mol_type="mRNA"
+                     /db_xref="taxon:9598"
+                     /chromosome="12"
+                     /map="12"
+     gene            1..1124
+                     /gene="F379"
+                     /note="F379 retina specific protein"
+                     /db_xref="GeneID:619439"
+     STS             27..354
+                     /gene="F379"
+                     /standard_name="G65650"
+                     /db_xref="UniSTS:225441"
+     misc_feature    333..335
+                     /gene="F379"
+                     /note="upstream in-frame stop codon"
+     CDS             342..869
+                     /gene="F379"
+                     /codon_start=1
+                     /product="uncharacterized protein LOC619439"
+                     /protein_id="NP_001029271.1"
+                     /db_xref="GeneID:619439"
+                     /translation="MLLTIETKSHYVAQAGLELLASSDPPTLASQSVGIIDMSHCTWP
+                     TLGKFLNPSKPHFSPIIKGKDGNIFPAKFLSDALTELRLCTQNTRCLTRHRAGGLSVT
+                     SSTWSVESSIPTHLSSLPSTPLPFRGTKLLVVLSIPTPCLTEHFLHLLIISSRNWLLF
+                     LLGRQPDCISQLPLQ"
+ORIGIN      
+        1 cagcggggtt tcggggctgt ggaccctgtg ccaggaaagg aagggcgcag ctcctgcaat
+       61 gcagagcggc cagggcagtg ggcaccaggc tttagcctcc ctttctcacc ctacagaggg
+      121 caggcccttc agctccattc tcctccaagg ctgcagacgg ggcaggaact gggggtgaca
+      181 ggagagctgt aaggtctcca gtgggtcatt ctgggcccag agatgggtgc tgaagctccc
+      241 acacctgcct gtgaaaatgg agtcctctct cacctgggag agccaggtgc tgccccgaga
+      301 aggaagcatt tatggcttca tgaagtcttt cctgaccccc gatgctgctg actatagaga
+      361 caaagtctca ctatgttgct caggctggtc ttgaactcct ggcctcaagc gatcctccca
+      421 ccttagcctc ccaaagtgtt gggattatag acatgagcca ctgcacctgg ccgaccttgg
+      481 gcaagttctt aaacccttca aagcctcatt tttctccaat cataaaaggg aaagatggta
+      541 atattttccc cgccaaattc ttgtcggatg ccctcacaga attgagatta tgtacgcaaa
+      601 acaccaggtg cctaacccgg cacagagcag gagggctaag cgtgacatcc agcacgtggt
+      661 cagtggaatc cagtattcct acccacctct ctagtctccc ctccacccct ctccctttca
+      721 gaggcaccaa gctgcttgtg gtcttgtcta ttcccactcc ctgcctgact gaacattttc
+      781 tccacctcct gatcatcagc agcagaaact ggctgctctt cctcctgggt agacagccag
+      841 actgtatttc ccagctgccc ctgcagtgag atgtggccat tggagccagc attggccaat
+      901 ggactctgca tgggagtgac gcatgctgcc tccaggcttg tccctaaaac ctcccacgtg
+      961 tcctccgcct gctcttccca cttccaagga gcacggcaat tgcggaagac tcagattagt
+     1021 gatggcagaa ccatagatgg gaggaacctg ggtccctgac ttaaagtatc atggatttgg
+     1081 atgttccctt agtgagaaat aaacttccat tgtgtttaag cctt
+//
+LOCUS       NM_001302529            1917 bp    mRNA    linear   PRI 04-JUN-2016
+DEFINITION  Pan troglodytes G1 to S phase transition 2 (GSPT2), mRNA.
+ACCESSION   NM_001302529
+VERSION     NM_001302529.1
+KEYWORDS    RefSeq.
+SOURCE      Pan troglodytes (chimpanzee)
+  ORGANISM  Pan troglodytes
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
+            Catarrhini; Hominidae; Pan.
+REFERENCE   1  (bases 1 to 1917)
+  AUTHORS   Kim RN, Kim DW, Choi SH, Chae SH, Nam SH, Kim DW, Kim A, Kang A,
+            Park KH, Lee YS, Hirai M, Suzuki Y, Sugano S, Hashimoto K, Kim DS
+            and Park HS.
+  TITLE     Major chimpanzee-specific structural changes in sperm
+            development-associated genes
+  JOURNAL   Funct. Integr. Genomics 11 (3), 507-517 (2011)
+   PUBMED   21484476
+COMMENT     PROVISIONAL REFSEQ: This record has not yet been subject to final
+            NCBI review. The reference sequence was derived from AK305400.1.
+            
+            ##Evidence-Data-START##
+            Transcript exon combination :: AK305400.1 [ECO:0000332]
+            ##Evidence-Data-END##
+FEATURES             Location/Qualifiers
+     source          1..1917
+                     /organism="Pan troglodytes"
+                     /mol_type="mRNA"
+                     /db_xref="taxon:9598"
+                     /chromosome="X"
+                     /map="X"
+     gene            1..1917
+                     /gene="GSPT2"
+                     /note="G1 to S phase transition 2"
+                     /db_xref="GeneID:742431"
+     CDS             20..1477
+                     /gene="GSPT2"
+                     /note="peptide chain release factor 3"
+                     /codon_start=1
+                     /product="eukaryotic peptide chain release factor
+                     GTP-binding subunit ERF3B"
+                     /protein_id="NP_001289458.1"
+                     /db_xref="GeneID:742431"
+                     /translation="MALEESWEHSKEVSEAEPGGGSSGDSGPPEESGQEMMEEKEEIR
+                     KSKSVIVPSGAPKKEHVNVVFIGHVDAGKSTIGGQIMFLTGMVDKRTLEKYEREAKEK
+                     NRETWYLSWALDTNQEERDKGKTVEVGRAYFETERKHFTILDAPGHKSFVPNMIGGAS
+                     QADLAVLVISARKGEFETGFEKGGQTREHAMLAKTAGVKHLIVLINKMDDPTVNWSIE
+                     RYEECKEKLVPFLKKVGFSPKKDIHFMPCSGLTGANIKEQSDFCPWYTGLPFIPYLDN
+                     LPNFNRSIDGPIRLPIVDKYKDMGTVVLGKLESGSIFKGQQLVMMPNKHNVEVLGILS
+                     DDTETDFVAPGENLKIRLKGIEEEEILPGFILCDPSNLCHSGRTFDVQIVIIEHKSII
+                     CPGYNAVLHIHTCIEEVEITALISLVDKKSGEKSKTRPRFVKQDQVCIARLRTAGTIC
+                     LETFKDFPQMGRFTLRDEGKTIAIGKVLKLVPEKD"
+     misc_feature    191..1465
+                     /gene="GSPT2"
+                     /note="Translation elongation factor EF-1alpha (GTPase)
+                     [Translation, ribosomal structure and biogenesis]; Region:
+                     TEF1; COG5256"
+                     /db_xref="CDD:227581"
+     misc_feature    203..853
+                     /gene="GSPT2"
+                     /note="Elongation Factor 1-alpha (EF1-alpha) protein
+                     family; Region: EF1_alpha; cd01883"
+                     /db_xref="CDD:206670"
+     misc_feature    218..241
+                     /gene="GSPT2"
+                     /note="G1 box; other site"
+                     /db_xref="CDD:206670"
+     misc_feature    order(221..223,227..229,239..244,251..253,260..265,
+                     404..409,461..466,533..538,683..685,695..697)
+                     /gene="GSPT2"
+                     /note="putative GEF interaction site [polypeptide
+                     binding]; other site"
+                     /db_xref="CDD:206670"
+     misc_feature    order(227..229,233..244,635..640,644..646,761..769)
+                     /gene="GSPT2"
+                     /note="GTP/Mg2+ binding site [chemical binding]; other
+                     site"
+                     /db_xref="CDD:206670"
+     misc_feature    order(239..241,368..370,377..382,386..388,392..394,
+                     398..406,410..412,443..445,449..451,455..463,467..469,
+                     476..478)
+                     /gene="GSPT2"
+                     /note="EF1Balpha binding site [polypeptide binding]; other
+                     site"
+                     /db_xref="CDD:206670"
+     misc_feature    374..406
+                     /gene="GSPT2"
+                     /note="Switch I region; other site"
+                     /db_xref="CDD:206670"
+     misc_feature    392..394
+                     /gene="GSPT2"
+                     /note="G2 box; other site"
+                     /db_xref="CDD:206670"
+     misc_feature    449..460
+                     /gene="GSPT2"
+                     /note="G3 box; other site"
+                     /db_xref="CDD:206670"
+     misc_feature    455..511
+                     /gene="GSPT2"
+                     /note="Switch II region; other site"
+                     /db_xref="CDD:206670"
+     misc_feature    635..646
+                     /gene="GSPT2"
+                     /note="G4 box; other site"
+                     /db_xref="CDD:206670"
+     misc_feature    761..769
+                     /gene="GSPT2"
+                     /note="G5 box; other site"
+                     /db_xref="CDD:206670"
+     misc_feature    878..1123
+                     /gene="GSPT2"
+                     /note="Domain II of the eukaryotic class II release
+                     factor; Region: eRF3_II; cd04089"
+                     /db_xref="CDD:293906"
+     misc_feature    order(911..922,1070..1072,1076..1078)
+                     /gene="GSPT2"
+                     /note="18S rRNA binding site [nucleotide binding]; other
+                     site"
+                     /db_xref="CDD:293906"
+     misc_feature    1139..1459
+                     /gene="GSPT2"
+                     /note="C-terminal domain of eRF3; Region: eRF3_C_III;
+                     cd03704"
+                     /db_xref="CDD:294003"
+     misc_feature    order(1187..1210,1214..1216,1220..1222,1235..1237,
+                     1241..1243,1247..1249,1310..1315,1319..1321,1415..1417,
+                     1421..1423)
+                     /gene="GSPT2"
+                     /note="heterodimer interface [polypeptide binding]; other
+                     site"
+                     /db_xref="CDD:294003"
+     STS             201..311
+                     /gene="GSPT2"
+                     /standard_name="RH26759"
+                     /db_xref="UniSTS:90306"
+ORIGIN      
+        1 agaaaatgga gaggtggaaa tggccctaga agaatcatgg gagcacagta aagaagtaag
+       61 tgaagccgag cctgggggtg gttcctcggg agattcaggg cccccagaag aaagtggcca
+      121 ggaaatgatg gaggaaaaag aggaaataag aaaatccaaa tctgtgatcg taccctcagg
+      181 tgcacctaag aaagaacacg taaatgtagt attcattggc catgtagacg ctggcaagtc
+      241 aaccatcgga ggacagataa tgtttttgac tggaatggtt gacaaaagaa cactggagaa
+      301 atatgaaaga gaagctaagg aaaaaaacag agaaacctgg tatttgtcct gggccttaga
+      361 tacaaatcag gaggaacgag acaagggtaa aacagtcgaa gtgggtcgtg cctattttga
+      421 aacagaaagg aaacatttca caattttaga tgcccctggc cacaagagtt ttgtcccaaa
+      481 tatgattggt ggtgcttctc aagctgattt ggctgtgctg gtcatctctg ccaggaaagg
+      541 agagtttgaa actggatttg aaaaaggtgg acagacaaga gaacatgcga tgttggcaaa
+      601 aacggcaggg gtaaaacatt taatagtgct tattaataag atggatgatc ccacagtaaa
+      661 ttggagcatc gagagatatg aagaatgtaa agaaaaactg gtgccctttt tgaaaaaagt
+      721 aggcttcagt ccaaaaaagg acattcactt tatgccctgc tcaggactga ccggagcaaa
+      781 tattaaagag cagtcagatt tctgcccttg gtacactgga ttaccattta ttccgtattt
+      841 ggataacttg ccaaacttca acagatcaat tgatggacca ataagactgc caattgtgga
+      901 taagtacaaa gatatgggca ctgtggtcct gggaaagctg gaatccgggt ccatttttaa
+      961 aggccagcag ctcgtgatga tgccaaacaa gcacaatgta gaagttcttg gaatactttc
+     1021 tgatgatact gaaactgatt ttgtagcccc aggtgaaaac ctcaaaatca gactgaaggg
+     1081 aattgaagaa gaagagattc ttccaggatt catactttgt gatcctagta acctctgcca
+     1141 ttctggacgc acgtttgatg ttcagatagt gattattgag cacaaatcca tcatctgccc
+     1201 aggttataat gcggtgctgc acattcatac ttgtattgag gaagttgaga taacagcgtt
+     1261 aatctccttg gtagacaaaa aatcaggaga aaaaagtaag acacgacccc gcttcgtgaa
+     1321 acaagatcaa gtatgcattg ctcgtttaag gacagcagga accatctgcc tcgagacgtt
+     1381 caaagatttt cctcagatgg gtcgttttac tttaagagat gagggtaaga ccattgcaat
+     1441 tggaaaagtt ctgaaactgg tcccggagaa ggactaagca attttcttga tgcctctgca
+     1501 agatactgtg aggagaattg acagcagaag ttcaccacct actcttattt actgcccatt
+     1561 gattgacttt tcttcatatt ttgcaaagag aaatttcaca gcaaaaattc atgttttgtc
+     1621 agctttctca tgttgagatc tgttatgtca ctgatgaatt taccctcaag tttccttcct
+     1681 ctgtaccact ctgcttcctt ggacaatatc agtaatagct ttgtaagtga tgtggacgta
+     1741 attgcctaca gtaatgaaaa attaatgtac tttaattttt cattttcttc taggatattt
+     1801 agaccaccct tgttccacgc aaaccagagt gtgtcagtgt ttgtgtgtgt gttaaaatga
+     1861 taactaacat gtgaataaaa tactccattt gaaactcaaa aaaaaaaaaa aaaaaaa
+//
+LOCUS       NM_001105158             771 bp    mRNA    linear   PRI 04-JUN-2016
+DEFINITION  Pan troglodytes killer cell immunoglobulin-like receptor (KIR2DS6),
+            mRNA.
+ACCESSION   NM_001105158 XM_003954309
+VERSION     NM_001105158.1
+KEYWORDS    RefSeq.
+SOURCE      Pan troglodytes (chimpanzee)
+  ORGANISM  Pan troglodytes
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
+            Catarrhini; Hominidae; Pan.
+COMMENT     PROVISIONAL REFSEQ: This record has not yet been subject to final
+            NCBI review. The reference sequence was derived from AM292663.1.
+            On Nov 1, 2012 this sequence version replaced XM_003954309.1.
+            
+            ##Evidence-Data-START##
+            Transcript exon combination :: AM292663.1 [ECO:0000332]
+            ##Evidence-Data-END##
+FEATURES             Location/Qualifiers
+     source          1..771
+                     /organism="Pan troglodytes"
+                     /mol_type="mRNA"
+                     /db_xref="taxon:9598"
+     gene            1..771
+                     /gene="KIR2DS6"
+                     /note="killer cell immunoglobulin-like receptor"
+                     /db_xref="GeneID:100125869"
+     STS             2..684
+                     /gene="KIR2DS6"
+                     /db_xref="UniSTS:481063"
+     CDS             13..600
+                     /gene="KIR2DS6"
+                     /codon_start=1
+                     /product="killer cell immunoglobulin-like receptor
+                     precursor"
+                     /protein_id="NP_001098628.1"
+                     /db_xref="GeneID:100125869"
+                     /translation="MSLMVVSMACVGFFLLQGAWPHMGVHRKLSLLAYPGPLVKSEEA
+                     VILQCWSDVMFEHFLLHREGKFNDTLRLTGELHDGVSKANFSIGRMTQDLAGTYRCYG
+                     SLTHSPYLLSAPSDPLDIVITGNPSNSWPSPTEPSSKTGNPRHLHVLIGTSVVKIPFT
+                     ILLFFLLHRCCSNKKKCCCNGPRACREQNSEQGGL"
+     sig_peptide     13..75
+                     /gene="KIR2DS6"
+                     /inference="COORDINATES: ab initio prediction:SignalP:4.0"
+     misc_feature    94..378
+                     /gene="KIR2DS6"
+                     /note="Immunoglobulin (IG)-like domain of of FcalphaRI;
+                     Region: Ig_FcalphaRI; cd05711"
+                     /db_xref="CDD:143188"
+     misc_feature    order(100..102,109..111,358..360,376..378)
+                     /gene="KIR2DS6"
+                     /note="homodimer interface [polypeptide binding]; other
+                     site"
+                     /db_xref="CDD:143188"
+     misc_feature    order(178..180,223..225,229..231,319..321)
+                     /gene="KIR2DS6"
+                     /note="IgA interface [polypeptide binding]; other site"
+                     /db_xref="CDD:143188"
+ORIGIN      
+        1 accggcagca ccatgtcgct catggtcgtc agcatggcgt gtgttgggtt cttcttgctg
+       61 cagggggcct ggccacacat gggcgtccac aggaaacttt ccctcctggc ctaccctggt
+      121 cccctggtga aatcagaaga ggcagtcatc ctgcaatgtt ggtcagatgt catgtttgag
+      181 cacttccttc tgcacagaga ggggaagttt aacgacactt tgcgcctcac tggagagctc
+      241 catgatgggg tctccaaggc caacttctct atcggtcgca tgacgcaaga cctggcaggg
+      301 acctacagat gctacggttc tcttactcac tccccctatc tgttgtcagc tcccagtgac
+      361 cctctggaca tcgtgatcac aggaaaccct tcaaatagtt ggccttcacc cactgaacca
+      421 agctccaaaa caggtaaccc cagacacctg cacgttctga ttgggacgtc agtggtcaaa
+      481 atccctttca ccatcctcct cttctttctc cttcatcgct gctgctccaa caaaaaaaaa
+      541 tgctgctgta atggaccaag agcctgcagg gaacagaaca gtgagcaggg aggactctga
+      601 tgaacaagac cctcaggagg tgacatatgc acagttggat caccgcgttt tcacacagag
+      661 aaaaatcact cgcccttctc agaggcccaa gacaacccca acagatacca gcgtgtacat
+      721 agaacctcca aatgctgagc ccagatccaa agttgtctcc tgcccatgag c
+//
+LOCUS       NM_001009111             945 bp    mRNA    linear   PRI 04-JUN-2016
+DEFINITION  Pan troglodytes olfactory receptor OR93Ch (OR93CH), mRNA.
+ACCESSION   NM_001009111
+VERSION     NM_001009111.1
+KEYWORDS    RefSeq.
+SOURCE      Pan troglodytes (chimpanzee)
+  ORGANISM  Pan troglodytes
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
+            Catarrhini; Hominidae; Pan.
+REFERENCE   1  (bases 1 to 945)
+  AUTHORS   Rouquier S, Friedman C, Delettre C, van den Engh G, Blancher A,
+            Crouau-Roy B, Trask BJ and Giorgi D.
+  TITLE     A gene recently inactivated in human defines a new olfactory
+            receptor family in mammals
+  JOURNAL   Hum. Mol. Genet. 7 (9), 1337-1345 (1998)
+   PUBMED   9700185
+COMMENT     PROVISIONAL REFSEQ: This record has not yet been subject to final
+            NCBI review. The reference sequence was derived from AF045577.1.
+FEATURES             Location/Qualifiers
+     source          1..945
+                     /organism="Pan troglodytes"
+                     /mol_type="mRNA"
+                     /db_xref="taxon:9598"
+                     /chromosome="11"
+                     /map="11"
+     gene            1..945
+                     /gene="OR93CH"
+                     /note="olfactory receptor OR93Ch"
+                     /db_xref="GeneID:466579"
+     CDS             1..945
+                     /gene="OR93CH"
+                     /note="olfactory receptor-like protein HbT3"
+                     /codon_start=1
+                     /product="olfactory receptor OR93Ch"
+                     /protein_id="NP_001009111.1"
+                     /db_xref="GeneID:466579"
+                     /translation="MANENYTKVTEFIFTGLNYNPQLQVFLFLLFLTTFYVINVTGNL
+                     GMIVLIRIDSRLHTPMYFFLSHLSFVDICFSSVVSPKMLTDFFVKRKAISFLGCALQQ
+                     WFFGFFVAAECFLLASMAYDRYVAICNPLLYSVAMSQRLCIQLVVGPYVIGLMNTMTH
+                     TTNAFRLPFCGPNVINHFFCDMSPLLSLVCADTRLNKLAVFIVAGAAGVFSGLTILIS
+                     YIYILMAILRIRSADGRCKTFSTCSSHLTAVFILYGTLFFIYVRPSASFSLDLNKLVS
+                     VFYTAVIPMLNPLIYSLRNKEVKDAIHRTVTQRKFCKA"
+     misc_feature    106..927
+                     /gene="OR93CH"
+                     /note="Olfactory receptor; Region: 7tm_4; cl21561"
+                     /db_xref="CDD:304433"
+     misc_feature    124..873
+                     /gene="OR93CH"
+                     /note="7 transmembrane receptor (rhodopsin family);
+                     Region: 7tm_1; pfam00001"
+                     /db_xref="CDD:278431"
+ORIGIN      
+        1 atggctaatg aaaactacac aaaggtcacc gaattcattt tcacaggctt gaattacaat
+       61 cctcagttgc aggtcttcct cttcctactc tttctgacaa ctttctatgt catcaatgta
+      121 actggaaact tgggaatgat tgtccttatc cgaatcgatt cccgccttca cacacccatg
+      181 tactttttcc tcagccacct gtcctttgtg gacatctgct tctcctcagt tgtgagcccc
+      241 aagatgctca ctgacttctt tgtgaagagg aaagccattt ctttccttgg ctgtgctttg
+      301 cagcagtggt tctttgggtt ctttgtggca gcagagtgtt tcctcttggc gtccatggcc
+      361 tatgaccgct atgtggccat ctgtaaccca ttgttatact cagttgctat gtcccagagg
+      421 ctctgcatcc agctagtggt gggtccctat gtcattggac tcatgaatac catgactcac
+      481 acaacaaatg catttcgtct ccctttttgt ggccctaatg tcatcaatca tttcttctgt
+      541 gatatgtccc ccttactttc ccttgtatgt gctgatacca ggctcaataa gttggcagtt
+      601 ttcatcgtgg ctggagctgc gggagtcttc agtggtctga ctatcctgat ttcctacatt
+      661 tacatcctca tggccatcct gaggatccgc tctgctgatg ggaggtgcaa aaccttttct
+      721 acttgctctt ctcacctgac agctgttttc atcttgtatg gtaccctttt ctttatttat
+      781 gtacgtccta gtgcaagctt ctccctggat ctcaataaat tagtgtctgt gttttacaca
+      841 gcagtgattc ctatgttgaa cccacttatc tacagcttga gaaacaagga agtcaaagat
+      901 gccatccaca ggactgtcac tcagaggaag ttttgcaagg cctaa
+//
+LOCUS       NM_001291945            1479 bp    mRNA    linear   ROD 05-JUN-2016
+DEFINITION  Cricetulus griseus solute carrier family 2 member 1 (Slc2a1), mRNA.
+ACCESSION   NM_001291945
+VERSION     NM_001291945.1
+KEYWORDS    RefSeq.
+SOURCE      Cricetulus griseus (Chinese hamster)
+  ORGANISM  Cricetulus griseus
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Glires; Rodentia; Myomorpha;
+            Muroidea; Cricetidae; Cricetinae; Cricetulus.
+REFERENCE   1  (bases 1 to 1479)
+  AUTHORS   Becker J, Hackl M, Rupp O, Jakobi T, Schneider J, Szczepanowski R,
+            Bekel T, Borth N, Goesmann A, Grillari J, Kaltschmidt C, Noll T,
+            Puhler A, Tauch A and Brinkrolf K.
+  TITLE     Unraveling the Chinese hamster ovary cell line transcriptome by
+            next-generation sequencing
+  JOURNAL   J. Biotechnol. 156 (3), 227-235 (2011)
+   PUBMED   21945585
+COMMENT     PROVISIONAL REFSEQ: This record has not yet been subject to final
+            NCBI review. The reference sequence was derived from JF935140.1.
+            
+            ##Evidence-Data-START##
+            Transcript exon combination :: JF935140.1 [ECO:0000332]
+            RNAseq introns              :: single sample supports all introns
+                                           SAMN00691386, SAMN02313285
+                                           [ECO:0000348]
+            ##Evidence-Data-END##
+FEATURES             Location/Qualifiers
+     source          1..1479
+                     /organism="Cricetulus griseus"
+                     /mol_type="mRNA"
+                     /db_xref="taxon:10029"
+                     /chromosome="2"
+                     /map="2"
+     gene            1..1479
+                     /gene="Slc2a1"
+                     /gene_synonym="GLUT-1"
+                     /note="solute carrier family 2 member 1"
+                     /db_xref="GeneID:100753506"
+     CDS             1..1479
+                     /gene="Slc2a1"
+                     /gene_synonym="GLUT-1"
+                     /note="glucose transporter 1; solute carrier family 2
+                     (facilitated glucose transporter), member 1"
+                     /codon_start=1
+                     /product="solute carrier family 2, facilitated glucose
+                     transporter member 1"
+                     /protein_id="NP_001278874.1"
+                     /db_xref="GeneID:100753506"
+                     /translation="MEPSSKKVTGRLMLAVGGAVLGSLQFGYNTGVINAPQKVIEEFY
+                     NQTWVHRYGEPIVPTTLTTLWSLSVAIFSVGGMIGSFSVGLFVNRFGRRNSMLMMNLL
+                     AFVSAVLMGFSKLGKSFEMLILGRFIIGVYCGLTTGFVPMYVGEVSPTALRGALGTLH
+                     QLGIVVGILIAQVFGLDSIMGNADLWPLLLSIIFVPALLQCILLPFCPESPRFLLINR
+                     NEENRAKSVLKKLRXTADVTRDLQEMKEEGRQMMREKKVTILELFRSAAYRQPILIAV
+                     VLQLSQQLSGINAVFYYSASIFEKAGVQQPVYATIGSGIVNTAFTVVSLFVVERAGRR
+                     TLHLIGLAGMAGCAVLMTIALALLEQLPWMSYLSIVAIFGFVAFFEVGPGPIPWFIVA
+                     ELFSQGPRPAAIAVAGFSNWTSNFIVGMCFQYVEQLCGPYVFIIFTVLLVLFFIFTYF
+                     KVPETKGRTFDEIASGFRQGGASQSDKTPEELFHPLGADSQV"
+     misc_feature    55..1401
+                     /gene="Slc2a1"
+                     /gene_synonym="GLUT-1"
+                     /note="Sugar (and other) transporter; Region: Sugar_tr;
+                     pfam00083"
+                     /db_xref="CDD:278511"
+     misc_feature    184..1350
+                     /gene="Slc2a1"
+                     /gene_synonym="GLUT-1"
+                     /note="The Major Facilitator Superfamily (MFS) is a large
+                     and diverse group of secondary transporters that includes
+                     uniporters, symporters, and antiporters. MFS proteins
+                     facilitate the transport across cytoplasmic or internal
+                     membranes of a variety of...; Region: MFS; cd06174"
+                     /db_xref="CDD:119392"
+     misc_feature    order(205..207,214..219,226..228,238..243,247..252,
+                     397..402,409..414,421..426,433..435,469..474,481..486,
+                     502..504,850..852,859..864,871..876,883..885,916..918,
+                     928..930,940..942,949..951,961..963,1120..1122,1129..1134,
+                     1141..1143,1153..1158,1174..1176,1207..1212,1219..1224,
+                     1231..1236,1243..1245)
+                     /gene="Slc2a1"
+                     /gene_synonym="GLUT-1"
+                     /note="putative substrate translocation pore; other site"
+                     /db_xref="CDD:119392"
+     STS             480..555
+                     /gene="Slc2a1"
+                     /gene_synonym="GLUT-1"
+                     /standard_name="Slc2a1"
+                     /db_xref="UniSTS:516693"
+     STS             1254..1325
+                     /gene="Slc2a1"
+                     /gene_synonym="GLUT-1"
+                     /standard_name="PMC162224P1"
+                     /db_xref="UniSTS:271465"
+ORIGIN      
+        1 atggagccca gcagcaagaa ggtgactggc cgcctcatgc tggccgtggg aggggcagtg
+       61 ctcggatccc tgcagtttgg ctataacact ggcgtcatca atgcccccca gaaggtaatt
+      121 gaggagttct acaaccagac atgggtccac cgctatggag agcccattgt gcccaccaca
+      181 ctcaccacgc tctggtccct ctcggtggcc atcttctccg tcgggggcat gattggttcc
+      241 ttttctgtgg gcctctttgt taatcgcttt ggcaggcgga actccatgct gatgatgaac
+      301 ctattggcct ttgtgtctgc tgtgctcatg ggcttctcca aactgggcaa gtcttttgag
+      361 atgctgatcc tgggccgctt catcattgga gtgtactgtg gcctgaccac tggctttgtg
+      421 cccatgtatg tgggagaggt gtcacccaca gctcttcgtg gagccctagg cacgctgcac
+      481 cagctgggca tcgtcgttgg catccttatt gcccaggtgt tcggcctgga ctccattatg
+      541 ggcaatgcag acttgtggcc tctgctgctc agtatcatct tcgtcccagc cctgctacag
+      601 tgcatcctgt tgcccttctg ccccgagagc ccccgcttcc tgctcatcaa tcgcaacgag
+      661 gaaaaccggg ccaagagtgt gctgaagaag cttcgangga cagccgatgt gacccgagac
+      721 ctgcaggaga tgaaagaaga gggtcggcag atgatgaggg agaagaaggt caccatcctg
+      781 gagctgttcc gctcagccgc ctaccgccag cccatcctca ttgctgtggt gctgcagctg
+      841 tcccagcagc tgtcgggcat caatgctgtg ttctattact cagcgagcat cttcgagaag
+      901 gcaggcgtgc agcagcctgt gtatgccacc atcggctcgg gtatcgtcaa cacagccttc
+      961 actgtggtgt cgctgttcgt ggtagagcga gctggacgac ggactctgca cctcattggc
+     1021 ctggctggca tggcaggctg tgctgtactc atgaccatcg cactggccct gctggaacag
+     1081 ctgccctgga tgtcctatct gagcatcgtg gccatctttg gctttgtggc cttctttgaa
+     1141 gtaggccctg gtcccatccc atggttcatt gtggccgagc tgttcagcca ggggcctcgt
+     1201 cctgctgcta ttgctgtggc tggcttctcc aactggacct caaatttcat cgtgggcatg
+     1261 tgcttccagt atgtggagca actgtgtggc ccctatgtct tcatcatctt cacggtgctc
+     1321 ctggtgctgt tcttcatctt cacctacttc aaagttcctg agaccaaagg ccggaccttc
+     1381 gatgagatcg cttctggctt ccggcagggg ggtgcaagcc aaagtgacaa gacacctgag
+     1441 gagctgttcc accctctggg ggctgattcc caagtgtga
+//
+LOCUS       NM_001252297            3537 bp    mRNA    linear   ROD 05-JUN-2016
+DEFINITION  Cricetulus griseus pyruvate carboxylase (Pc), mRNA.
+ACCESSION   NM_001252297 XM_003510141 XM_003510142 XM_003510143
+VERSION     NM_001252297.1
+KEYWORDS    RefSeq.
+SOURCE      Cricetulus griseus (Chinese hamster)
+  ORGANISM  Cricetulus griseus
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Glires; Rodentia; Myomorpha;
+            Muroidea; Cricetidae; Cricetinae; Cricetulus.
+REFERENCE   1  (bases 1 to 3537)
+  AUTHORS   Becker J, Hackl M, Rupp O, Jakobi T, Schneider J, Szczepanowski R,
+            Bekel T, Borth N, Goesmann A, Grillari J, Kaltschmidt C, Noll T,
+            Puhler A, Tauch A and Brinkrolf K.
+  TITLE     Unraveling the Chinese hamster ovary cell line transcriptome by
+            next-generation sequencing
+  JOURNAL   J. Biotechnol. 156 (3), 227-235 (2011)
+   PUBMED   21945585
+COMMENT     PROVISIONAL REFSEQ: This record has not yet been subject to final
+            NCBI review. The reference sequence was derived from JF935145.1.
+            On or before Nov 10, 2011 this sequence version replaced
+            XM_003510141.1, XM_003510142.1, XM_003510143.1.
+            
+            ##Evidence-Data-START##
+            Transcript exon combination :: JF935145.1 [ECO:0000332]
+            RNAseq introns              :: single sample supports all introns
+                                           SAMN02313288, SAMN04275183
+                                           [ECO:0000348]
+            ##Evidence-Data-END##
+            
+            ##RefSeq-Attributes-START##
+            gene product(s) localized to mito. :: inferred from homology
+            ##RefSeq-Attributes-END##
+FEATURES             Location/Qualifiers
+     source          1..3537
+                     /organism="Cricetulus griseus"
+                     /mol_type="mRNA"
+                     /db_xref="taxon:10029"
+                     /chromosome="3"
+                     /map="3"
+     gene            1..3537
+                     /gene="Pc"
+                     /gene_synonym="Pcx"
+                     /note="pyruvate carboxylase"
+                     /db_xref="GeneID:100758970"
+     CDS             1..3537
+                     /gene="Pc"
+                     /gene_synonym="Pcx"
+                     /EC_number="6.4.1.1"
+                     /codon_start=1
+                     /product="pyruvate carboxylase, mitochondrial"
+                     /protein_id="NP_001239226.1"
+                     /db_xref="GeneID:100758970"
+                     /translation="MLKFQTVRGGLRLLGVRRSSSAPVASPNVRRLEYKPIKKVMVAN
+                     RGEIAIRVFRACTELGIRTVAVYSEQDTGQMHRQKADEAYLIGRGLAPVQAYLHIPDI
+                     IKVAKENGVDAVHPGYGFLSERADFAQACQDAGVRFIGPSPEVVRKMGDKVEARAIAI
+                     AAGVPVVPGTDAPINSLHEAHEFSNTYGFPIIFKAAYGGGGRGMRVVHSYEELEENYT
+                     RAYSEALAAFGNGALFVEKFIEKPRHIEVQILGDQYGNILHLYERDCSIQRRHQKVVE
+                     IAPAAHLDPQLRSRLTSDSVKLAKQVGYENAGTVEFLVDKHGKHYFIEVNSRLQVEHT
+                     VTEEITDVDLVHAQIHVSEGRSLPDLGLRQENIRINGCAIQCRVTTEDPARSFQPDTG
+                     RIEVFRSGEGMGIRLDNASAFQGAVISPHYDSLLVKVIAHGKDHPTAATKMSRALAEF
+                     RVRGVKTNIPFLQNVLNNQQFLAGTVDTQFIDENPELFQLRPAQNRAQKLLHYLGHVM
+                     VNGPTTPIPVKASPSPVDPVVPAVPIGPPPPGFRDILLREGPEGFARAVRNHQGLLLM
+                     DTTFRDAHQSLLATRVRTHDLKKIAPYVAHNFNKLFSMENWGGATFDVAMRFLYECPW
+                     RRLQELRELIPNIPFQMLLRGANAVGYTNYPDNVVFKFCEVAKENGMDVFRIFDSLNY
+                     LPNMLLGMEAAGNAGGVVEAAISYTGDVADPSRTKYSLEYYMGLAEELVRAGTHILCI
+                     KDMAGLLKPAACTMLVSSLRNRFPDLPLHIHTHDTSGAGVAAMLACAQAGADVVDVAV
+                     DSMSGMTSQPSMGALVACTKGTPLNTEVPLERVFDYSEYWEGARGLYAAFDCTATMKS
+                     GNSDVYENEIPGGQYTNLHFQAHSMGLGSKFKEVKKAYVEANQMLGDLIKVTPSSKIV
+                     GDLAQFMVQNGLSRAEAEAQAEELSFPRSVVEFLQGYIGIPHGGFPEPFRSKVLKDLP
+                     RVEGRPGASLPPLNLQELEKDLIERHGEEVTPEDVLSAAMYPDVFSQFKDFTATFGPL
+                     DSLNTRLFLQGPKIAEEFEVELERGKTLHIKALAVSDLNRAGQRQVFFELNGQLRSIL
+                     VKDTQAMKEMHFHPKALKDVKGQIGAPMPGKVIDIKVAAGDKVVKGQPLCVLSAMKME
+                     TVVTSPMEGTIRKVHVTKDMTLEGDDLILEIE"
+     misc_feature    97..3534
+                     /gene="Pc"
+                     /gene_synonym="Pcx"
+                     /note="pyruvate carboxylase; Reviewed; Region: PRK12999"
+                     /db_xref="CDD:237263"
+     misc_feature    109..435
+                     /gene="Pc"
+                     /gene_synonym="Pcx"
+                     /note="Carbamoyl-phosphate synthase L chain, N-terminal
+                     domain; Region: CPSase_L_chain; pfam00289"
+                     /db_xref="CDD:278706"
+     misc_feature    451..1074
+                     /gene="Pc"
+                     /gene_synonym="Pcx"
+                     /note="ATP-grasp domain; Region: ATP-grasp_4; cl17255"
+                     /db_xref="CDD:302634"
+     misc_feature    1123..1446
+                     /gene="Pc"
+                     /gene_synonym="Pcx"
+                     /note="Biotin carboxylase C-terminal domain; Region:
+                     Biotin_carb_C; smart00878"
+                     /db_xref="CDD:214878"
+     misc_feature    1693..2544
+                     /gene="Pc"
+                     /gene_synonym="Pcx"
+                     /note="Pyruvate carboxylase and Transcarboxylase 5S,
+                     carboxyltransferase domain; Region: DRE_TIM_PC_TC_5S;
+                     cd07937"
+                     /db_xref="CDD:163675"
+     misc_feature    order(1711..1716,1723..1725,1813..1815,1825..1827,
+                     1924..1926,1930..1932,2113..2115,2221..2223,2311..2313,
+                     2317..2319,2419..2421)
+                     /gene="Pc"
+                     /gene_synonym="Pcx"
+                     /note="active site"
+                     /db_xref="CDD:163675"
+     misc_feature    order(1711..1716,1813..1815)
+                     /gene="Pc"
+                     /gene_synonym="Pcx"
+                     /note="catalytic residues [active]"
+                     /db_xref="CDD:163675"
+     misc_feature    order(1714..1716,2221..2223,2311..2313,2317..2319)
+                     /gene="Pc"
+                     /gene_synonym="Pcx"
+                     /note="metal binding site [ion binding]; metal-binding
+                     site"
+                     /db_xref="CDD:163675"
+     misc_feature    order(2242..2244,2248..2250,2326..2328,2332..2334,
+                     2338..2340,2350..2355,2395..2400,2404..2406,2434..2436,
+                     2452..2454,2494..2496)
+                     /gene="Pc"
+                     /gene_synonym="Pcx"
+                     /note="homodimer binding site [polypeptide binding]; other
+                     site"
+                     /db_xref="CDD:163675"
+     misc_feature    2581..3180
+                     /gene="Pc"
+                     /gene_synonym="Pcx"
+                     /note="Conserved carboxylase domain; Region: PYC_OADA;
+                     pfam02436"
+                     /db_xref="CDD:280576"
+     misc_feature    3331..3531
+                     /gene="Pc"
+                     /gene_synonym="Pcx"
+                     /note="The biotinyl-domain or biotin carboxyl carrier
+                     protein (BCCP) domain is present in all biotin-dependent
+                     enzymes, such as acetyl-CoA carboxylase, pyruvate
+                     carboxylase, propionyl-CoA carboxylase, methylcrotonyl-CoA
+                     carboxylase, geranyl-CoA carboxylase; Region:
+                     biotinyl_domain; cd06850"
+                     /db_xref="CDD:133459"
+     misc_feature    order(3400..3402,3427..3435,3454..3456)
+                     /gene="Pc"
+                     /gene_synonym="Pcx"
+                     /note="carboxyltransferase (CT) interaction site; other
+                     site"
+                     /db_xref="CDD:133459"
+     misc_feature    3430..3432
+                     /gene="Pc"
+                     /gene_synonym="Pcx"
+                     /note="biotinylation site [posttranslational
+                     modification]; other site"
+                     /db_xref="CDD:133459"
+ORIGIN      
+        1 atgctgaagt tccaaacagt tcgagggggc ctgaggctcc tgggtgtccg ccgttcctcc
+       61 tctgccccag ttgcctcccc aaatgtccgg cgcctggagt acaaacctat taagaaagtc
+      121 atggtggcca acagaggtga gattgccatc cgagtgtttc gtgcttgtac ggagttgggc
+      181 atccgcacag tggccgtcta ctcagagcag gacacaggcc agatgcatcg acagaaagct
+      241 gatgaagcct accttattgg tcgtggcttg gcacctgtgc aggcctacct gcacatccca
+      301 gacatcatca aggtggccaa ggagaatggt gtagatgctg tgcaccctgg ctatgggttc
+      361 ctctcagagc gagcagactt tgctcaggcc tgccaggatg ctggagtccg gttcattggg
+      421 ccaagtccag aggtggtccg caagatggga gacaaggtgg aggcccgggc cattgccatc
+      481 gctgcaggtg tcccagtggt ccctggcact gatgccccca tcaattccct gcatgaggcc
+      541 catgagttct ccaacactta tggcttcccc attatcttca aggctgccta cggaggtggg
+      601 ggccgtggca tgagggttgt gcacagctat gaggagctgg aggagaatta cacccgagcc
+      661 tactctgagg ccttggcagc cttcgggaat ggggcactat ttgtggagaa gtttattgag
+      721 aaaccacggc acatcgaggt gcagatcctg ggggaccaat atgggaacat cctgcacttg
+      781 tatgagcgtg actgctccat ccagcgacgg caccagaagg tggtagagat tgctcctgct
+      841 gcccacctgg acccccaact tcgttcacgc ctcaccagtg actctgtcaa acttgccaag
+      901 caggtgggat acgagaacgc aggcactgtg gagttcctgg tggataagca tggaaagcac
+      961 tacttcatcg aggtcaattc ccgcctgcag gtggagcaca cggtcactga ggagatcaca
+     1021 gatgtagatc tggtccatgc tcagatccat gtgtctgagg gccggagcct gcctgacctg
+     1081 ggcctgaggc aggagaacat ccgcatcaat ggctgtgcca ttcagtgtcg agtcaccact
+     1141 gaggaccctg cacgtagctt ccagcctgac actggccgca ttgaggtttt ccggagtggt
+     1201 gagggcatgg gcatccgcct ggacaatgcc tctgccttcc aaggggctgt catctcaccc
+     1261 cactatgatt ctctgcttgt caaagtcatc gcccatggca aagaccaccc cacagctgct
+     1321 accaagatga gcagagccct ggctgagttc cgtgtccgag gggtaaagac caacatcccc
+     1381 ttcctgcaga acgtgctcaa caaccagcag ttcctagcag gcactgtgga tacccagttc
+     1441 atcgatgaga atcctgagct gttccagctg cggcctgcac agaaccgggc ccagaagctg
+     1501 ctacattacc tcggacatgt catggtaaat ggccctacca ctccaatccc tgtcaaggcc
+     1561 agtcccagcc ctgtggaccc cgttgttcct gcagtaccta taggcccacc cccacctggc
+     1621 tttagagaca ttcttctgcg agaggggcca gagggctttg cccgagctgt gcgaaatcac
+     1681 cagggactgc tgctgatgga cacaaccttc cgggatgccc accagtcact actggccact
+     1741 cgagtgcgca cacatgatct caaaaagatt gcgccctatg ttgcccacaa cttcaacaag
+     1801 ctcttcagca tggagaactg gggaggggcc acatttgatg ttgccatgcg cttcttatat
+     1861 gagtgtccct ggaggcggct gcaggagctc cgggagctca tccccaacat tccgttccag
+     1921 atgctgcttc ggggggccaa tgccgtgggc tacaccaatt atcctgacaa tgtggtcttc
+     1981 aagttctgtg aggtggccaa ggagaatggt atggacgtct tccgaatctt tgactccctc
+     2041 aactacttgc caaacatgct gctgggcatg gaagcagcag gcaatgctgg gggcgtggtg
+     2101 gaagctgcca tctcgtatac tggtgatgta gctgacccca gtcgcacaaa atactcgctg
+     2161 gagtactaca tgggcttggc tgaagaactg gtgcgagctg gcacccacat cctatgcatt
+     2221 aaggacatgg ccgggctact gaagcctgca gcctgcacca tgctggtcag ctccctccgc
+     2281 aacagatttc ctgacctacc gctgcacatc catacccatg acacatcagg ggcaggtgtg
+     2341 gcagccatgc tggcctgtgc acaagctggg gctgatgttg tggatgtggc agtagactcc
+     2401 atgtctggga tgacttcaca gcccagcatg ggtgccctgg tggcttgtac caaagggact
+     2461 cctctgaaca cagaggtgcc cctggagcgt gtgtttgact acagtgaata ctgggaaggg
+     2521 gctcggggcc tgtatgcggc ctttgactgc acggctacca tgaagtctgg caactcagat
+     2581 gtgtatgaga atgagatccc agggggccag tacaccaacc tacacttcca ggcccacagc
+     2641 atggggcttg gctccaagtt caaggaggtc aagaaggcct atgtggaggc taaccagatg
+     2701 ctgggggacc tcatcaaggt gacaccatcc tccaagattg tgggggacct ggcccagttc
+     2761 atggtgcaga atgggttaag ccgagcagag gctgaagctc aggcagaaga gctgtccttc
+     2821 cctcgctctg tggtggaatt cctgcagggc tacattggaa ttccccatgg aggcttccct
+     2881 gagcccttcc gctctaaggt gctaaaggac ctgccaagag tagaggggag gcctggagcc
+     2941 tcccttcctc ccctgaacct gcaggagctg gagaaggacc tgattgagcg gcatggggag
+     3001 gaggtgaccc cagaggatgt cctctctgca gccatgtacc ctgatgtctt ctcccaattc
+     3061 aaagacttca cagccacctt cggcccactg gacagcctca atacccgcct ctttcttcaa
+     3121 ggacccaaaa ttgcagagga gtttgaggtg gaactggaac ggggcaagac tctgcacatc
+     3181 aaagccctgg cagtgagtga cctgaatcgg gctggccaga ggcaggtttt ctttgaactc
+     3241 aatgggcagc ttcggtccat tctggttaaa gacacccagg caatgaagga gatgcacttc
+     3301 catcccaagg ctctgaagga tgtgaagggc cagattgggg cccctatgcc tgggaaggtc
+     3361 atagacatca aggtggcggc aggagacaag gtggttaagg gccagcccct ctgtgttctc
+     3421 agtgccatga agatggagac tgtggtgacc tcacccatgg agggcaccat ccgcaaggtt
+     3481 cacgtgacca aggacatgac actggaaggc gatgacctca tcctagagat tgagtga
+//

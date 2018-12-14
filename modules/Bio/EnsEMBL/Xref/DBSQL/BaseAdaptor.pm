@@ -1960,5 +1960,27 @@ sub _update_xref_description {
   return;
 } ## sub _update_xref_description
 
+
+=head2 _update_xref_description
+  Description: Refseq sources to consider. Prefixes not in this list will be ignored.
+               To be used by RefSeq parsers
+  Return type: hashref
+  Caller     : internal
+
+=cut
+
+sub get_refseq_sources {
+  return {
+      NM => 'RefSeq_mRNA',
+      NR => 'RefSeq_ncRNA',
+      XM => 'RefSeq_mRNA_predicted',
+      XR => 'RefSeq_ncRNA_predicted',
+      NP => 'RefSeq_peptide',
+      XP => 'RefSeq_peptide_predicted',
+  };
+}
+
+
+
 1;
 
