@@ -1930,5 +1930,552 @@ sub _update_xref_description {
   return;
 } ## sub _update_xref_description
 
+
+################################################################################
+################################################################################
+################################################################################
+# Functions from the Loader.pm module. This needs normalising into the already #
+# existing code base.                                                          #
+################################################################################
+################################################################################
+################################################################################
+
+
+sub get_source_ids_with_xrefs {
+
+  my $self = shift;
+
+  my $name_to_external_db_sql = (<<'SQL');
+    SELECT s.name, COUNT(s.name)
+    FROM xref x, object_xref ox, source s
+    WHERE ox.xref_id = x.xref_id AND
+          x.source_id = s.source_id
+    GROUP BY s.name
+SQL
+
+  my $sth = $self->dbi->prepare_cached( $sql );
+  $sth->execute() or confess( $self->dbi->errstr() );
+
+  $sth->bind_columns( \$source_name, \$source_count);
+
+  return sub {
+    $sth->fetch;
+
+    return {
+      name  => $source_name,
+      count => $source_count
+    }
+  }
+} ## end sub get_source_ids_with_xrefs
+
+
+
+sub get_dump_out_xrefs {
+  my $sql = (<<'SQL');
+    SELECT s.name, s.source_id, COUNT(*), x.info_type, s.priority_description, s.source_release
+    FROM xref x, object_xref ox, source s
+    WHERE ox.xref_id = x.xref_id  AND
+          x.source_id = s.source_id AND
+          ox_status = 'DUMP_OUT'
+    GROUP BY s.name, s.source_id, x.info_type
+SQL
+
+  $sth = $self->dbi->prepare_cached( $sql );
+  $sth->execute();
+
+  my ($type, $source_id, $where_from, $release_info);
+  $sth->bind_columns(\$name,\$source_id, \$count, \$type, \$where_from, \$release_info);
+
+  return sub {
+    $seq_sth->fetch;
+
+    return {
+      type         => $type,
+      source_id    => $source_id,
+      count        => $count,
+      name         => $name,
+      where_from   => $where_from,
+      release_info => $release_info,
+    }
+  }
+}
+
+
+
+sub get_insert_identity_xref {
+  my ( $self, $source_id, $type ) = @_;
+
+  my $sql = (<<'SQL');
+    SELECT x.xref_id, x.accession, x.label, x.version, x.description, x.info_text,
+           ox.object_xref_id, ox.ensembl_id, ox.ensembl_object_type,
+           i.query_identity, i.target_identity, i.hit_start, i.hit_end,
+           i.translation_start, i.translation_end, i.cigar_line, i.score, i.evalue
+    FROM xref x, object_xref ox, identity_xref i
+    WHERE ox.ox_status = 'DUMP_OUT' AND
+          i.object_xref_id = ox.object_xref_id AND
+          ox.xref_id = x.xref_id AND
+          x.source_id = ? AND
+          x.info_type = ?
+    ORDER BY x.xref_id
+SQL
+
+  my $seq_sth = $self->dbi->prepare_cached($sql);
+
+  my $count = 0;
+  $seq_sth->execute($source_id, $type);
+
+  my ( $xref_id, $acc, $label, $version, $desc, $info, $object_xref_id,
+       $ensembl_id, $ensembl_type );
+
+  my ( $query_identity, $target_identity, $hit_start, $hit_end,
+       $translation_start, $translation_end, $cigar_line, $score, $evalue);
+
+  $seq_sth->bind_columns(
+    \$xref_id, \$acc, \$label, \$version, \$desc, \$info, \$object_xref_id,
+    \$ensembl_id, \$ensembl_type, \$query_identity, \$target_identity,
+    \$hit_start, \$hit_end, \$translation_start, \$translation_end,
+    \$cigar_line, \$score, \$evalue);
+
+  return sub {
+    $seq_sth->fetch;
+
+    return {
+      xref_id          => $xref_id,
+      acc              => $acc,
+      label            => $label,
+      version          => $version,
+      desc             => $desc,
+      info             => $info,
+      ensembl_id       => $ensembl_id,
+      ensemb_type      => $ensembl_type
+      object_xref_id   => $object_xref_id,
+      query_identity   => $query_identity,
+      ensembl_identity => $target_identity,
+      xref_start       => $hit_start,
+      xref_end         => $hit_end,
+      ensembl_start    => $translation_start,
+      ensembl_end      => $translation_end,
+      cigar_line       => $cigar_line,
+      score            => $score,
+      evalue           => $evalue
+    }
+  }
+} ## end sub get_insert_identity_xref
+
+
+sub get_insert_checksum_xref {
+  my ( $self, $source_id, $type ) = @_;
+
+  my $sql = (<<'SQL');
+    SELECT x.xref_id, x.accession, x.label, x.version, x.description, x.info_text,
+           ox.object_xref_id, ox.ensembl_id, ox.ensembl_object_type
+    FROM xref x, object_xref ox
+    WHERE ox.ox_status = 'DUMP_OUT' AND
+          ox.xref_id = x.xref_id AND
+          x.source_id = ? AND
+          x.info_type = ?
+    ORDER BY x.xref_id
+SQL
+
+  my $dir_sth = $self->dbi->prepare($dir_sql);
+
+  my $count = 0;
+  $dir_sth->execute($source_id, $type);
+  my $last_xref = 0;
+  my ($xref_id, $acc, $label, $version, $desc, $info, $object_xref_id, $ensembl_id, $ensembl_type);
+
+  $dir_sth->bind_columns(
+    \$xref_id, \$acc, \$label, \$version, \$desc, \$info, \$object_xref_id,
+    \$ensembl_id, \$ensembl_type);
+
+  return sub {
+    $dir_sth->fetch;
+
+    return {
+      xref_id          => $xref_id,
+      acc              => $acc,
+      label            => $label,
+      version          => $version,
+      desc             => $desc,
+      info             => $info,
+      ensembl_id       => $ensembl_id,
+      ensemb_type      => $ensembl_type
+      object_xref_id   => $object_xref_id
+    }
+  }
+} ## end sub get_insert_checksum_xref
+
+
+
+sub get_insert_dependent_xref {
+  my ( $self, $source_id, $type ) = @_;
+
+  my $sql = (<<'SQL');
+    SELECT x.xref_id, x.accession, x.label, x.version, x.description, x.info_text,
+           ox.object_xref_id, ox.ensembl_id, ox.ensembl_object_type, ox.master_xref_id
+    FROM xref x, object_xref ox
+    WHERE ox.ox_status = 'DUMP_OUT' and
+          ox.xref_id = x.xref_id and
+          x.source_id = ? and
+          x.info_type = ?
+    ORDER BY x.xref_id, ox.ensembl_id
+SQL
+
+  my $dependent_sth = $self->dbi->prepare($dep_sql);
+  $dependent_sth->execute($source_id, $type);
+  $dependent_sth->bind_columns(
+    \$xref_id, \$acc, \$label, \$version, \$desc, \$info, \$object_xref_id,
+    \$ensembl_id, \$ensembl_type, \$master_xref_id);
+
+  return sub {
+    $dir_sth->fetch;
+
+    return {
+      xref_id          => $xref_id,
+      acc              => $acc,
+      label            => $label,
+      version          => $version,
+      desc             => $desc,
+      info             => $info,
+      ensembl_id       => $ensembl_id,
+      ensemb_type      => $ensembl_type,
+      object_xref_id   => $object_xref_id,
+      master_xref_id   => $master_xref_id
+    }
+  }
+
+} ## end sub get_insert_dependent_xref
+
+
+sub get_synonyms_for_xref {
+  my ( $self, $xref_list ) = @_;
+
+  my ($xref_id, $syn);
+  my $syn_sql = (<<"SQL")
+    SELECT xref_id, synonym
+    FROM synonym
+    WHERE xref_id IN ( @{[join',', ('?') x @{$syn_sql}]} )
+SQL
+  my $syn_sth = $self->dbi->prepare( $syn_sql );
+  $syn_sth->execute( @{ $xref_list } );
+  $syn_sth->bind_columns(\$xref_id, \$syn);
+
+  return sub {
+    $syn_sth-> fetch;
+
+    return {
+      xref_id => $xref_id,
+      syn     => $syn
+    };
+  };
+}
+
+
+# just incase this is being ran again
+sub mark_mapped_xrefs_already_run {
+  my ( $self, $xref_list, $status ) = @_;
+
+  my $sql = (<<"SQL");
+    UPDATE xref
+    SET dumped = NULL
+    WHERE dumped != 'NO_DUMP_ANOTHER_PRIORITY'
+SQL
+
+  my $sth = $self->dbi->prepare( $sql );
+  $xref_dumped_sth->execute() ||
+    confess 'Could not set dumped status';
+
+  return;
+}
+
+
+
+sub mark_mapped_xrefs {
+  my ( $self, $xref_list, $status ) = @_;
+
+  my $sql = (<<"SQL");
+    UPDATE xref
+    SET dumped = ?
+    WHERE xref_id IN ( @{[join',', ('?') x @{$xref_list}]} )
+SQL
+
+  my $xref_dumped_sth = $self->dbi->prepare( $sql );
+  $xref_dumped_sth->execute( $status, @{ $xref_list } ) ||
+    confess 'Could not set dumped status';
+
+  return;
+}
+
+
+
+sub insert_process_status {
+  my ( $self, $status ) = @_;
+
+  my $sql = (<<"SQL");
+    INSERT INTO process_status (status, date) VALUES ( ?, now() )
+SQL
+
+  my $sth = $self->dbi->prepare( $sql );
+  $sth->execute( $status ) || confess 'Could not set dumped status';
+
+  return;
+}
+
+
+
+sub get_unmapped_reason {
+  my ( $self ) = @_;
+
+  my %summary_failed;
+  my %desc_failed;
+
+  # Get the cutoff values
+  my $sql = (<<'SQL');
+    SELECT DISTINCT
+      s.name, m.percent_query_cutoff, m.percent_target_cutoff
+    FROM source s,
+         source_mapping_method sm,
+         mapping m
+    WHERE sm.source_id = s.source_id AND
+          sm.method = m.method
+SQL
+
+  my $sth = $self->dbi->prepare_cached( $sql );
+  $sth->execute();
+  my ( $source_name, $q_cut, $t_cut );
+  $sth->bind_columns( \$source_name, \$q_cut, \$t_cut );
+
+  while ( $sth->fetch ) {
+    $summary_failed{$source_name} = 'Failed to match at thresholds';
+    $desc_failed{$source_name}    = "Unable to match at the thresholds of $q_cut\% for the query or $t_cut\% for the target";
+  }
+
+  $summary_failed{'NO_STABLE_ID'} = 'Failed to find Stable ID';
+  $desc_failed{'NO_STABLE_ID'}    = 'Stable ID that this xref was linked to no longer exists';
+
+  $summary_failed{'FAILED_MAP'} = 'Failed to match';
+  $desc_failed{'FAILED_MAP'}    = 'Unable to match to any ensembl entity at all';
+
+  $summary_failed{'NO_MAPPING'} = 'No mapping done';
+  $desc_failed{'NO_MAPPING'}    = 'No mapping done for this type of xref';
+
+  $summary_failed{'MASTER_FAILED'} = 'Master failed';
+  $desc_failed{'MASTER_FAILED'}    = 'The dependent xref was not matched due to the master xref not being mapped';
+
+  $summary_failed{'NO_MASTER'} = 'No Master';
+  $desc_failed{'NO_MASTER'}    = 'The dependent xref was not matched due to there being no master xref';
+
+  return {
+    summary => %summary_failed,
+    desc    => %desc_failed
+  };
+}
+
+
+
+sub get_insert_direct_xref_low_priority {
+  my ( $self, $source_id, $type ) = @_;
+
+  my $sql = (<<'SQL');
+    SELECT x.xref_id, x.accession, x.version, x.label, x.description,
+           x.info_type, x.info_text, s.name
+    FROM source s,xref x
+         LEFT JOIN  object_xref ox ON ox.xref_id = x.xref_id
+    WHERE x.source_id = s.source_id AND
+          x.dumped is null AND
+          ox.ox_status != 'FAILED_PRIORITY' AND
+          x.info_type = 'DIRECT'
+SQL
+
+  my $sth = $self->dbi->prepare_cached( $sql );
+
+  $sth->execute();
+  $sth->bind_columns(
+    \$xref_id, \$acc, \$version, \$label, \$desc, \$type, \$info, \$dbname);
+
+  return sub {
+    $sth->fetch;
+
+    return {
+      xref_id => $xref_id,
+      acc     => $acc,
+      label   => $label,
+      version => $version,
+      desc    => $desc,
+      info    => $info,
+      type    => type,
+      dbname  => $dbname
+    }
+  }
+
+} ## end sub get_insert_direct_xref_low_priority
+
+
+
+sub get_insert_dependent_xref_low_priority {
+  my ( $self, $source_id, $type ) = @_;
+
+  my $sql = (<<'SQL');
+    SELECT DISTINCT
+      x.xref_id, x.accession, x.version, x.label, x.description,
+      x.info_type, x.info_text, s.name, mx.accession
+    FROM xref mx, source s, xref x
+         LEFT JOIN dependent_xref dx ON  dx.dependent_xref_id = x.xref_id
+         LEFT JOIN object_xref ox ON ox.xref_id = x.xref_id
+    WHERE x.source_id = s.source_id AND
+          dx.master_xref_id = mx.xref_id AND
+          x.dumped IS NULL AND
+          ox.ox_status != 'FAILED_PRIORITY' AND
+          x.info_type = 'DEPENDENT' AND
+    ORDER BY s.name, x.accession
+SQL
+
+  my $sth = $self->dbi->prepare_cached( $sql );
+
+  $sth->execute();
+  $sth->bind_columns(
+    \$xref_id, \$acc, \$version, \$label, \$desc, \$type, \$info, \$dbname, \$parent);
+
+  return sub {
+    $sth->fetch;
+
+    return {
+      xref_id => $xref_id,
+      acc     => $acc,
+      label   => $label,
+      version => $version,
+      desc    => $desc,
+      info    => $info,
+      type    => type,
+      dbname  => $dbname
+    }
+  }
+
+} ## end sub get_insert_direct_xref_low_priority
+
+
+
+sub get_insert_sequence_xref_remaining {
+  my ( $self, $source_id, $type ) = @_;
+
+  my $sql = (<<'SQL');
+    SELECT  x.xref_id, x.accession, x.version, x.label, x.description, x.info_type, x.info_text,
+            s.name, px.sequence_type,
+            ox.ensembl_object_type, ox.ensembl_id,
+            ix.query_identity, ix.target_identity, ox.ox_status
+    FROM source s, primary_xref px, xref x
+         LEFT JOIN object_xref ox ON ox.xref_id = x.xref_id
+         LEFT JOIN identity_xref ix ON ix.object_xref_id = ox.object_xref_id
+    WHERE x.source_id = s.source_id AND
+          px.xref_id = x.xref_id AND
+          x.dumped IS NULL AND
+          x.info_type = 'SEQUENCE_MATCH'
+    ORDER BY x.xref_id
+SQL
+
+  my $sth = $self->dbi->prepare_cached( $sql );
+
+  $sth->execute();
+  $sth->bind_columns(
+    \$xref_id, \$acc, \$version, \$label, \$desc, \$type, \$info, \$dbname,
+    \$seq_type, \$ensembl_object_type, \$ensembl_id, \$q_id, \$t_id, \$status);
+
+  return sub {
+    $sth->fetch;
+
+    return {
+      xref_id             => $xref_id,
+      acc                 => $acc,
+      label               => $label,
+      version             => $version,
+      desc                => $desc,
+      info                => $info,
+      type                => type,
+      dbname              => $dbname,
+      seq_type            => $seq_type,
+      ensembl_object_type => $ensembl_object_type,
+      ensembl_id          => $ensembl_id,
+      q_id                => $q_id,
+      t_id                => $t_id,
+      status              => $status
+    }
+  }
+
+} ## end sub get_insert_direct_xref_low_priority
+
+
+
+sub get_insert_misc_xref {
+  my ( $self ) = @_;
+
+  $sql =(<<'SQL');
+  SELECT  x.xref_id, x.accession, x.version,
+          x.label, x.description, x.info_type,
+          x.info_text, s.name
+  FROM xref x, source s
+  WHERE x.source_id = s.source_id AND
+        x.dumped is null AND
+        x.info_type = 'MISC'
+SQL
+
+  my $misc_unmapped_sth = $self->dbi->prepare($sql);
+  $misc_unmapped_sth->execute();
+  $misc_unmapped_sth->bind_columns(\$xref_id, \$acc, \$version, \$label, \$desc, \$type, \$info, \$dbname);
+
+  return sub {
+    $sth->fetch;
+
+    return {
+      xref_id => $xref_id,
+      acc     => $acc,
+      label   => $label,
+      version => $version,
+      desc    => $desc,
+      info    => $info,
+      type    => type,
+      dbname  => $dbname
+    }
+  }
+}
+
+
+###########################
+# WEL (What ever is left).#
+###########################
+
+# These are those defined as dependent but the master never existed and the xref and their descriptions etc are loaded first
+# with the dependencys added later so did not know they had no masters at time of loading.
+# (e.g. EntrezGene, WikiGene, MIN_GENE, MIM_MORBID)
+sub get_insert_other_xref {
+  my ( $self ) = @_;
+
+  $sql =(<<'SQL');
+  SELECT  distinct x.xref_id, x.accession, x.version, x.label, x.description, x.info_type, x.info_text, s.name
+  FROM source s, xref x
+  WHERE x.source_id = s.source_id AND
+        x.dumped IS NULL AND
+        x.info_type = 'DEPENDENT'
+SQL
+
+  my $sth = $self->dbi->prepare($sql);
+  $sth->execute();
+  $sth->bind_columns(\$xref_id, \$acc, \$version, \$label, \$desc, \$type, \$info, \$dbname);
+
+  return sub {
+    $sth->fetch;
+
+    return {
+      xref_id => $xref_id,
+      acc     => $acc,
+      label   => $label,
+      version => $version,
+      desc    => $desc,
+      info    => $info,
+      type    => type,
+      dbname  => $dbname
+    }
+  }
+}
+
 1;
 
