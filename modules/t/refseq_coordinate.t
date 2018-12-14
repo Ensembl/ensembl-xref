@@ -116,21 +116,19 @@ isa_ok( $parser, 'Bio::EnsEMBL::Xref::Parser::RefSeqCoordinateParser' );
 $parser->run();
 
 
-# TODO
+# Test if all the rows were inserted
+is($db->schema->resultset('Xref')->count, 3, "All 3 refseq xrefs were inserted");
 
-# # Test if all the rows were inserted
-# is($db->schema->resultset('Xref')->count, 6, "All 6 rows were inserted");
-
-# ok(
-#   $db->schema->resultset('Xref')->check_direct_xref({
-#     accession   => 'VGNC:14659',
-#     label       => 'CYYR1',
-#     description => 'cysteine and tyrosine rich 1',
-#     source_id   => 144,
-#     species_id  => 9598
-#   }),
-#  'Sample chimpanzee direct Xref has been inserted'
-# );
+ok(
+  $db->schema->resultset('Xref')->check_direct_xref({
+    accession   => 'NR_003579',
+    label       => 'NR_003579.2',
+    # description => null,
+    source_id   => 100,
+    species_id  => 9606
+  }),
+ 'Sample chimpanzee direct Xref has been inserted'
+);
 
 
 my $parser_no_file = Bio::EnsEMBL::Xref::Parser::RefSeqCoordinateParser->new(
