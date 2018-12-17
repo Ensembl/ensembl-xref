@@ -140,7 +140,7 @@ sub parse_stockholm_format {
     /mgx;
 
     unless ( exists $meta{AC} && exists $meta{ID} && exists $meta{DE}) {
-      warn 'Skipping a poorly formed record in Rfam.seed file';
+      warn 'Skipping an incompletely annotated record in '.$file_path;
       next;
     }
 
