@@ -1,0 +1,50 @@
+********************************************************************************
+RefSeq-release91.txt       ftp://ftp.ncbi.nlm.nih.gov/refseq/release/release-notes/
+
+		NCBI Reference Sequence (RefSeq) Database
+
+			Release 91
+			November 5, 2018
+
+		Distribution Release Notes
+
+Release Size:     	
+   85308 organisms 
+   1430969078377 nucleotide bases
+   48133151229 amino acids 
+   179672083 records
+
+******************************************************************************
+
+This document describes the format and content of the flat files that 
+comprise releases of the NCBI Reference Sequence (RefSeq) database.
+
+Additional information about RefSeq is available at:
+
+1. NCBI Bookshelf:
+   a) NCBI Handbook:  
+   https://www.ncbi.nlm.nih.gov/books/NBK21091/
+   b) RefSeq Help (FAQ)
+   https://www.ncbi.nlm.nih.gov/books/NBK50680/
+ 
+2. RefSeq Web Sites: 
+   RefSeq Home:  https://www.ncbi.nlm.nih.gov/refSeq/
+   RefSeqGene Home: https://www.ncbi.nlm.nih.gov/refseq/rsg/
+
+If you have any questions or comments about RefSeq, the RefSeq release files
+or this document, please contact NCBI by email at:
+   info@ncbi.nlm.nih.gov. 
+
+To receive announcements of future RefSeq releases and large updates please
+subscribe to NCBI's refseq-announce mail list:
+
+   send email to refseq-announce-subscribe@ncbi.nlm.nih.gov
+   with "subscribe" in the subject line (without quotes)
+   and nothing in the email body
+
+OR
+
+subscribe using the web interface at:
+   https://www.ncbi.nlm.nih.gov/mailman/listinfo/refseq-announce
+
+=============================================================================

@@ -35,6 +35,49 @@ use parent qw( Bio::EnsEMBL::Xref::Parser );
 Readonly my $EXPECTED_NUMBER_OF_COLUMNS => 5;
 
 
+
+=head2 run
+
+  Arg [1]    : HashRef standard list of arguments from ParseSource
+  Example    : $m2g_parser->run({ ... });
+  Description: Extract mappings between OMIM genes and other gene
+               identifiers from a tab-delimited file downloaded from
+               the DBASS Web site, then insert corresponding links
+               into the xref database:
+                - for entries mapped to Ensembl genes, we create
+                  gene_direct_xref links;
+                - otherwise, if an entry is mapped to an EntrezGene ID
+                  that exists in the xref database we creare a
+                  dependent_xref link.
+               In either case we update info_type of OMIM xrefs
+               accordingly.
+
+               DEPENDENCIES: This parser must be run after:
+                - MIMParser - without existing OMIM entries this
+                  parser does nothing;
+                - EntrezGeneParser - otherwise there will be no
+                  dependent-xref links.
+
+               mim2gene.txt begins with several lines of comments
+               which start with a hash; the last of these comment
+               lines contains a tab-separated list of column names.
+
+               The rest of the file are the following columns:
+                1) OMIM number
+                2) OMIM entry type
+                3) EntrezGene ID
+                4) HGNC gene symbol
+                5) Ensembl gene ID
+               The former two are mandatory, the latter can be empty
+               strings.
+
+  Return type: none
+  Exceptions : throws on all processing errors
+  Caller     : ParseSource in the xref pipeline
+  Status     : Stable
+
+=cut
+
 sub run {
   my ( $self ) = @_;
   my $general_source_id = $self->{source_id};
@@ -84,17 +127,22 @@ sub run {
  RECORD:
   while ( my $line = $csv->getline( $m2g_io ) ) {
 
-    my ( $is_comment, $is_header )
+    my ( $is_comment )
       = ( $line->[0] =~ m{
                            \A
                            ([#])?
-                           \s*
-                           (MIM[ ]Number)?  # FIXME: this is an assumption regarding header contents.
-                                            # See if $line has split to the right number of columns instead?
                        }msx );
     if ( $is_comment ) {
+      # At present we identify the header line among other comments by
+      # checking if it has the expected number of tab-delimited
+      # columns, which of course means we cannot identify header lines
+      # with too few or too many column names. However, this should be
+      # mostly harmless - something would have to be very, very wrong
+      # with the input file for the header to have the wrong number of
+      # column names without a change in the number of actual columns
+      # in data rows.
       if ( ( scalar @{ $line } == $EXPECTED_NUMBER_OF_COLUMNS )
-           && ( ! is_header_file_valid( $line ) ) ) {
+           && ( ! is_file_header_valid( @{ $line } ) ) ) {
         confess "Malformed or unexpected header in Mim2Gene file '${filename}'";
       }
       next RECORD;
@@ -178,14 +226,14 @@ sub run {
       . "\t" . $counters{'missed_master'} . " had missing master entries.\n";
   }
 
-  return 0;
+  return;
 } ## end sub run
 
 
 =head2 is_file_header_valid
 
-  Arg [1]    : String file header line
-  Example    : if (!is_file_header_valid($header_line)) {
+  Arg [1..N] : list of column names provided by Text::CSV::getline()
+  Example    : if ( ! is_file_header_valid( $csv->getline( $fh ) ) {
                  confess 'Bad header';
                }
   Description: Verifies if the header of a Mim2Gene file follows expected
@@ -199,10 +247,8 @@ sub run {
 
 =cut
 
-sub is_header_file_valid {
-  my ( $header ) = @_;
-
-  my @fields_ok;
+sub is_file_header_valid {
+  my ( @header ) = @_;
 
   Readonly my @field_patterns
     => (
@@ -215,13 +261,13 @@ sub is_header_file_valid {
 
   my $header_field;
   foreach my $pattern (@field_patterns) {
-    $header_field = shift @{ $header };
+    $header_field = shift @header;
     # Make sure we run the regex match in scalar context
-    push @fields_ok, scalar ( $header_field =~ m{ $pattern }msx );
+    return 0 unless scalar ( $header_field =~ m{ $pattern }msx );
   }
 
-  # All fields must have matched
-  return List::Util::all { $_ } @fields_ok;
+  # If we have made it this far, all should be in order
+  return 1;
 }
 
 

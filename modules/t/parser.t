@@ -31,6 +31,7 @@ use warnings;
 
 use Test::More;
 use Test::Exception;
+use Test::Warnings;
 
 use Bio::EnsEMBL::Xref::Test::TestDB;
 use Bio::EnsEMBL::Xref::DBSQL::BaseAdaptor;
@@ -61,8 +62,6 @@ throws_ok { Bio::EnsEMBL::Xref::Parser->new(source_id => 1, species_id => 2, fil
 # check it throws with wrong argument types
 throws_ok { Bio::EnsEMBL::Xref::Parser->new(source_id => 1, species_id => 2, files => 'dummy', xref_dba => 'dummy') }
   qr/check it is a reference/, 'Throws with scalar files arg';
-throws_ok { Bio::EnsEMBL::Xref::Parser->new(source_id => 1, species_id => 2, files => {'dummy'}, xref_dba => 'dummy') }
-  qr/was expected/, 'Throws with non arrayref files arg';
 throws_ok { Bio::EnsEMBL::Xref::Parser->new(source_id => 1, species_id => 2, files => ['dummy'], xref_dba => {}) }
   qr/was expected/, 'Throws with non DBI dbi arg';
 throws_ok { Bio::EnsEMBL::Xref::Parser->new(source_id => 1, species_id => 2, files => ['dummy'], xref_dba => $xref_dba, dba => {}) }

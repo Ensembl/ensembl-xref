@@ -22,7 +22,7 @@ use warnings;
 use Test::More;
 use Test::Exception;
 use Bio::EnsEMBL::Xref::Test::TestDB;
-
+use FindBin '$Bin';
 
 my $db = Bio::EnsEMBL::Xref::Test::TestDB->new();
 ok($db, 'default instantiation proceeds as planned with testdb.conf');
@@ -33,7 +33,7 @@ throws_ok { Bio::EnsEMBL::Xref::Test::TestDB->new(config_file => 'not_here') }
 # This auto-deploys the schema
 $db = Bio::EnsEMBL::Xref::Test::TestDB->new(
   # config_file => 'testdb.conf'
-  config => { 
+  config => {
     driver => 'SQLite',
     file => 'test.db',
     create => 1
@@ -49,7 +49,6 @@ my $source = $db->schema->resultset('Source')->create({
   download => 'Y',
   priority => 1,
   priority_description => 'Like a boss',
-  ordered => 10
 });
 
 ok(defined $source->source_id, 'Was the source created in the DB?');
@@ -77,5 +76,33 @@ is($matching_xref->accession, $xref->accession, 'Retrieved xref is the same as t
 is($matching_xref->source_id, $source->source_id, 'Source IDs also match');
 
 is($matching_xref->source->name, 'RefSeq', 'Foreign "key" relation works');
+
+
+# Test auto-populate mechanisms for source, source_url and species tables
+$db->populate_metadata($Bin.'/test-data/xref_config.ini');
+
+my $count = $db->schema->resultset('Source')->count(
+  { name => 'VGNC' }
+);
+
+cmp_ok($count , '==', 1,'One VGNC source in place of four in the original DB');
+my $result = $db->schema->resultset('Source')->find(
+  { name => 'VGNC' }
+);
+
+is($result->download, 'Y', 'All VGNC sources are downloaded');
+is($result->status, 'NOIDEA', 'All VGNC sources have the same status');
+
+# We do not use URLs in the current pipeline, so it's difficult and fruitless to test
+# the source_url relationship
+
+my @species = $db->schema->resultset('Species')->search();
+is_deeply(
+  [map {$_->name} @species],
+  [qw/ciona_intestinalis vertebrates danio_rerio xenopus_tropicalis
+      pan_troglodytes homo_sapiens canis_familiaris equus_caballus 
+      bos_taurus mus_musculus rattus_norvegicus/],
+  'Species names were all stored');
+
 
 done_testing;

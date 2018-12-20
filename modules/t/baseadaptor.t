@@ -21,6 +21,7 @@ use warnings;
 
 use Test::More;
 use Test::Exception;
+use Test::Warnings;
 use Bio::EnsEMBL::Xref::Test::TestDB;
 use Bio::EnsEMBL::Xref::DBSQL::BaseAdaptor;
 
@@ -75,7 +76,6 @@ my $source = $db->schema->resultset('Source')->create({
   download             => 'Y',
   priority             => 1,
   priority_description => 'Like a boss',
-  ordered              => 10
 });
 
 ok(defined $source->source_id, 'Was the source created in the DB?');
@@ -108,6 +108,20 @@ is(
   $xref_dba->get_source_id_for_source_name('RefSeq'),
   $source->source_id, 'get_source_id_for_source_name' );
 
+# Add a second example source to the db
+my $source2 = $db->schema->resultset('Source')->create({
+  name                 => 'Second_fake_source',
+  status               => 'KNOWN',
+  source_release       => '38',
+  download             => 'Y',
+  priority             => 1,
+  priority_description => 'Like a boss',
+});
+
+is(
+  $xref_dba->get_source_id_for_source_name('RefSeq'),
+  $source->source_id, 'get_source_id_for_source_name' );
+
 
 # get_source_ids_for_source_name_pattern
 throws_ok
@@ -117,6 +131,7 @@ throws_ok
 ok(
   defined $xref_dba->get_source_ids_for_source_name_pattern('fake_name'),
   'get_source_ids_for_source_name_pattern - Array returned' );
+
 is(
   $xref_dba->get_source_ids_for_source_name_pattern('RefSeq'),
   $source->source_id, 'get_source_ids_for_source_name_pattern' );
@@ -187,6 +202,13 @@ ok( defined $xref_id, "NM01235 (xref_id: $xref_id) was added to the xref table" 
 
 
 # add_meta_pair
+throws_ok {
+  $xref_dba->add_meta_pair()
+} qr/Need to specify/, 'Throws with required arguments not provided';
+throws_ok {
+  $xref_dba->add_meta_pair( 'fake_key' )
+} qr/Need to specify/, 'Throws with required arguments not provided';
+
 ok( !defined $xref_dba->add_meta_pair( 'fake_key', 'fake_value' ), 'add_meta_pair' );
 is( _check_db( $db, 'Meta', { meta_key => 'fake_key' } )->meta_value, 'fake_value', 'Metadata pair added' );
 
@@ -194,25 +216,6 @@ is( _check_db( $db, 'Meta', { meta_key => 'fake_key' } )->meta_value, 'fake_valu
 # get_xref_sources
 my $xref_sources = $xref_dba->get_xref_sources();
 ok( defined $xref_sources, 'There are sources in the db');
-
-
-# species_id2taxonomy - There are tests ready for this in another branch
-# Add an example source to the db
-my $species = $db->schema->resultset('Species')->create({
-  species_id  => 1,
-  taxonomy_id => 9606,
-  name        => 'Homo sapiens',
-  aliases     => 'Human'
-});
-
-my %species_id2t = $xref_dba->species_id2taxonomy();
-is( $species_id2t{1}[0], 9606, 'species_id2taxonomy' );
-
-
-# species_id2name - There are tests ready for this in another branch
-my %species_id2n = $xref_dba->species_id2name();
-is( $species_id2n{1}[0], 'Homo sapiens', 'species_id2name' );
-is( $species_id2n{1}[1], 'Human', 'species_id2name' );
 
 
 # get_xref_id
@@ -243,6 +246,22 @@ is(
    2,
    'get_xref_id'
 );
+
+# Test for a new coordinate_xref
+my $new_coordinate_xref = {
+  accession    => 'ucsc.1',
+  chromosome   => 5,
+  strand       => 1,
+  txStart      => 1,
+  txEnd        => 10,
+  exonStarts   => 1,
+  exonEnds     => 10,
+  species_id   => '9606',
+  source_id    => $source->source_id
+};
+my $coordinate_xref_id_new = $xref_dba->add_coordinate_xref( $new_coordinate_xref );
+ok( defined $coordinate_xref_id_new, "ucsc.1 (coordinate_xref_id: $coordinate_xref_id_new) was loaded to the xref table" );
+is( _check_db( $db, 'CoordinateXref', { coord_xref_id => $coordinate_xref_id_new } )->accession, 'ucsc.1', 'Coordinate_xref loaded' );
 
 
 # add_xref
@@ -488,7 +507,7 @@ ok( scalar $xref_dba->get_label_to_desc( 'RefSeq', 9606, 'Like a boss' ) > 0, 'g
 
 
 # set_release
-ok( !defined $xref_dba->set_release( $source->source_id, 100 ) );
+ok( !defined $xref_dba->set_release( $source->source_id, 100 ), 'Set release without problems' );
 
 
 # get_dependent_mappings
@@ -535,6 +554,63 @@ is( _check_db( $db, 'PrimaryXref', { xref_id => $xref_id_new } )->sequence, 'CTA
 
 # _update_xref_description - This should have already been covered by previous tests
 # Specific tests can be added later
+
+note 'Test methods to support base mapper';
+
+throws_ok {
+  $xref_dba->get_id_from_species_name()
+} qr/Undefined/, 'Throws with no name argument';
+
+throws_ok {
+  $xref_dba->get_id_from_species_name( 'Vampire' )
+} qr/No ID/, 'Throws with unavailable species';
+
+is( $xref_dba->get_id_from_species_name('Homo sapiens'), 1, 'Species id from name' );
+my $names = $xref_dba->get_species_names();
+is( scalar @{ $names }, 1, 'Number of species names' );
+is( $names->[0], 'Homo sapiens', 'Species name' );
+
+throws_ok {
+  $xref_dba->add_alt_allele()
+} qr/Need to specify/, 'Throws with missing arguments';
+  
+my $gene_stable_id = $db->schema->resultset('GeneStableId')->create({
+  internal_id          => 1,
+  stable_id            => 'FakeStableId0001'
+});
+
+$xref_dba->add_alt_allele( 10, 1, 1 );
+is( _check_db( $db, 'AltAllele', { alt_allele_id => 10 } )->gene_id, 1, 'Add alt allele' );
+
+$xref_dba->update_process_status( 'alt_alleles_added' );
+is( _check_db( $db, 'ProcessStatus', { status => 'alt_alleles_added' } )->id, 1, 'Update process status' );
+
+is( $xref_dba->xref_latest_status(), 'alt_alleles_added', 'Latest status' );
+
+$xref_dba->delete_alt_alleles();
+ok( !_check_db( $db, 'AltAllele' ), 'No alt alleles after deletion');
+
+throws_ok {
+  $xref_dba->update_mapping_jobs_status()
+} qr/not given/, 'Throws with missing arguments';
+
+my $mapping_job = $db->schema->resultset('MappingJob')->create({
+  root_dir          => '/fake_dir/',
+  status            => 'SUBMITTED',
+  job_id            => 1
+});
+is( _check_db( $db, 'MappingJob', { job_id => 1 } )->status, 'SUBMITTED', 'Added mapping job' );
+
+$xref_dba->update_mapping_jobs_status( 'SUCCESS' );
+is( _check_db( $db, 'MappingJob', { job_id => 1 } )->status, 'SUCCESS', 'Updated mapping job status' );
+
+# get/set_species
+ok( !defined($xref_dba->species), "Species not defined yet");
+is($xref_dba->species("human"), "human", "Species set to ". $xref_dba->species);
+
+# get_dba
+ok( defined($xref_dba->dba), "dba defined");
+isa_ok( $xref_dba->dba, 'Bio::EnsEMBL::DBSQL::DBAdaptor' );
 
 done_testing();
 

@@ -48,6 +48,7 @@ __PACKAGE__->table("dependent_source");
 
   data_type: 'varchar'
   is_nullable: 0
+  description: Name of the source that must be imported before this source can be processed
   size: 255
 
 =cut
@@ -74,8 +75,8 @@ __PACKAGE__->add_columns(
 =cut
 
 __PACKAGE__->set_primary_key('dependent_relation_id');
-__PACKAGE__->add_unique_constraint("master_source_id", ["dependent_name"]);
+# __PACKAGE__->add_unique_constraint("master_source_id", ["dependent_name"]);
 
-__PACKAGE__->has_one('master_source', 'Bio::EnsEMBL::Xref::Schema::Result::Source', { 'foreign.source_id' => 'self.master_source_id' } );
+__PACKAGE__->belongs_to('master_source', 'Bio::EnsEMBL::Xref::Schema::Result::Source', { 'foreign.source_id' => 'self.master_source_id' } );
 
 1;

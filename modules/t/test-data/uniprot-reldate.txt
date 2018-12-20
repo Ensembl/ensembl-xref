@@ -1,0 +1,3 @@
+UniProt Knowledgebase Release 2018_11 consists of:
+UniProtKB/Swiss-Prot Release 2018_11 of 05-Dec-2018
+UniProtKB/TrEMBL Release 2018_11 of 05-Dec-2018

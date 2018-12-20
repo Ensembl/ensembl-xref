@@ -1,3 +1,4 @@
+
 =head1 LICENSE
 
 See the NOTICE file distributed with this work for additional information
@@ -40,10 +41,6 @@ also creates the synonyms extracted from the pipe seperated synonym_field
 -data_uri = http://www.informatics.jax.org/downloads/reports/MRK_List2.rpt
 -file_format = TSV
 -columns = [accession chromosome position start end strand label status marker marker_type feature_type synonym_field]
-
-example row:
-MGI:1926146	1	  23.44	43730602	43742564	+	1500015O10Rik	O	RIKEN cDNA 1500015O10 gene	Gene	protein coding gene	Ecrg4|augurin
-
 
 =head1 SYNOPSIS
 
@@ -97,12 +94,9 @@ sub run {
   my %acc_to_xref;
 
   my $input_file = Text::CSV->new(
-    {
-      sep_char           => "\t",
-      empty_is_undef     => 1,
-      allow_loose_quotes => 1,
-    }
-  ) or confess "Cannot use file $file: " . Text::CSV->error_diag();
+     { sep_char => "\t", empty_is_undef => 1, allow_loose_quotes => 1, }
+    ) or
+    confess "Cannot use file $file: " . Text::CSV->error_diag();
 
   # expected columns
   my @expected_columns =
@@ -116,33 +110,32 @@ sub run {
   $input_file->column_names( \@expected_columns );
   while ( my $data = $input_file->getline_hr($mgi_io) ) {
     my $accession = $data->{'accession'};
-    my $marker = defined( $data->{'marker'} ) ? $data->{'marker'} : undef;
-    $acc_to_xref{$accession} = $xref_dba->add_xref(
-      {
-        acc        => $accession,
-        label      => $data->{'label'},
-        desc       => $marker,
-        source_id  => $source_id,
-        species_id => $species_id,
-        info_type  => "MISC"
-      }
-    );
+    my $marker =
+      defined( $data->{'marker'} ) ? $data->{'marker'} : undef;
+    $acc_to_xref{$accession} =
+      $xref_dba->add_xref(
+                           { acc        => $accession,
+                             label      => $data->{'label'},
+                             desc       => $marker,
+                             source_id  => $source_id,
+                             species_id => $species_id,
+                             info_type  => "MISC" } );
     if ( $verbose && !$marker ) {
       print "$accession has no description\n";
     }
     $xref_count++;
     my @synonyms;
     if ( defined( $acc_to_xref{$accession} ) ) {
-      @synonyms = split( /\|/, $data->{'synonym_field'} )
+      @synonyms = split( /\|/x, $data->{'synonym_field'} )
         if ( $data->{'synonym_field'} );
       foreach my $syn (@synonyms) {
         $xref_dba->add_synonym( $acc_to_xref{$accession}, $syn );
         $syn_count++;
       }
     }
-  }
-  $mgi_io->eof
-    or confess "Error parsing file $file: " . $input_file->error_diag();
+  } ## end while ( my $data = $input_file...)
+  $mgi_io->eof or
+    confess "Error parsing file $file: " . $input_file->error_diag();
   $mgi_io->close();
 
   if ($verbose) {
@@ -151,7 +144,7 @@ sub run {
   }
 
   return 0;    #successful
-}
+} ## end sub run
 
 1;
 

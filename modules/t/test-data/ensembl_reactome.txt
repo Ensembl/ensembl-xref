@@ -1,0 +1,10 @@
+ENSG00000000419	R-HSA-162699	https://reactome.org/PathwayBrowser/#/R-HSA-162699	Synthesis of dolichyl-phosphate mannose	TAS	Homo sapiens
+ENSG00000000419	R-HSA-163125	https://reactome.org/PathwayBrowser/#/R-HSA-163125	Post-translational modification: synthesis of GPI-anchored proteins	TAS	Homo sapiens
+ENSG00000000419	R-HSA-1643685	https://reactome.org/PathwayBrowser/#/R-HSA-1643685	Disease	TAS	Homo sapiens
+ENSG00000000419	R-HSA-3781865	https://reactome.org/PathwayBrowser/#/R-HSA-3781865	Diseases of glycosylation	TAS	Homo sapiens
+ENSG00000000419	R-HSA-392499	https://reactome.org/PathwayBrowser/#/R-HSA-392499	Metabolism of proteins	TAS	Homo sapiens
+ENSG00000000419	R-HSA-446193	https://reactome.org/PathwayBrowser/#/R-HSA-446193	Biosynthesis of the N-glycan precursor (dolichol lipid-linked oligosaccharide, LLO) and transfer to a nascent protein	TAS	Homo sapiens
+ENSDARG00000000019	R-DRE-1280218	https://reactome.org/PathwayBrowser/#/R-DRE-1280218	Adaptive Immune System	IEA	Danio rerio
+ENSDARG00000000019	R-DRE-168256	https://reactome.org/PathwayBrowser/#/R-DRE-168256	Immune System	IEA	Danio rerio
+ENSDARG00000000019	R-DRE-392499	https://reactome.org/PathwayBrowser/#/R-DRE-392499	Metabolism of proteins	IEA	Danio rerio
+ENSBTAG00000014127	R-BTA-9027604	https://reactome.org/PathwayBrowser/#/R-BTA-9027604	Biosynthesis of electrophilic ω-3 PUFA oxo-derivatives	IEA	Homo sapiens

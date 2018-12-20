@@ -1,3 +1,4 @@
+
 =head1 LICENSE
 
 See the NOTICE file distributed with this work for additional information
@@ -78,50 +79,41 @@ sub run {
     croak "Could not open $file\n";
   }
 
-  my $input_file = Text::CSV->new(
-    {
-      sep_char       => "\t",
-      empty_is_undef => 1,
-    }
-  ) or croak "Cannot use file $file: " . Text::CSV->error_diag();
+  my $input_file =
+    Text::CSV->new( { sep_char => "\t", empty_is_undef => 1, } ) or
+    croak "Cannot use file $file: " . Text::CSV->error_diag();
 
   $input_file->column_names( [qw(acc label desc stable_id)] );
   my $count = 0;
   while ( my $data = $input_file->getline_hr($file_io) ) {
 
     my $desc;
-    $desc = $self->parse_description( $data->{'desc'} ) if ( defined($data->{'desc'}) );
+    $desc = $self->parse_description( $data->{'desc'} )
+      if ( defined( $data->{'desc'} ) );
 
-    $data->{'label'} = $data->{'acc'} if ( $data->{'label'} eq "unnamed" );
+    $data->{'label'} = $data->{'acc'}
+      if ( $data->{'label'} eq "unnamed" );
 
     $xref_dba->add_to_direct_xrefs(
-      {
-        stable_id  => $data->{'stable_id'},
-        type       => 'gene',
-        acc        => $data->{'acc'},
-        label      => $data->{'label'},
-        desc       => $desc,
-        source_id  => $source_id,
-        species_id => $species_id
-      }
-    );
+                                    { stable_id => $data->{'stable_id'},
+                                      type      => 'gene',
+                                      acc       => $data->{'acc'},
+                                      label     => $data->{'label'},
+                                      desc      => $desc,
+                                      source_id => $source_id,
+                                      species_id => $species_id } );
     $count++;
   }
 
-  $input_file->eof
-    or croak "Error parsing file $file: " . $input_file->error_diag();
+  $input_file->eof or
+    croak "Error parsing file $file: " . $input_file->error_diag();
   $file_io->close();
 
   print $count . " XenopusJamboreeParser xrefs succesfully parsed\n"
     if ($verbose);
 
   return 0;
-}
-
-
-# Regex handles lines in the following desc formats
-# XB-GENE-940410	unnamed	Putative ortholog of g2/mitotic-specific cyclin B3, 3 of 14	ENSXETG00000007206
-# XB-GENE-956173	hba4	alpha-T4 globin, Putative ortholog of hemoglobin alpha chain. [Source:Uniprot/SWISSPROT;Acc:P01922], 2 of 3	ENSXETG00000001141
+} ## end sub run
 
 sub parse_description {
   my ( $self, $desc ) = @_;

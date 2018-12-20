@@ -71,12 +71,6 @@ __PACKAGE__->table("source");
   extra: {list => ["Y","N"]}
   is_nullable: 1
 
-=head2 ordered
-
-  data_type: 'integer'
-  extra: {unsigned => 1}
-  is_nullable: 0
-
 =head2 priority
 
   data_type: 'integer'
@@ -121,8 +115,6 @@ __PACKAGE__->add_columns(
     extra => { list => ["Y", "N"] },
     is_nullable => 1,
   },
-  "ordered",
-  { data_type => "integer", extra => { unsigned => 1 }, is_nullable => 0 },
   "priority",
   {
     data_type => "integer",
@@ -144,7 +136,18 @@ __PACKAGE__->add_columns(
 
 =cut
 
-__PACKAGE__->set_primary_key("source_id");
+__PACKAGE__->set_primary_key('source_id');
 
 __PACKAGE__->has_many('xrefs', 'Bio::EnsEMBL::Xref::Schema::Result::Xref', 'source_id');
+__PACKAGE__->might_have(
+  'dependent_source',
+  'Bio::EnsEMBL::Xref::Schema::Result::DependentSource',
+  { 'foreign.master_source_id' => 'self.source_id' }
+);
+__PACKAGE__->might_have(
+  'source_url',
+  'Bio::EnsEMBL::Xref::Schema::Result::SourceUrl',
+  { 'foreign.source_id' => 'self.source_id' }
+);
+
 1;

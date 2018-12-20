@@ -22,6 +22,17 @@ use warnings;
 
 use parent 'DBIx::Class::ResultSet';
 
+
+=head2 fetch_dependent_xref
+
+Description: A canned query for fetching dependent xrefs by accession
+             The result contains the result row from the query
+Example    : my $row = $db->schema->resultset('DependentXref')
+              ->fetch_dependent_xref("A0A075B6P5", "R-HSA-109582");
+Returntype : Bio::EnsEMBL::Xref::Schema::Result::DependentXref
+
+=cut
+
 sub fetch_dependent_xref {
   my ($self,$direct_accession,$dependent_accession) = @_;
 

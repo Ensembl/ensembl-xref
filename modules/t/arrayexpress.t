@@ -30,6 +30,7 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Exception;
+use Test::Warnings;
 use FindBin '$Bin';
 use lib "$Bin/";
 
@@ -67,6 +68,7 @@ use_ok 'Bio::EnsEMBL::Xref::Parser::ArrayExpressParser';
 my $parser = Bio::EnsEMBL::Xref::Parser::ArrayExpressParser->new(
   source_id  => 1,
   species_id => 9606,
+  species    => 'homo_sapiens',
   files      => ["project=>ensembl"],
   xref_dba   => $xref_dba,
   dba        => $dba

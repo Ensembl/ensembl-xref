@@ -19,3 +19,4 @@
 19	karyotype_rank	Rank in the karyotype	For a given seq_region, if it is part of the species karyotype, will indicate its rank
 20	proj_parent_g	projection parent gene	Stable identifier of the parent gene this gene was projected from (projection between different species and/or assemblies).
 21	proj_parent_t	projection parent transcript	Stable identifier of the parent transcript this transcript was projected from (projection between different species and/or assemblies).
+468	ccds_transcript	CCDS transcript	This attribute signifies that a transcript has a matching CCDS transcript (the accession of which will be in the value column of the transcript_attrib entry). A match occurs when the genomic coordinates of all coding exons of the transcript are identical to the genomic coordinate of all coding exons in the overlapping CCDS model.

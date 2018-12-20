@@ -140,4 +140,5 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("source_url_id");
 
 __PACKAGE__->has_one('source', 'Bio::EnsEMBL::Xref::Schema::Result::Source', 'source_id' );
+__PACKAGE__->has_one('species', 'Bio::EnsEMBL::Xref::Schema::Result::Species', 'species_id' );
 1;

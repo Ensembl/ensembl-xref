@@ -25,19 +25,101 @@ use warnings;
 
 use Carp;
 use Module::Load;
-use Readonly;
 
 use parent qw( Bio::EnsEMBL::Xref::Parser );
 
 
-Readonly my $DEFAULT_LOADER_BATCH_SIZE         => 1000;
-Readonly my $DEFAULT_LOADER_CHECKPOINT_SECONDS => 300;
+my $DEFAULT_LOADER_BATCH_SIZE         = 1000;
+my $DEFAULT_LOADER_CHECKPOINT_SECONDS = 300;
 
-Readonly my %source_name_for_section => (
-                                         'Swiss-Prot' => 'Uniprot/SWISSPROT',
-                                         'TrEMBL'     => 'Uniprot/SPTREMBL',
-                                       );
+my %source_name_for_section = (
+  'Swiss-Prot' => 'Uniprot/SWISSPROT',
+  'TrEMBL'     => 'Uniprot/SPTREMBL',
+);
 
+# List of crossreference sources for which we want to create direct or
+# dependent xrefs along with matching links.
+# Note that this includes sources such as 'Uniprot_gn' and 'protein_id'
+# which do not actually appear in UniProt-KB files but which are
+# synthesised from other data; omitting them from this list simply
+# means they will not be generated.
+my $crossreference_sources_of_interest = [
+  'ChEMBL',
+  'EMBL',
+  'Ensembl',
+  'MEROPS',
+  'PDB',
+  'Uniprot_gn',
+  'protein_id',
+];
+
+# To save memory and processing time, when we process a record in the
+# extractor we only load into memory the fields we need. Moreover, the
+# same list can later on be used to confirm that we have indeed
+# encountered all the mandatory fields.
+# Note that care must be taken when adding new prefixes to this list
+# because some of them - for instance the Rx family of fields,
+# describing publications - are not compatible with the current way of
+# processing.
+my $mandatory_prefixes_of_interest
+  = [ 'ID', 'AC', 'DE', 'OX', 'PE', 'SQ', q{  }, ];
+my $optional_prefixes_of_interest
+  = [ 'GN', 'DR', 'RG', ];
+
+
+=head2 run
+
+  Arg [1]    : HashRef arguments for the parser:
+                - standard list of arguments from ParseSource
+                - extractor
+                   - name of class used to instantiate the extractor
+                - transformer
+                   - name of class used to instantiate the transformer
+                - loader
+                   - name of class used to instantiate the loader
+                - loader_batch_size
+                   - how many UniProt entries to process before
+                     submitting xrefs to the database
+                - loader_checkpoint_seconds
+                   - the maximum amount of seconds (modulo the time
+                     needed to process a single entry) xrefs are
+                     allowed to stay in the buffer before being
+                     submitted to the database regardless of the batch
+                     size
+  Example    : $uniprot_parser->run({ ... });
+  Description: Extract UniProt Knowledgebase entries from text files
+               downloaded from the UniProt Web site, then insert
+               corresponding xrefs and links into the xref
+               database. Both Swiss-Prot and TrEMBL files are
+               supported.
+
+               There will typically be multiple xrefs and links per
+               one UniProt-KB entry:
+                - basic xrefs created for each entry are
+                  sequence-matched to Ensembl;
+                - for entries with cross-references to Ensembl
+                  we create additional direct xrefs as well
+                  as corresponding translation_direct_xref links;
+                - for entries with cross-references to specified
+                  databases (see $crossreference_sources_of_interest
+                  above), we create dependent xrefs as well as
+                  corresponding dependent_xref links; - if requested,
+                  special dependent xrefs and corresponding mappings
+                  can be created for protein IDs (extracted from
+                  ChEMBL and EMBL cross-references) and UniProt gene
+                  names (from dedicated fields).
+
+               UniProt-KB dat files are record-based, with individual
+               fields identified by prefixes. For details, please see
+               the UniProt Knowledgebase User Manual at
+               https://web.expasy.org/docs/userman.html .
+
+  Return type: none
+  Exceptions : throws on all processing errors
+  Caller     : ParseSource in the xref pipeline
+  Status     : Stable
+
+=cut
 
 sub run {
   my ( $self ) = @_;
@@ -71,12 +153,16 @@ sub run {
 
   my $extractor = $extractor_class->new({
     'file_names' => $files,
-    'species_id' => $species_id,
-    'xref_dba'   => $xref_dba,
+    'mandatory_prefixes' => $mandatory_prefixes_of_interest,
+    'optional_prefixes'  => $optional_prefixes_of_interest,
+    'species_id'         => $species_id,
+    'xref_dba'           => $xref_dba,
   });
   my $transformer = $transformer_class->new({
-    'species_id' => $species_id,
-    'xref_dba'   => $xref_dba,
+    'accepted_crossreference_sources' => $crossreference_sources_of_interest,
+    'default_direct_xref_type'        => 'Translation',  # just in case
+    'species_id'                      => $species_id,
+    'xref_dba'                        => $xref_dba,
   });
   my $loader = $loader_class->new({
     'batch_size'         => $loader_batch_size,
@@ -124,30 +210,30 @@ sub run {
 
   # Extract release numbers from the release file, if provided
   if ( defined $release_file ) {
-    my $release_numbers = $self->_get_release_numbers_from_file( $release_file,
+    my $release_strings = $self->_get_release_strings_from_file( $release_file,
                                                                  $verbose );
-    $self->_set_release_numbers_on_uniprot_sources( $source_id_map,
-                                                    $release_numbers );
+    $self->_set_release_strings_on_uniprot_sources( $source_id_map,
+                                                    $release_strings );
   }
 
-  return 0;
+  return;
 }
 
 
 # Extract Swiss-Prot and TrEMBL release info from the release file
-sub _get_release_numbers_from_file {
+sub _get_release_strings_from_file {
   my ( $self, $release_file_name, $verbose ) = @_;
 
   my $xref_dba = $self->{xref_dba};
 
   my $release_io = $xref_dba->get_filehandle( $release_file_name );
-  my $release_numbers = {};
+  my $release_strings = {};
 
   while ( my $line = $release_io->getline() ) {
-    my ( $section, $release )
+    my ( $release, $section )
       = ( $line =~ m{
                       \A
-                      UniProtKB/
+                      ( UniProtKB/
                       (
                         Swiss-Prot
                       |
@@ -156,10 +242,10 @@ sub _get_release_numbers_from_file {
                       \s+
                       Release
                       \s+
-                      ( [^\n]+ )
+                      [^\n]+ )
                   }msx );
-    if ( defined $section ) {
-      $release_numbers->{ $source_name_for_section{$section} } = $release;
+    if ( defined $release ) {
+      $release_strings->{ $source_name_for_section{$section} } = $release;
       if ( $verbose ) {
         print "$section release is '$release'\n";
       }
@@ -168,18 +254,18 @@ sub _get_release_numbers_from_file {
 
   $release_io->close();
 
-  return $release_numbers;
+  return $release_strings;
 }
 
-sub _set_release_numbers_on_uniprot_sources {
-  my ( $self, $source_id_map, $release_numbers ) = @_;
+sub _set_release_strings_on_uniprot_sources {
+  my ( $self, $source_id_map, $release_strings ) = @_;
 
   my $xref_dba = $self->{xref_dba};
 
   foreach my $source ( keys %{ $source_id_map } ) {
     # Priority names are not important here, we only need source IDs
     foreach my $source_id ( values %{ $source_id_map->{$source} } ) {
-      $xref_dba->set_release( $source_id, $release_numbers->{$source} );
+      $xref_dba->set_release( $source_id, $release_strings->{$source} );
     }
   }
 

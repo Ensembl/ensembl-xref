@@ -30,6 +30,7 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Exception;
+use Test::Warnings;
 use FindBin '$Bin';
 use lib "$Bin/";
 

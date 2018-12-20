@@ -42,10 +42,6 @@ creating a DIRECT xref between MGI accession and ensembl mouse gene stable id EN
 -file_format = TSV
 -columns = [accession symbol name position chrom ens_gene_stableid] ##ignore other columns
 
-example row:
- MGI:1915941	1110028C15Rik	RIKEN cDNA 1110028C15 gene	33.61	1	ENSMUSG00000026004
-
-
 =head1 SYNOPSIS
 
   my $parser = Bio::EnsEMBL::Xref::Parser::MGIParser->new(

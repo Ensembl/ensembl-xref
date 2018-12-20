@@ -67,6 +67,12 @@ around '_init_config' => sub {
 };
 
 
+=head2 DEMOLISH
+
+Description: It's a destructor. It cleans up databases left behind by the test
+             Behaviour is overridden with $self->reuse(1)
+
+=cut
 sub DEMOLISH {
   my $self = shift;
   if ($self->reuse == 0 && defined $self->config) {

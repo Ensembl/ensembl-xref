@@ -27,11 +27,24 @@ limitations under the License.
 use strict;
 use warnings;
 
+use Cwd;
+use File::Spec;
+use File::Basename qw/dirname/;
 use Test::More;
+use Test::Warnings;
 
 use Test::Perl::Critic (
     -severity => 3,
-    -profile => '.perlcriticrc');
+    -profile => '.perlcriticrc',
+    -exclude => [ 'ProhibitExcessComplexity' ]);
 
-all_critic_ok('modules/Bio');
+# chdir into the file's target & request cwd() which should be fully resolved now.
+## then go back
+my $file_dir = dirname(__FILE__);
+my $original_dir = cwd();
+chdir($file_dir);
+my $cur_dir = cwd();
+chdir($original_dir);
+my $root = File::Spec->catdir($cur_dir, File::Spec->updir(),File::Spec->updir());
 
+all_critic_ok("$root/modules/Bio");

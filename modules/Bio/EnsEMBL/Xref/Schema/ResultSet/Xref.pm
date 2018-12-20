@@ -22,6 +22,21 @@ use warnings;
 
 use parent 'DBIx::Class::ResultSet';
 
+
+=head2 check_direct_xref
+
+Arg [1]    : Hashref of constraints for the xref, e.g. accession, label,
+             info_type etc. Can be any column in the schema
+Description: A query wrapper to reduce the call stack when checking a single
+             Xref is in the database
+Returntype : Boolean - True means the Xref was in the database
+
+Example    : $db->schema->resultset('Xref')->check_direct_xref({
+                accession => 'BOB'
+              });
+
+=cut
+
 sub check_direct_xref {
   my ($self,$params) = @_;
 

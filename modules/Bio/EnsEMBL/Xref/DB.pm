@@ -62,6 +62,7 @@ use warnings;
 use Moose;
 use namespace::autoclean;
 use Config::General;
+use Config::IniFiles; # FIXME normalise around one config format
 use Carp;
 use Bio::EnsEMBL::Xref::Schema;
 use DBI;
@@ -83,6 +84,12 @@ has config => (
   is => 'rw'
 );
 
+has now_function => (
+  isa => 'Str',
+  default => 'now()',
+  is => 'rw',
+);
+
 
 =head2 _init_db
   Arg [1]    : HashRef of configuation parameters (driver, db, host, port, user, pass)
@@ -94,7 +101,7 @@ has config => (
 
 sub _init_db {
   my $self = shift;
-  print STDERR "Setting up schema\n";
+
   $self->_init_config if ! defined $self->config;
   $self->_validate_config($self->config);
   my %conf = %{ $self->config };
@@ -104,18 +111,20 @@ sub _init_db {
   $opts{sqlite_unicode} = 1 if($conf{driver} eq 'SQLite');
   my $dsn;
   if ($conf{driver} eq 'SQLite') {
-    $dsn = sprintf("dbi:%s:database=%s",$conf{driver},$conf{file});
+    $dsn = sprintf 'dbi:%s:database=%s',$conf{driver},$conf{file};
+    $self->now_function("date('now')");
   } else {
-    $dsn = sprintf("dbi:%s:database=%s;host=%s;port=%s",$conf{driver},$conf{db},$conf{host},$conf{port});
+    $dsn = sprintf 'dbi:%s:database=%s;host=%s;port=%s', $conf{driver}, $conf{db}, $conf{host}, $conf{port};
   }
 
   my %deploy_opts = ();
   # Example deploy option $deploy_opts{add_drop_table} = 1;
-  print STDERR 'Connecting: '.$dsn."\n";
-  my $schema = Bio::EnsEMBL::Xref::Schema->connect($dsn, $conf{user},$conf{pass}, \%opts);
+  my $schema = Bio::EnsEMBL::Xref::Schema->connect($dsn, $conf{user}, $conf{pass}, \%opts);
 
   if ($conf{create} == 1 && $conf{driver} eq 'mysql') {
-    my $dbh = DBI->connect(sprintf("DBI:%s:database=;host=%s;port=%s",$conf{driver},$conf{host},$conf{port}),$conf{user},$conf{pass}, \%opts);
+    my $dbh = DBI->connect(
+      sprintf('DBI:%s:database=;host=%s;port=%s', $conf{driver}, $conf{host}, $conf{port}), $conf{user}, $conf{pass}, \%opts
+    );
     $dbh->do('CREATE DATABASE '.$conf{db}.';');
     $dbh->disconnect;
   }
@@ -178,7 +187,7 @@ sub _validate_config {
   } elsif ($config->{driver} eq 'SQLite') {
     push @required_keys, qw/file/;
   } else {
-    confess "TestDB config requires parameter 'driver' with value mysql or SQLite";
+    confess q(TestDB config requires parameter 'driver' with value mysql or SQLite);
   }
   my @errors;
   foreach my $constraint (@required_keys) {
@@ -225,6 +234,267 @@ sub create_db_row {
   );
   return $source;
 } ## end sub create_db_row
+
+
+=head2 populate_metadata
+  Arg [1]    : Config file path, normally xref_config.ini
+  Description: Loads species and source information into the schema from the
+               supplied file in Config::IniFiles format
+  Caller     : User
+=cut
+
+# TODO: Provide species AND division in order to limit quantity of madness
+
+sub populate_metadata {
+  my ($self, $config_path) = @_;
+
+  my $config = $self->_load_xref_config($config_path);
+
+  # Populate species table with species taxa and aliases
+  warn "Iterating over species groups\n";
+
+  my %sources;
+  # First build up records for each potential source
+  foreach my $section ( $config->GroupMembers('source')) {
+
+    my ( $source_name ) = $section =~ /
+      \A
+      source\s+(\S+)
+      \s*
+      \Z
+    /x;
+    $sources{$source_name} = $self->_mangle_source_block($section, $config);
+
+  }
+
+  my %compiled_config;
+  # Next, build a config hash from the species entries in the config file
+  # and populate them with relevant source information from the %sources
+  foreach my $section ( $config->GroupMembers('species') ) {
+    my ( $species_name ) = $section =~ /
+      \A
+      species\s+(\S+)
+      \s*
+      \Z
+    /x;
+
+    my @taxonomy_ids = split /\n/, $config->val( $section, 'taxonomy_id' );
+
+    my @source_names = $config->val( $section, 'source', ());
+    my %sources_for_species;
+
+    foreach my $source_entry (@source_names) {
+      
+      if (! exists $sources{$source_entry}) {
+        confess 'Species config references a source that is not defined in the config: '.$source_entry;
+      }
+
+      $sources_for_species{$source_entry} = $sources{$source_entry};
+    }
+
+    $compiled_config{$species_name} = {
+      species_id => $taxonomy_ids[0], # species_id == taxon_id in xref system,
+      taxonomy_id => \@taxonomy_ids,
+      alias => $species_name,
+      sources => \%sources_for_species
+    }
+  }
+
+  # Now populate the database with the result each source entry in the config with source-specific info
+
+  foreach my $species ( keys %compiled_config ) {
+    foreach my $taxon ( @{ $compiled_config{$species}{taxonomy_id} } ) {
+
+      my $species_record = $self->schema->resultset('Species')->create({
+        species_id => $compiled_config{$species}{species_id},
+        name => $species,
+        taxonomy_id => $taxon,# could be $compiled_config{$species}{species_id}?
+        aliases => $compiled_config{$species}{alias},
+      });
+
+      foreach my $source ( keys %sources ) {
+        my $required_sources = delete $sources{$source}->{dependent_on};
+        my $uris = delete $sources{$source}->{data_uri};
+        my $release_url = delete $sources{$source}->{release_uri};
+        my $parser = delete $sources{$source}->{parser};
+
+
+        my $source_record = $self->schema->resultset('Source')->find_or_create(
+          $sources{$source}  # once trimmed, we can pump the source hash straight into DBIC
+        );
+
+        if (defined $required_sources && @{$required_sources}) {
+          foreach my $predicate (@{$required_sources}) {
+            $source_record->create_related(
+              'dependent_source',
+              {
+                dependent_name => $predicate
+              }
+            );
+          }
+        }
+
+        my $time = 'now()'; # SQL::Abstract binding for SQL functions
+        if (defined $uris && @{$uris}) {
+          foreach my $uri (@{$uris}) {
+            $source_record->create_related(
+              'source_url',
+              {
+                species_id => $species_record->species_id,
+                url => $uri,
+                release_url => $release_url,
+                parser => $parser,
+                file_modified_date => \$self->now_function,
+                upload_date => \$self->now_function,
+              }
+            );
+          }
+        } # End if URIs
+      } # End foreach source
+
+    } # End foreach taxon
+
+  } # End foreach species
+  return;
+}
+
+=head2 _load_xref_config
+
+Arg [1]    : path to xref_config.ini
+Description: Load the config file and sanity-check to ensure content is
+             properly formatted for loading. 
+             FIXME: make parsing into a parser? Better yet switch to a format
+             which can express this grammar correctly without micro-formatting
+Returntype : Hashref config, as returned by Config::IniFiles
+
+=cut
+
+sub _load_xref_config {
+  my ($self, $config_path) = @_;
+
+  if (! -e $config_path) {
+    confess "Unable to open config file $config_path";
+  }
+  my $config = Config::IniFiles->new(-file => $config_path);
+
+  if (! defined $config) {
+    confess "Errors in $config_path, unable to parse: ". join ',', @Config::IniFiles::errors;
+  }
+  my $source_id = 0;
+  my %source_ids; # A tracker for sections we've seen
+
+  foreach my $section ( $config->GroupMembers('source')) {
+    my ( $spaces, $source_name ) = $section =~ /
+      \A
+      source(\s+)(\S+)
+      \s*
+      \Z
+    /x;
+
+    # This validation is how we used to validate this file
+    if ( length($spaces) > 1 ) {
+      confess(
+        sprintf(
+          "Too many spaces between the words 'source' and '%s'\nwhile reading source section '[%s]'\n",
+          $source_name,
+          $section
+        )
+      );
+    }
+
+    if ( index( $config->val( $section, 'name' ), "\n" ) != -1 ) {
+      confess(
+        sprintf( "The source section '[%s]' occurs more than once in \n", $section )
+      );
+    }
+
+    $source_ids{$section} = ++$source_id; # Record existence of species->source
+  }
+
+  foreach my $section ( $config->GroupMembers('species')) {
+    my ( $spaces, $species_name ) = $section =~ /
+      \A
+      species(\s+)(\S+)
+      \s*
+      \Z
+    /x;
+
+    if ( length($spaces) > 1 ) {
+      confess(
+        sprintf(
+          "Too many spaces between the words 'species' and '%s'\nwhile reading species section '[%s]'\n",
+          $species_name,
+          $section
+        )
+      );
+    }
+
+    foreach my $source_name (split /\n/, $config->val($section, 'source') ) {
+
+      $source_name =~ s/\s$//; # Config file can easily contain trailling whitespace
+      my $source_section = "source $source_name";
+      # Check integrity of species to source mentions
+      if ( !exists $source_ids{$source_section} ) {
+        confess(
+          sprintf( "Can not find source section '[%s]'\nwhile reading species section '[%s]'\n",
+                   $source_section,
+                   $section
+                 )
+        );
+      }
+
+    }
+
+  }
+  return $config;
+}
+
+=head2 _mangle_source_block
+
+Arg 1      : String - section header, the name for the section that identifies
+                      the section we need to extract values from
+Arg 2      : Hashref - config file content, the output of _load_xref_config()
+Description: Takes a single source record from xref_config.ini and creates a
+             hashref. Some arguments are massaged to get them into the schema
+             easily
+Returntype : Hashref of a single source's properties
+Caller     : Internal
+
+=cut
+
+sub _mangle_source_block {
+  my ($self, $section, $config) = @_;
+  
+  my $source_config;
+  # Get the easy ones done
+  foreach my $key (qw/name download priority parser release_uri/) {
+    my $value = $config->val($section, $key);
+    if (defined $value) {
+      $source_config->{$key} = $value;
+    }
+  }
+
+  my $priority_description = $config->val($section, 'prio_descr');
+  if (defined $priority_description) {
+    $source_config->{priority_description} = $priority_description;
+  }
+
+  my @dependents = split /\,/, $config->val($section, 'dependent_on', '');
+  if (scalar @dependents > 0) {
+    $source_config->{dependent_on} = \@dependents;
+  }
+
+  my @uris = $config->val($section, 'data_uri');
+  if (scalar @uris > 0) {
+    $source_config->{data_uri} = \@dependents;
+  }
+
+  $source_config->{source_release} = 1; # Why is this always 1? Nobody knows
+
+  $source_config->{status} = $config->val($section, 'status', 'NOIDEA');
+
+  return $source_config;
+}
 
 __PACKAGE__->meta->make_immutable;
 

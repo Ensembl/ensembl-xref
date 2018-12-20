@@ -24,53 +24,52 @@ use strict;
 use warnings;
 
 use Carp;
-use Readonly;
 
 
-Readonly my $PROTEIN_ID_SOURCE_NAME => 'protein_id';
-Readonly my $UNIPROT_GN_SOURCE_NAME => 'Uniprot_gn';
+# These sources are artificially populated using data from
+# crossreferences so we cannot simply read their names from the
+# input. Therefore, keep these names hardcoded in just one place
+# (i.e. here) rather than everywhere we use them.
+my $PROTEIN_ID_SOURCE_NAME = 'protein_id';
+my $UNIPROT_GN_SOURCE_NAME = 'Uniprot_gn';
 
-Readonly my %whitelisted_crossreference_sources
-  => (
-      'ChEMBL'                => 1,
-      'EMBL'                  => 1,
-      'Ensembl'               => 1,
-      'MEROPS'                => 1,
-      'PDB'                   => 1,
-      $PROTEIN_ID_SOURCE_NAME => 1,
-      $UNIPROT_GN_SOURCE_NAME => 1,
-    );
+# List of all 1:1 mapping from a primary-xref sequence type to the
+# Ensembl type of corresponding direct xrefs. One-to-many mappings
+# (e.g. for the type 'dna') have to be handled the hard way.
+my %direct_xref_type_for_seq_type = (
+  'peptide' => 'Translation',
+);
 
-Readonly my $MAX_TREMBL_EVIDENCE_LEVEL_FOR_STANDARD => 2;
-Readonly my %source_selection_criteria_for_status
-  => (
-      'Reviewed'   => [ 'Uniprot/SWISSPROT',
-                        sub {
-                          return 'sequence_mapped';
-                        }, ],
-      'Unreviewed' => [ 'Uniprot/SPTREMBL', sub {
-                          my ( $level ) = @_;
-                          return ( $level <= $MAX_TREMBL_EVIDENCE_LEVEL_FOR_STANDARD ) ?
-                            'sequence_mapped' :
-                            "protein_evidence_gt_$MAX_TREMBL_EVIDENCE_LEVEL_FOR_STANDARD";
-                        }, ],
-    );
+my $MAX_TREMBL_EVIDENCE_LEVEL_FOR_STANDARD = 2;
+my %source_selection_criteria_for_status
+  = (
+     'Reviewed'   => [ 'Uniprot/SWISSPROT',
+                       sub {
+                         return 'sequence_mapped';
+                       }, ],
+     'Unreviewed' => [ 'Uniprot/SPTREMBL', sub {
+                         my ( $level ) = @_;
+                         return ( $level <= $MAX_TREMBL_EVIDENCE_LEVEL_FOR_STANDARD ) ?
+                           'sequence_mapped' :
+                           "protein_evidence_gt_$MAX_TREMBL_EVIDENCE_LEVEL_FOR_STANDARD";
+                       }, ],
+   );
 
-Readonly my %protein_id_extraction_recipe_for_database
-  => (
-      'ChEMBL' => \&_get_protein_id_xref_from_embldb_xref,
-      'EMBL'   => \&_get_protein_id_xref_from_embldb_xref,
-    );
+my %protein_id_extraction_recipe_for_database
+  = (
+     'ChEMBL' => \&_get_protein_id_xref_from_embldb_xref,
+     'EMBL'   => \&_get_protein_id_xref_from_embldb_xref,
+   );
 sub _get_protein_id_xref_from_embldb_xref {
-  my ( $protein_id, $linkage_source_id, $source_id ) = @_;
+  my ( $embldb_extra_info, $linkage_source_id, $source_id, $species_id ) = @_;
+
+  # For both EMBL and ChEMBL entries protein ID immediately follows
+  # their respective accessions i.e will be the first element of extra_info.
+  my $protein_id = $embldb_extra_info->[0];
 
   # Strip the version number, if any, from the protein ID. At the same
   # time, filter out entries with no ID - in which case the ID is a
   # lone hyphen.
-  # FIXME:
-  #  - are versioned primary IDs still a thing? There are no such
-  #    entries in the Swiss-Prot file
-  #  - ditto primary ID being absent
   my ( $unversioned_protein_id )
     = ( $protein_id =~ m{
                           \A
@@ -89,29 +88,80 @@ sub _get_protein_id_xref_from_embldb_xref {
                    'LINKAGE_ANNOTATION' => $source_id,
                    'LINKAGE_SOURCE_ID'  => $linkage_source_id,
                    'SOURCE_ID'          => $source_id,
+                   'SPECIES_ID'         => $species_id,
               };
   return $xref_link;
 }
 
 
+=head2 new
+
+  Arg [1]    : HashRef arguments for the constructor:
+                - ArrayRef accepted_crossreference_sources
+                   - list of names of crossreference sources for which
+                     we are to generate direct or dependent xrefs
+                     along with respective links. By default said list
+                     is empty, in which case only primary
+                     (sequence-mapped) xrefs are created.
+                     To emphasise the point: this option DOES control
+                     creation of direct xrefs, not just dependent
+                     ones;
+                - default_direct_xref_type
+                   - Ensembl type (e.g. Gene, Transcript, Translation)
+                     to be assigned to direct xrefs in the event of
+                     either being unable to unambiguously determine it
+                     from sequence type or having failed to extract
+                     the sequence type to begin with;
+                - general_source_id
+                   - Xref-source ID as provided by the xref
+                     pipeline. Note that certain parsers, most notably
+                     those distributing xrefs across several different
+                     sources, do not use this information.
+                - species_id
+                   - Ensembl ID of the species under
+                     consideration. Records pertaining to other
+                     species will be quietly ignored;
+                - xref_dba
+                   - DBAdaptor object passed from the xref pipeline
+  Description: Constructor.
+  Return type: Transformer object
+  Exceptions : throws on failure to load all required maps from the
+               database
+  Caller     : UniProtParser::run()
+  Status     : Stable
+
+=cut
 
 sub new {
   my ( $proto, $arg_ref ) = @_;
 
+  my $crossref_source_names
+    = $arg_ref->{'accepted_crossreference_sources'} // [];
+
   my $self = {
-              'maps'       => {},
-              'species_id' => $arg_ref->{'species_id'},
-              'xref_dba'   => $arg_ref->{'xref_dba'},
-            };
+    'crossref_source_whitelist' => {},
+    'default_direct_xref_type'  => $arg_ref->{'default_direct_xref_type'},
+    'general_source_id'         => $arg_ref->{'general_source_id'},
+    'maps'                      => {},
+    'species_id'                => $arg_ref->{'species_id'},
+    'xref_dba'                  => $arg_ref->{'xref_dba'},
+  };
   my $class = ref $proto || $proto;
   bless $self, $class;
 
   $self->_load_maps();
 
+  # Store this as a hash to speed up lookups
+  foreach my $source_name ( @{ $crossref_source_names } ) {
+    $self->{'crossref_source_whitelist'}->{$source_name} = 1;
+  }
+
   return $self;
 }
 
 
+# Destructor. Makes sure the clean-up code gets executed regardless of
+# whether the user has explicitly called finish() or not.
 sub DESTROY {
   my ( $self ) = @_;
 
@@ -121,6 +171,17 @@ sub DESTROY {
 }
 
 
+=head2 finish
+
+  Description: Wrap-up routine. Does nothing at present, could
+               e.g. print statistics.
+  Return type: none
+  Exceptions : none
+  Caller     : destructor, UniProtParser::run()
+  Status     : Stable
+
+=cut
+
 sub finish {
   my ( $self ) = @_;
 
@@ -128,34 +189,67 @@ sub finish {
 }
 
 
-# Transforms extracted record into form that can be consumed by
-# BaseAdaptor::upload_xref_object_graphs().
+=head2 transform
+
+  Arg [1]    : HashRef extracted_record Structured UniProt-KB record as
+               provided by an extractor
+
+  Description: Process extracted_record to create Ensembl xref
+               entries, in a form which can be consumed by a
+               loader. The only loader in existence so far passes its
+               input unmodified to
+               BaseAdaptor::upload_xref_object_graphs() so that's the
+               format we produce here.
+
+               For each UniProt-KB record matching the specified
+               species, this method produces:
+                - a primary xref and a corresponding sequence-match
+                  xref;
+                - one or more direct xrefs and corresponding links for
+                  records with Ensembl cross-references;
+                - one or more dependent xrefs and corresponding links
+                  for records with other cross-references and/or
+                  declared gene names;
+                - synonyms for each of the above, as needed.
+               with the exact list of cross-reference sources to
+               process defined in
+               $self->{crossref_source_whitelist}. It also determines
+               the correct source ID for the record's evidence level.
+
+  Return type: HashRef
+  Exceptions : throws on processing errors
+  Caller     : UniProtParser::run()
+  Status     : Stable
+
+=cut
+
 sub transform {
   my ( $self, $extracted_record ) = @_;
 
   $self->{'extracted_record'} = $extracted_record;
+  $self->{'cache'} = {};
 
   my ( $accession, @synonyms )
     = @{ $extracted_record->{'accession_numbers'} };
-  my $source_id = $self->_get_source_id();
+  my $record_source_id = $self->_get_record_source_id();
 
   my $xref_graph_node
     = {
-       'ACCESSION'     => $accession,
+       'ACCESSION'     => $self->_get_accession(),
        'DESCRIPTION'   => $extracted_record->{'description'},
        'INFO_TYPE'     => 'SEQUENCE_MATCH',
-       'LABEL'         => $accession,
-       'SEQUENCE'      => $extracted_record->{'sequence'},
-       'SEQUENCE_TYPE' => 'peptide',
-       'SOURCE_ID'     => $source_id,
+       'LABEL'         => $self->_prepare_label(),
+       'SEQUENCE'      => $self->_prepare_sequence(),
+       'SEQUENCE_TYPE' => $extracted_record->{'sequence'}->{'type'},
+       'SOURCE_ID'     => $record_source_id,
        'SPECIES_ID'    => $self->{'species_id'},
        'STATUS'        => 'experimental',
-       'SYNONYMS'      => \@synonyms,
+       'SYNONYMS'      => $self->_get_synonyms(),
      };
 
   # UniProt Gene Names links come from the 'gene_names' fields
   my $genename_dependent_xrefs
-    = $self->_make_links_from_gene_names( $accession, $source_id );
+    = $self->_make_links_from_gene_names( $xref_graph_node );
   # Do not assign an empty array to DEPENDENT_XREFS, current insertion code
   # doesn't like them.
   if ( scalar @{ $genename_dependent_xrefs } > 0 ) {
@@ -164,7 +258,7 @@ sub transform {
 
   # All other xref links come from crossreferences
   my ( $direct_xrefs, $dependent_xrefs )
-    = $self->_make_links_from_crossreferences( $accession, $source_id );
+    = $self->_make_links_from_crossreferences( $xref_graph_node );
   # Do not assign empty arrays to FOO_XREFS, current insertion code
   # doesn't like them.
   if ( scalar @{ $direct_xrefs } > 0 ) {
@@ -178,9 +272,21 @@ sub transform {
 }
 
 
-# Returns a hashref mapping source-name/priority pairs to source
-# IDs. Used by the steering code to e.g. handle the setting of release
-# numbers on sources.
+=head2 get_source_id_map
+
+  Description: Returns a map between source-name/priority pairs and
+               source IDs. This map is used both in the transformer
+               itself and e.g. in the steering code to handle the
+               setting of release numbers on sources, and it is more
+               resource-efficient to only retrieve it from the
+               database once - hence this method.
+  Return type: HashRef
+  Exceptions : throws if the relevant map does not exist
+  Caller     : UniProtParser::run()
+  Status     : Stable
+
+=cut
+
 sub get_source_id_map {
   my ( $self ) = @_;
 
@@ -259,9 +365,39 @@ sub _entry_is_from_ensembl {
 }
 
 
+# Get primary accession of the extracted record.
+sub _get_accession {
+  my ( $self ) = @_;
+
+  if ( ! exists $self->{'cache'}->{'accession'} ) {
+    my ( $accession, @synonyms )
+      = @{ $self->{'extracted_record'}->{'accession_numbers'} };
+    $self->{'cache'}->{'accession'} = $accession;
+    $self->{'cache'}->{'synonyms'} = \@synonyms;
+  }
+
+  return $self->{'cache'}->{'accession'};
+}
+
+
+# Get synonyms (secondary accessions) of the extracted record.
+sub _get_synonyms {
+  my ( $self ) = @_;
+
+  if ( ! exists $self->{'cache'}->{'synonyms'} ) {
+    my ( $accession, @synonyms )
+      = @{ $self->{'extracted_record'}->{'accession_numbers'} };
+    $self->{'cache'}->{'accession'} = $accession;
+    $self->{'cache'}->{'synonyms'} = \@synonyms;
+  }
+
+  return $self->{'cache'}->{'synonyms'};
+}
+
+
 # Translate quality of the extracted entry into the matching Ensembl
 # source_id, optionally with an override of priority.
-sub _get_source_id {
+sub _get_source_id_from_quality {
   my ( $self, $priority_override ) = @_;
 
   my $source_id_map = $self->{'maps'}->{'named_source_ids'};
@@ -285,10 +421,12 @@ sub _get_source_id {
 # we additionally generate protein_id dependent xrefs from appropriate
 # sources, i.e. EMBL and ChEMBL at present.
 sub _make_links_from_crossreferences {
-  my ( $self, $xref_accession, $xref_source_id ) = @_;
+  my ( $self, $primary_xref ) = @_;
 
   my $crossreferences = $self->{'extracted_record'}->{'crossreferences'};
   my $dependent_sources = $self->{'maps'}->{'dependent_sources'};
+  my %whitelisted_crossreference_sources
+    = %{ $self->{'crossref_source_whitelist'} };
 
   my @direct_xrefs;
   my @dependent_xrefs;
@@ -302,14 +440,35 @@ sub _make_links_from_crossreferences {
 
     if ( $source eq 'Ensembl' ) {
 
+      # If we cannot unambiguously deduce Ensembl type from the
+      # sequence type of the primary xref (or if it hasn't been
+      # extracted at all), fall back to the global default. Should be
+      # safe enough because on the one hand if we do enable creation
+      # of direct xrefs from specific input we really ought to have an
+      # idea of what type they are, and on the other unless the
+      # database schema changes a lot the loader should complain VERY
+      # loudly when it tries to insert data into the very much
+      # nonexistent table '_direct_xref' if the global default is
+      # omitted.
+      my $direct_xref_type
+        = $direct_xref_type_for_seq_type{ $primary_xref->{'SEQUENCE_TYPE'} }
+        // $self->{'default_direct_xref_type'};
+
     DIRECT_XREF:
       foreach my $direct_ref ( @{ $entries } ) {
         my $xref_link
           = {
-             'STABLE_ID'    => $direct_ref->{'id'},
-             'ENSEMBL_TYPE' => 'Translation',
+             # We want translation ID and 'id' for these is TRANSCRIPT ID
+             'STABLE_ID'    => $direct_ref->{'optional_info'}->[0],
+             'ENSEMBL_TYPE' => $direct_xref_type,
              'LINKAGE_TYPE' => 'DIRECT',
-             'SOURCE_ID'    => $self->_get_source_id( 'direct' ),
+             'SOURCE_ID'    => $self->_get_source_id_from_quality( 'direct' ),
+             'ACCESSION'    => $primary_xref->{'ACCESSION'},
+             'VERSION'      => $primary_xref->{'VERSION'},
+             'LABEL'        => $primary_xref->{'LABEL'},
+             'DESCRIPTION'  => $primary_xref->{'DESCRIPTION'},
+             'SPECIES_ID'   => $primary_xref->{'SPECIES_ID'},
+             'INFO_TEXT'    => $primary_xref->{'INFO_TEXT'},
            };
         push @direct_xrefs, $xref_link;
       }
@@ -322,10 +481,11 @@ sub _make_links_from_crossreferences {
       foreach my $dependent_ref ( @{ $entries } ) {
         my $xref_link
           = {
-             'ACCESSION'          => $xref_accession,
+             'ACCESSION'          => $dependent_ref->{'id'},
              'LINKAGE_ANNOTATION' => $dependent_source_id,
-             'LINKAGE_SOURCE_ID'  => $xref_source_id,
+             'LINKAGE_SOURCE_ID'  => $primary_xref->{'SOURCE_ID'},
              'SOURCE_ID'          => $dependent_source_id,
+             'SPECIES_ID'         => $primary_xref->{'SPECIES_ID'},
            };
         push @dependent_xrefs, $xref_link;
 
@@ -337,9 +497,10 @@ sub _make_links_from_crossreferences {
           # Entries for the source 'protein_id' are constructed from
           # crossreferences to other databases
           my $protein_id_xref
-            = $protein_id_xref_maker->( $dependent_ref->{'id'},
-                                        $xref_source_id,
-                                        $dependent_sources->{$PROTEIN_ID_SOURCE_NAME}
+            = $protein_id_xref_maker->( $dependent_ref->{'optional_info'},
+                                        $primary_xref->{'SOURCE_ID'},
+                                        $dependent_sources->{$PROTEIN_ID_SOURCE_NAME},
+                                        $primary_xref->{'SPECIES_ID'}
                                      );
           if ( defined $protein_id_xref ) {
             push @dependent_xrefs, $protein_id_xref;
@@ -360,9 +521,12 @@ sub _make_links_from_crossreferences {
 # extracted record, in a form suitable to attaching to the main xref's
 # graph node as consumed by upload_xref_object_graphs().
 sub _make_links_from_gene_names {
-  my ( $self, $xref_accession, $xref_source_id ) = @_;
+  my ( $self, $primary_xref ) = @_;
 
   my @genename_xrefs;
+
+  my %whitelisted_crossreference_sources
+    = %{ $self->{'crossref_source_whitelist'} };
 
   # Are we supposed to process this xref source to begin with?
   if ( ! $whitelisted_crossreference_sources{ $UNIPROT_GN_SOURCE_NAME } ) {
@@ -388,11 +552,12 @@ sub _make_links_from_gene_names {
 
     my $name = $gn_entry->{'Name'};
     my $xref = {
-                'ACCESSION'          => $xref_accession,
+                'ACCESSION'          => $primary_xref->{'ACCESSION'},
                 'LABEL'              => $name,
                 'LINKAGE_ANNOTATION' => $dependent_source_id,
-                'LINKAGE_SOURCE_ID'  => $xref_source_id,
+                'LINKAGE_SOURCE_ID'  => $primary_xref->{'SOURCE_ID'},
                 'SOURCE_ID'          => $dependent_source_id,
+                'SPECIES_ID'         => $primary_xref->{'SPECIES_ID'},
               };
 
     my $synonyms = $gn_entry->{'Synonyms'};
@@ -417,6 +582,33 @@ sub _make_links_from_gene_names {
   }
 
   return \@genename_xrefs;
+}
+
+
+# UniProt-specific implementation of the source-ID getter: select the
+# right one depending on quality of the entry.
+sub _get_record_source_id {
+  my ( $self ) = @_;
+
+  return $self->_get_source_id_from_quality();
+}
+
+
+# UniProt-specific implementation of the label getter: should be the
+# same as the primary accession.
+sub _prepare_label {
+  my ( $self ) = @_;
+
+  return $self->_get_accession();
+}
+
+
+# UniProt-specific implementation of the sequence getter: no
+# transformations needed.
+sub _prepare_sequence {
+  my ( $self ) = @_;
+
+  return $self->{'extracted_record'}->{'sequence'}->{'seq'};
 }
 
 

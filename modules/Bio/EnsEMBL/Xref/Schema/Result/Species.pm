@@ -66,7 +66,7 @@ __PACKAGE__->table("species");
 
 __PACKAGE__->add_columns(
   "species_id",
-  { data_type => "integer", extra => { unsigned => 1 }, is_nullable => 0 },
+  { data_type => "integer", extra => { unsigned => 1 }, is_nullable => 0, is_auto_increment => 1 },
   "taxonomy_id",
   { data_type => "integer", extra => { unsigned => 1 }, is_nullable => 0 },
   "name",
@@ -88,7 +88,8 @@ __PACKAGE__->add_columns(
 =back
 
 =cut
-
-__PACKAGE__->add_unique_constraint("species_taxonomy_idx", ["species_id", "taxonomy_id"]);
+__PACKAGE__->set_primary_key('species_id');
+__PACKAGE__->add_unique_constraint('species_taxonomy_idx', ['taxonomy_id']);
+__PACKAGE__->has_many('source_url', 'Bio::EnsEMBL::Xref::Schema::Result::SourceUrl', 'source_id');
 
 1;

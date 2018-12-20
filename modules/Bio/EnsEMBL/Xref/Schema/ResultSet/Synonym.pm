@@ -23,12 +23,15 @@ use warnings;
 
 use parent 'DBIx::Class::ResultSet';
 
-=head2
-Search for the given xref_id and synonym
-  {
-    xref_id => $params->{xref_id},
-    synonym => $params->{synonym},
-  }
+=head2 check_synonym
+
+Description: Search for the given xref_id and synonym. Just a coding shortcut
+Example    : my $exists = $schema->resultset('Synonym')->check_synonym({
+               xref_id => $params->{xref_id},
+               synonym => $params->{synonym}
+             });
+Returntype : Boolean - True if the synonymn was found 
+
 =cut
 
 sub check_synonym {

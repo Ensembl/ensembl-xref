@@ -34,6 +34,7 @@ use strict;
 use warnings;
 
 use Test::More;
+use Test::Warnings;
 
 my $package_available = eval { use Test::Pod::Coverage };
 plan skip_all => 'Test::Pod::Coverage required' if $package_available;

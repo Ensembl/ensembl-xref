@@ -78,40 +78,23 @@ sub run {
   my $xref_dba     = $self->{xref_dba};
   my $dba          = $self->{dba};
 
+  defined $species_name or confess 'Species name is required';
+
   my $file = shift @{$files};
 
-  # project could be ensembl or ensemblgenomes
-  my $project;
-  if ( $file =~ /project[=][>](\S+?)[,]/ ) {
-    $project = $1;
-  }
-
-  my %species_id_to_names = $xref_dba->species_id2name();
-
-  # the species_name passed could be an alias that is different from what is stored in species table,
-  # so it is better to store it as well in the hash. We later check if the species is active in ArrayExpress
-  # using all these speices names
-
-  if ( defined $species_name ) {
-    push @{ $species_id_to_names{$species_id} }, $species_name;
-  }
-
-  if ( !exists $species_id_to_names{$species_id} ) { return 0; }
-
-  my $names               = $species_id_to_names{$species_id};
   my $species_lookup      = $self->_get_species($verbose);
-  my $active = $self->_is_active_species( $species_lookup, $names, $verbose );
+  my $active = $self->_is_active_species( $species_lookup, $species_name, $verbose );
 
   if ( !$active ) {
     return 0;
   }
 
-  $species_name = $species_id_to_names{$species_id}[0];
-
   #get stable_ids from core and create xrefs
-  my $gene_adaptor = $self->_get_gene_adaptor($project, $species_name, $dba);
+  my $gene_adaptor = $dba->get_GeneAdaptor();
 
-  print "Finished loading the gene_adaptor\n" if $verbose;
+  if ( $verbose ) {
+    print "Finished loading the gene_adaptor\n";
+  }
 
   my @stable_ids = map { $_->stable_id } @{ $gene_adaptor->fetch_all() };
 
@@ -124,65 +107,25 @@ sub run {
         label      => $gene_stable_id,
         source_id  => $source_id,
         species_id => $species_id,
-        info_type  => "DIRECT"
+        info_type  => 'DIRECT'
       }
     );
 
-    $xref_dba->add_direct_xref( $xref_id, $gene_stable_id, 'gene', '' );
+    $xref_dba->add_direct_xref( $xref_id, $gene_stable_id, 'gene', q{} );
     if ($xref_id) {
       $xref_count++;
     }
   }
 
-  print "Added $xref_count DIRECT xrefs\n" if ($verbose);
+  if ( $verbose ) {
+    print "Added $xref_count DIRECT xrefs\n";
+  }
   if ( !$xref_count ) {
    croak "No arrayexpress xref added\n";
   }
 
   return 0;      # successful
 
-}
-
-sub _get_gene_adaptor {
-  my ( $self, $project, $species_name, $dba ) = @_;
-
-  my $registry = 'Bio::EnsEMBL::Registry';
-
-  my ($gene_adaptor);
-
-  if ( defined $project && $project eq 'ensembl' ) {
-    $registry->load_registry_from_multiple_dbs(
-      {
-        '-host' => 'mysql-ens-sta-1',
-        '-port' => 4519,
-        '-user' => 'ensro',
-      },
-    );
-    $gene_adaptor = $registry->get_adaptor( $species_name, 'core', 'Gene' );
-  }
-  elsif ( defined $project && $project eq 'ensemblgenomes' ) {
-    $registry->load_registry_from_multiple_dbs(
-      {
-        '-host' => 'mysql-eg-staging-1.ebi.ac.uk',
-        '-port' => 4160,
-        '-user' => 'ensro',
-      },
-      {
-        '-host' => 'mysql-eg-staging-2.ebi.ac.uk',
-        '-port' => 4275,
-        '-user' => 'ensro',
-      },
-    );
-    $gene_adaptor = $registry->get_adaptor( $species_name, 'core', 'Gene' );
-  }
-  elsif ( defined $dba ) {
-    $gene_adaptor = $dba->get_GeneAdaptor();
-  }
-  else {
-    die( "Missing or unsupported project value. Supported values: ensembl, ensemblgenomes" );
-  }
-
-  return $gene_adaptor;
 }
 
 sub _get_species {
@@ -210,18 +153,15 @@ sub _get_species {
 
 # checks if the species is still active in ArrayExress
 sub _is_active_species {
-  my ( $self, $species_lookup, $names, $verbose ) = @_;
+  my ( $self, $species_lookup, $species_name, $verbose ) = @_;
 
-  #Loop through the names and aliases first. If we get a hit then great
-  my $active = 0;
-  foreach my $name ( @{$names} ) {
-    if ( $species_lookup->{$name} ) {
-      printf( 'Found ArrayExpress has declared the name "%s". This was an alias' . "\n", $name ) if $verbose;
-      $active = 1;
-      last;
+  if ( $species_lookup->{$species_name} ) {
+    if ( $verbose ) {
+      printf 'Found ArrayExpress has declared the name "%s". This was an alias' . "\n", $species_name;
     }
+    return 1;
   }
-  return $active;
+  return 0;
 }
 
 1;

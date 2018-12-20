@@ -25,25 +25,47 @@ use strict;
 use warnings;
 
 use Carp;
-use List::Util;
 use Readonly;
 use Text::CSV;
 
 use parent qw( Bio::EnsEMBL::Xref::Parser );
 
-# This parser will read direct xrefs from a comma-delimited file downloaded from the DBASS Web site.
-# The columns of the file should be the following:
-#
-# 1)    DBASS Gene ID
-# 2)    DBASS Gene Name
-# 3)    Ensembl Gene ID
-#
-# where 2) can be either a single name, a 'name/synonym' pair, or a 'name (synonym)' pair.
-# Column values, including empty strings, can be surrounded by pairs of double quotes.
-
 
 Readonly my $EXPECTED_NUMBER_OF_COLUMNS => 3;
 
+
+
+=head2 run
+
+  Arg [1]    : HashRef standard list of arguments from ParseSource
+  Example    : $dbass_parser->run({ ... });
+  Description: Extract DBASS3/DBASS5 entries from a comma-delimited
+               file downloaded from the DBASS Web site, then insert
+               corresponding xrefs and gene_direct_xref links into the
+               xref database.
+
+               The columns of the file should be the following:
+                1) DBASS Gene ID
+                2) DBASS Gene Name
+                3) Ensembl Gene ID
+               with the first line containing column names and all
+               subsequent ones containing entries proper. All column
+               values, including names from the header as well as any
+               empty strings, can be surrounded by pairs of double
+               quotes.
+
+               DBASS Gene Name can be either a single name, a
+               'name/synonym' pair, or a 'name (synonym)' pair.
+
+               Ensembl Gene ID can be an empty string, indicating an
+               unmapped entry.
+
+  Return type: none
+  Exceptions : throws on all processing errors
+  Caller     : ParseSource in the xref pipeline
+  Status     : Stable
+
+=cut
 
 sub run {
   my ( $self ) = @_;
@@ -59,7 +81,7 @@ sub run {
   my $filename = @{$files}[0];
   my $file_io = $xref_dba->get_filehandle($filename);
 
-  if ( ! is_file_header_valid( $csv->getline( $file_io ) ) ) {
+  if ( ! is_file_header_valid( $csv->header( $file_io ) ) ) {
     confess "Malformed or unexpected header in DBASS file '${filename}'";
   }
 
@@ -144,14 +166,14 @@ sub run {
     printf( "Skipped %d unmapped xrefs\n", $unmapped_count );
   }
 
-  return 0;
+  return;
 } ## end sub run
 
 
 =head2 is_file_header_valid
 
-  Arg [1]    : String file header line
-  Example    : if (!is_file_header_valid($header_line)) {
+  Arg [1..N] : list of column names provided by Text::CSV::header()
+  Example    : if ( !is_file_header_valid( $csv->header( $fh ) ) ) {
                  confess 'Bad header';
                }
   Description: Verifies if the header of a DBASS file follows expected
@@ -164,27 +186,25 @@ sub run {
 =cut
 
 sub is_file_header_valid {
-  my ( $header ) = @_;
+  my ( @header ) = @_;
 
   # Don't bother with parsing column names if their number does not
   # match to begin with
-  if ( scalar @{ $header } != $EXPECTED_NUMBER_OF_COLUMNS ) {
+  if ( scalar @header != $EXPECTED_NUMBER_OF_COLUMNS ) {
     return 0;
   }
 
-  my @fields_ok;
+  my ( $dbass_end ) = ( $header[0] =~ m{ dbass (3|5) geneid }msx );
+  return 0 unless defined $dbass_end;
 
-  my ( $dbass_end ) = ( $header->[0] =~ m{ DBASS (3|5) GeneID }msx );
-  push @fields_ok, defined $dbass_end;
+  my $dbass_name_ok = ( $header[1] =~ m{ dbass ${dbass_end} genename }msx );
+  return 0 unless $dbass_name_ok;
 
-  my $dbass_name_ok = ( $header->[1] =~ m{ DBASS ${dbass_end} GeneName }msx );
-  push @fields_ok, $dbass_name_ok;
+  my $ensembl_id_ok = ( $header[2] eq 'ensemblgenenumber' );
+  return 0 unless $ensembl_id_ok;
 
-  my $ensembl_id_ok = ( $header->[2] eq 'EnsemblGeneNumber' );
-  push @fields_ok, $ensembl_id_ok;
-
-  # All fields must be in order
-  return List::Util::all { $_ } @fields_ok;
+  # If we have made it this far, all should be in order
+  return 1;
 }
 
 
