@@ -573,7 +573,7 @@ is( $names->[0], 'Homo sapiens', 'Species name' );
 throws_ok {
   $xref_dba->add_alt_allele()
 } qr/Need to specify/, 'Throws with missing arguments';
-  
+
 my $gene_stable_id = $db->schema->resultset('GeneStableId')->create({
   internal_id          => 1,
   stable_id            => 'FakeStableId0001'
@@ -611,6 +611,12 @@ is($xref_dba->species("human"), "human", "Species set to ". $xref_dba->species);
 # get_dba
 ok( defined($xref_dba->dba), "dba defined");
 isa_ok( $xref_dba->dba, 'Bio::EnsEMBL::DBSQL::DBAdaptor' );
+
+
+# get_source_ids_with_xrefs
+while( my $base_sources = $xref_dba->get_source_ids_with_xrefs() ) {
+  is( $base_sources->source_name, 'RefSeq', 'get_source_ids_with_xrefs' );
+}
 
 done_testing();
 

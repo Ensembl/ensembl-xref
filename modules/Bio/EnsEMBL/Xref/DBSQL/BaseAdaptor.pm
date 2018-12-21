@@ -2486,15 +2486,17 @@ sub get_refseq_sources {
 ################################################################################
 ################################################################################
 ################################################################################
-# Functions from the Loader.pm module. This needs normalising into the already #
-# existing code base.                                                          #
+### Functions from the Loader.pm module. This needs normalising into the     ###
+### already existing code base.                                              ###
 ################################################################################
 ################################################################################
 ################################################################################
 
+=head2
+
+=cut
 
 sub get_source_ids_with_xrefs {
-
   my $self = shift;
 
   my $sql = (<<'SQL');
@@ -2513,6 +2515,7 @@ SQL
 
   return sub {
     $sth->fetch;
+    print $source_name . ' - ' . $source_count . "\n";
 
     return {
       name  => $source_name,
