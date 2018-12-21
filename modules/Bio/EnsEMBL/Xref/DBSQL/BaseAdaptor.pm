@@ -953,14 +953,15 @@ sub get_xref {
 sub get_object_xref {
   my ( $self, $xref_id, $ensembl_id, $object_type ) = @_;
 
-  my $sql = (<<'SQL')
+  my $sql = (<<'SQL');
     SELECT object_xref_id
     FROM object_xref
     WHERE xref_id = ? AND
           ensembl_object_type = ? AND
           ensembl_id = ?
 SQL
-  my $get_object_xref_sth = $self->dbi->prepare_cached($sql);
+
+  my $get_object_xref_sth = $self->dbi->prepare_cached( $sql );
 
   #
   # Find the object_xref_id using the sql above
@@ -2496,7 +2497,7 @@ sub get_source_ids_with_xrefs {
 
   my $self = shift;
 
-  my $name_to_external_db_sql = (<<'SQL');
+  my $sql = (<<'SQL');
     SELECT s.name, COUNT(s.name)
     FROM xref x, object_xref ox, source s
     WHERE ox.xref_id = x.xref_id AND
@@ -2507,6 +2508,7 @@ SQL
   my $sth = $self->dbi->prepare_cached( $sql );
   $sth->execute() or confess( $self->dbi->errstr() );
 
+  my ( $source_name, $source_count );
   $sth->bind_columns( \$source_name, \$source_count);
 
   return sub {
@@ -2515,13 +2517,15 @@ SQL
     return {
       name  => $source_name,
       count => $source_count
-    }
-  }
+    };
+  };
 } ## end sub get_source_ids_with_xrefs
 
 
 
 sub get_dump_out_xrefs {
+  my $self = shift;
+
   my $sql = (<<'SQL');
     SELECT s.name, s.source_id, COUNT(*), x.info_type, s.priority_description, s.source_release
     FROM xref x, object_xref ox, source s
@@ -2531,14 +2535,14 @@ sub get_dump_out_xrefs {
     GROUP BY s.name, s.source_id, x.info_type
 SQL
 
-  $sth = $self->dbi->prepare_cached( $sql );
+  my $sth = $self->dbi->prepare_cached( $sql );
   $sth->execute();
 
-  my ($type, $source_id, $where_from, $release_info);
+  my ( $name, $type, $source_id, $count, $where_from, $release_info );
   $sth->bind_columns(\$name,\$source_id, \$count, \$type, \$where_from, \$release_info);
 
   return sub {
-    $seq_sth->fetch;
+    $sth->fetch;
 
     return {
       type         => $type,
@@ -2598,7 +2602,7 @@ SQL
       desc             => $desc,
       info             => $info,
       ensembl_id       => $ensembl_id,
-      ensemb_type      => $ensembl_type
+      ensemb_type      => $ensembl_type,
       object_xref_id   => $object_xref_id,
       query_identity   => $query_identity,
       ensembl_identity => $target_identity,
@@ -2609,8 +2613,8 @@ SQL
       cigar_line       => $cigar_line,
       score            => $score,
       evalue           => $evalue
-    }
-  }
+    };
+  };
 } ## end sub get_insert_identity_xref
 
 
@@ -2628,7 +2632,7 @@ sub get_insert_checksum_xref {
     ORDER BY x.xref_id
 SQL
 
-  my $dir_sth = $self->dbi->prepare($dir_sql);
+  my $dir_sth = $self->dbi->prepare( $sql );
 
   my $count = 0;
   $dir_sth->execute($source_id, $type);
@@ -2650,10 +2654,10 @@ SQL
       desc             => $desc,
       info             => $info,
       ensembl_id       => $ensembl_id,
-      ensemb_type      => $ensembl_type
+      ensemb_type      => $ensembl_type,
       object_xref_id   => $object_xref_id
-    }
-  }
+    };
+  };
 } ## end sub get_insert_checksum_xref
 
 
@@ -2672,14 +2676,17 @@ sub get_insert_dependent_xref {
     ORDER BY x.xref_id, ox.ensembl_id
 SQL
 
-  my $dependent_sth = $self->dbi->prepare($dep_sql);
+  my $dependent_sth = $self->dbi->prepare( $sql );
   $dependent_sth->execute($source_id, $type);
+
+  my ( $xref_id, $acc, $label, $version, $desc, $info, $object_xref_id,
+       $ensembl_id, $ensembl_type, $master_xref_id );
   $dependent_sth->bind_columns(
     \$xref_id, \$acc, \$label, \$version, \$desc, \$info, \$object_xref_id,
     \$ensembl_id, \$ensembl_type, \$master_xref_id);
 
   return sub {
-    $dir_sth->fetch;
+    $dependent_sth->fetch;
 
     return {
       xref_id          => $xref_id,
@@ -2692,8 +2699,8 @@ SQL
       ensemb_type      => $ensembl_type,
       object_xref_id   => $object_xref_id,
       master_xref_id   => $master_xref_id
-    }
-  }
+    };
+  };
 
 } ## end sub get_insert_dependent_xref
 
@@ -2702,10 +2709,10 @@ sub get_synonyms_for_xref {
   my ( $self, $xref_list ) = @_;
 
   my ($xref_id, $syn);
-  my $syn_sql = (<<"SQL")
+  my $syn_sql = (<<"SQL");
     SELECT xref_id, synonym
     FROM synonym
-    WHERE xref_id IN ( @{[join',', ('?') x @{$syn_sql}]} )
+    WHERE xref_id IN ( @{[join',', ('?') x @{$syn}]} )
 SQL
   my $syn_sth = $self->dbi->prepare( $syn_sql );
   $syn_sth->execute( @{ $xref_list } );
@@ -2722,7 +2729,7 @@ SQL
 }
 
 
-# just incase this is being ran again
+# just incase this is being run again
 sub mark_mapped_xrefs_already_run {
   my ( $self, $xref_list, $status ) = @_;
 
@@ -2733,8 +2740,7 @@ sub mark_mapped_xrefs_already_run {
 SQL
 
   my $sth = $self->dbi->prepare( $sql );
-  $xref_dumped_sth->execute() ||
-    confess 'Could not set dumped status';
+  $sth->execute() || confess 'Could not set dumped status';
 
   return;
 }
@@ -2825,7 +2831,7 @@ SQL
 
 
 sub get_insert_direct_xref_low_priority {
-  my ( $self, $source_id, $type ) = @_;
+  my ( $self ) = @_;
 
   my $sql = (<<'SQL');
     SELECT x.xref_id, x.accession, x.version, x.label, x.description,
@@ -2841,6 +2847,8 @@ SQL
   my $sth = $self->dbi->prepare_cached( $sql );
 
   $sth->execute();
+
+  my ( $xref_id, $acc, $version, $label, $desc, $type, $info, $dbname );
   $sth->bind_columns(
     \$xref_id, \$acc, \$version, \$label, \$desc, \$type, \$info, \$dbname);
 
@@ -2854,7 +2862,7 @@ SQL
       version => $version,
       desc    => $desc,
       info    => $info,
-      type    => type,
+      type    => $type,
       dbname  => $dbname
     }
   }
@@ -2864,7 +2872,7 @@ SQL
 
 
 sub get_insert_dependent_xref_low_priority {
-  my ( $self, $source_id, $type ) = @_;
+  my ( $self ) = @_;
 
   my $sql = (<<'SQL');
     SELECT DISTINCT
@@ -2884,6 +2892,8 @@ SQL
   my $sth = $self->dbi->prepare_cached( $sql );
 
   $sth->execute();
+
+  my ( $xref_id, $acc, $version, $label, $desc, $type, $info, $dbname, $parent );
   $sth->bind_columns(
     \$xref_id, \$acc, \$version, \$label, \$desc, \$type, \$info, \$dbname, \$parent);
 
@@ -2897,7 +2907,7 @@ SQL
       version => $version,
       desc    => $desc,
       info    => $info,
-      type    => type,
+      type    => $type,
       dbname  => $dbname
     }
   }
@@ -2907,7 +2917,7 @@ SQL
 
 
 sub get_insert_sequence_xref_remaining {
-  my ( $self, $source_id, $type ) = @_;
+  my ( $self ) = @_;
 
   my $sql = (<<'SQL');
     SELECT  x.xref_id, x.accession, x.version, x.label, x.description, x.info_type, x.info_text,
@@ -2927,6 +2937,9 @@ SQL
   my $sth = $self->dbi->prepare_cached( $sql );
 
   $sth->execute();
+
+  my ( $xref_id, $acc, $version, $label, $desc, $type, $info, $dbname,
+       $seq_type, $ensembl_object_type, $ensembl_id, $q_id, $t_id, $status );
   $sth->bind_columns(
     \$xref_id, \$acc, \$version, \$label, \$desc, \$type, \$info, \$dbname,
     \$seq_type, \$ensembl_object_type, \$ensembl_id, \$q_id, \$t_id, \$status);
@@ -2941,7 +2954,7 @@ SQL
       version             => $version,
       desc                => $desc,
       info                => $info,
-      type                => type,
+      type                => $type,
       dbname              => $dbname,
       seq_type            => $seq_type,
       ensembl_object_type => $ensembl_object_type,
@@ -2959,19 +2972,22 @@ SQL
 sub get_insert_misc_xref {
   my ( $self ) = @_;
 
-  $sql =(<<'SQL');
-  SELECT  x.xref_id, x.accession, x.version,
-          x.label, x.description, x.info_type,
-          x.info_text, s.name
+  my $sql =(<<'SQL');
+  SELECT x.xref_id, x.accession, x.version,
+         x.label, x.description, x.info_type,
+         x.info_text, s.name
   FROM xref x, source s
   WHERE x.source_id = s.source_id AND
-        x.dumped is null AND
+        x.dumped IS NULL AND
         x.info_type = 'MISC'
 SQL
 
-  my $misc_unmapped_sth = $self->dbi->prepare($sql);
-  $misc_unmapped_sth->execute();
-  $misc_unmapped_sth->bind_columns(\$xref_id, \$acc, \$version, \$label, \$desc, \$type, \$info, \$dbname);
+  my $sth = $self->dbi->prepare( $sql );
+  $sth->execute();
+
+  my ( $xref_id, $acc, $version, $label, $desc, $type, $info, $dbname );
+  $sth->bind_columns(
+    \$xref_id, \$acc, \$version, \$label, \$desc, \$type, \$info, \$dbname);
 
   return sub {
     $sth->fetch;
@@ -2983,7 +2999,7 @@ SQL
       version => $version,
       desc    => $desc,
       info    => $info,
-      type    => type,
+      type    => $type,
       dbname  => $dbname
     }
   }
@@ -3000,17 +3016,22 @@ SQL
 sub get_insert_other_xref {
   my ( $self ) = @_;
 
-  $sql =(<<'SQL');
-  SELECT  distinct x.xref_id, x.accession, x.version, x.label, x.description, x.info_type, x.info_text, s.name
-  FROM source s, xref x
-  WHERE x.source_id = s.source_id AND
-        x.dumped IS NULL AND
-        x.info_type = 'DEPENDENT'
+  my $sql =(<<'SQL');
+    SELECT DISTINCT x.xref_id, x.accession, x.version,
+                    x.label, x.description, x.info_type,
+                    x.info_text, s.name
+    FROM source s, xref x
+    WHERE x.source_id = s.source_id AND
+          x.dumped IS NULL AND
+          x.info_type = 'DEPENDENT'
 SQL
 
-  my $sth = $self->dbi->prepare($sql);
+  my $sth = $self->dbi->prepare( $sql );
   $sth->execute();
-  $sth->bind_columns(\$xref_id, \$acc, \$version, \$label, \$desc, \$type, \$info, \$dbname);
+
+  my ( $xref_id, $acc, $version, $label, $desc, $type, $info, $dbname );
+  $sth->bind_columns(
+    \$xref_id, \$acc, \$version, \$label, \$desc, \$type, \$info, \$dbname);
 
   return sub {
     $sth->fetch;
@@ -3022,7 +3043,7 @@ SQL
       version => $version,
       desc    => $desc,
       info    => $info,
-      type    => type,
+      type    => $type,
       dbname  => $dbname
     }
   }
