@@ -21,3 +21,5 @@ skip_when_using = Moose
 
 [Subroutines::ProhibitManyArgs]
 max_arguments = 7
+
+[-InputOutput::RequireBriefOpen]
