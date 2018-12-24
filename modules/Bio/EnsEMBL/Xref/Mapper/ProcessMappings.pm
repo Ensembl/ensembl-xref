@@ -29,7 +29,7 @@ limitations under the License.
 
 =head1 NAME
 
-Bio::EnsEMBL::Xref::Mapper::ProcessAlignment
+Bio::EnsEMBL::Xref::Mapper::ProcessMappings
 
 =cut
 
@@ -40,7 +40,7 @@ coordinate overlaps.
 
 =cut
 
-package Bio::EnsEMBL::Xref::Mapper::ProcessAlignment;
+package Bio::EnsEMBL::Xref::Mapper::ProcessMappings;
 
 use strict;
 use warnings;
@@ -84,8 +84,7 @@ sub process_mappings {
   my %query_cutoff;
   my %target_cutoff;
   my ($job_id, $percent_query_cutoff, $percent_target_cutoff);
-  my $xref_db = $self->xref();
-  my $xref_dbh = $xref_db->dbc()->db_handle();
+  my $xref_dbh = $self->xref->dbc()->db_handle();
   my $sth = $xref_dbh->prepare("select job_id, percent_query_cutoff, percent_target_cutoff from mapping");
   $sth->execute();
   $sth->bind_columns(\$job_id, \$percent_query_cutoff, \$percent_target_cutoff);
@@ -119,18 +118,6 @@ sub process_mappings {
       if ( -s $err_file ) {
         $error_count++;
         confess "Problem $err_file is non zero";
-        if ( open my $eh ,"<", $err_file ) {
-          while ( <$eh> ) {
-            confess "#".$_;
-          }
-          close $eh;
-        }
-        else {
-          confess "No file exists $err_file??? Resubmit this job";
-        }
-        if ( $status eq "SUBMITTED" ) {
-          $stat_sth->execute('FAILED',$job_id, $array_number);
-        }
       }
       else { #err file checks out so process the mapping file.
         if ( -e $map_file ) {
@@ -152,7 +139,6 @@ sub process_mappings {
         else {
           $error_count++;
           confess "Could not open file $map_file???\n Resubmit this job";
-          $stat_sth->execute('FAILED',$job_id, $array_number);
         }
       }      
     }
@@ -173,6 +159,7 @@ sub process_mappings {
     $sth->finish;
   }
 
+  return;
 }
 
 =head2 process_map_file
@@ -192,27 +179,32 @@ sub process_mappings {
 #return number of lines parsed if succesfull. -1 for fail
 sub process_map_file {
   my ($self, $map_file, $query_cutoff, $target_cutoff, $job_id, $array_number, $root_dir) = @_;
-  my $ret = 1;
-  my $xref_db = $self->xref();
-  my $xref_dbh = $xref_db->dbc()->db_handle();
- 
+
   my $ensembl_type = "Translation";
   if ( $map_file =~ /dna_/ ) {
     $ensembl_type = "Transcript";
   }
-
+ 
   my $mh;
-  if ( !(open $mh ,"<",$map_file) ) {
-    print STDERR "Could not open file $map_file\n Resubmit this job??\n";
-    return -1;
-  }
+  open ($mh ,"<",$map_file) or confess "Could not open file $map_file";
+  my $total_lines = $self->_process_file($mh, $query_cutoff, $target_cutoff, $job_id, $array_number, $root_dir, $ensembl_type);
+  close $mh;
 
-  my $total_lines = 0;
+  return $total_lines;
+}
 
-  my $ins_go_sth = $xref_dbh->prepare("insert ignore into go_xref (object_xref_id, linkage_type, source_xref_id) values(?,?,?)");
-  my $dep_sth    = $xref_dbh->prepare("select dependent_xref_id, linkage_annotation from dependent_xref where master_xref_id = ?");
-  my $start_sth  = $xref_dbh->prepare("update mapping_jobs set object_xref_start = ? where job_id = ? and array_number = ?");
-  my $end_sth    = $xref_dbh->prepare("update mapping_jobs set object_xref_end = ? where job_id = ? and array_number = ?");
+=head2 _process_file
+
+  Description: Process alignment file
+  Return type: None
+  Caller     : internal
+
+=cut
+
+sub _process_file {
+
+  my ($self, $mh, $query_cutoff, $target_cutoff, $job_id, $array_number, $root_dir, $ensembl_type) = @_;
+  my $xref_dbh = $self->xref->dbc()->db_handle();
 
   my $object_xref_id;
   my $sth = $xref_dbh->prepare("select max(object_xref_id) from object_xref");
@@ -223,37 +215,27 @@ sub process_map_file {
   if ( !defined($object_xref_id) ) {
     $object_xref_id = 0;
   }
-  
+
+  my $total_lines = 0;
+
+  my $ins_go_sth = $xref_dbh->prepare("insert ignore into go_xref (object_xref_id, linkage_type, source_xref_id) values(?,?,?)");
+  my $start_sth  = $xref_dbh->prepare("update mapping_jobs set object_xref_start = ? where job_id = ? and array_number = ?");
+  my $end_sth    = $xref_dbh->prepare("update mapping_jobs set object_xref_end = ? where job_id = ? and array_number = ?");
 
   my $object_xref_sth = $xref_dbh->prepare("insert into object_xref (ensembl_id,ensembl_object_type, xref_id, linkage_type, ox_status ) values (?, ?, ?, ?, ?)");
-  my $object_xref_sth2 = $xref_dbh->prepare("insert into object_xref (ensembl_id,ensembl_object_type, xref_id, linkage_type, ox_status, master_xref_id ) values (?, ?, ?, ?, ?, ?)");
   my $get_object_xref_id_sth = $xref_dbh->prepare("select object_xref_id from object_xref where ensembl_id = ? and ensembl_object_type = ? and xref_id = ? and linkage_type = ? and ox_status = ?");
-  my $get_object_xref_id_master_sth = $xref_dbh->prepare("select object_xref_id from object_xref where ensembl_id = ? and ensembl_object_type = ? and xref_id = ? and linkage_type = ? and ox_status = ? and master_xref_id = ?");
   local $object_xref_sth->{RaiseError}; #catch duplicates
   local $object_xref_sth->{PrintError}; # cut down on error messages
-  local $object_xref_sth2->{RaiseError}; #catch duplicates
-  local $object_xref_sth2->{PrintError}; # cut down on error messages
 
   my $identity_xref_sth = $xref_dbh->prepare("insert ignore into identity_xref (object_xref_id, query_identity, target_identity, hit_start, hit_end, translation_start, translation_end, cigar_line, score ) values (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-  my $ins_dep_ix_sth = $xref_dbh->prepare("insert ignore into identity_xref (object_xref_id, query_identity, target_identity) values(?, ?, ?)");
-
-  my $source_name_sth = $xref_dbh->prepare("select s.name from xref x join source s using(source_id) where x.xref_id = ?");
-  my $biotype_sth = $xref_dbh->prepare("select biotype from transcript_stable_id where internal_id = ?");
 
   my $last_query_id = 0;
   my $best_match_found = 0;
   my $best_identity = 0;
   my $best_score = 0;
-  
-  my %mRNA_biotypes = (
-      'protein_coding'          => 1,
-      'TR_C_gene'               => 1,
-      'IG_V_gene'               => 1,
-      'nonsense_mediated_decay' => 1,
-      'polymorphic_pseudogene'  => 1);
 
   my $first = 1;
+
   while ( <$mh> ) {
     my $load_object_xref = 0;
     $total_lines++;
@@ -277,31 +259,7 @@ sub process_map_file {
       $load_object_xref = 1;
     }
     else {
-
-      #check if source name is RefSeq_ncRNA or RefSeq_mRNA
-      #if yes check biotype, if ok store object xref
-      $source_name_sth->execute($query_id);
-      my ($source_name)  = $source_name_sth->fetchrow_array;
-
-      if ( $source_name && ($source_name =~ /^RefSeq_(m|nc)RNA/ || $source_name =~ /^miRBase/ || $source_name =~ /^RFAM/) ) { 
-
-        #make sure mRNA xrefs are matched to protein_coding biotype only
-        $biotype_sth->execute($target_id);
-        my ($biotype) = $biotype_sth->fetchrow_array; 
-     
-        if ( $source_name =~ /^RefSeq_mRNA/ && exists($mRNA_biotypes{$biotype}) ) {
-          $load_object_xref = 1;
-        }
-        if ( $source_name =~ /^RefSeq_ncRNA/ && !exists($mRNA_biotypes{$biotype}) ) {
-          $load_object_xref = 1;  
-        }  
-        if ( ($source_name =~ /miRBase/ || $source_name =~ /^RFAM/) && $biotype =~ /RNA/ ) {
-          $load_object_xref = 1;
-        }
-      }
-      else {
-        $load_object_xref = 1;
-      }
+      $load_object_xref = $self->_check_biotype($query_id, $target_id);
     }
 
     $last_query_id = $query_id;
@@ -320,7 +278,7 @@ sub process_map_file {
 
     if ( !defined($score) ) {
       $end_sth->execute(($object_xref_id),$job_id, $array_number);
-      die "No score on line. Possible file corruption\n$_\n";      
+      confess "No score on line. Possible file corruption\n$_";
     }
 
     # calculate percentage identities
@@ -346,7 +304,7 @@ sub process_map_file {
       }
       else{
         $end_sth->execute(($object_xref_id),$job_id, $array_number);
-        die "Problem loading error is $err\n";
+        confess "Problem loading error is $err\n";
       } 
     }  
     if ( $first ) {
@@ -359,52 +317,127 @@ sub process_map_file {
 
     if ( !$identity_xref_sth->execute($object_xref_id, $query_identity, $target_identity, $query_start+1, $query_end, $target_start+1, $target_end, $cigar_line, $score) ) {
       $end_sth->execute(($object_xref_id),$job_id, $array_number);
-      die "Problem loading identity_xref";
+      confess "Problem loading identity_xref";
     }
 
-    my @master_xref_ids;
-    push @master_xref_ids, $query_id;
-    while ( my $master_xref_id = pop(@master_xref_ids) ) {
-      my ($dep_xref_id, $link);
-      $dep_sth->execute($master_xref_id);
-      $dep_sth->bind_columns(\$dep_xref_id, \$link);
-      while ( $dep_sth->fetch ) {
-        $object_xref_sth2->execute($target_id, $ensembl_type, $dep_xref_id, 'DEPENDENT', $status, $master_xref_id);
-        $get_object_xref_id_master_sth->execute($target_id, $ensembl_type, $dep_xref_id, 'DEPENDENT', $status, $master_xref_id);
-        $object_xref_id = ($get_object_xref_id_master_sth->fetchrow_array())[0];
-        if ( $object_xref_sth2->err ) {
-          my $err = $object_xref_sth->errstr;
-          if ( $err =~ /Duplicate/ ) {
-            next;
-          }
-          else {
-            $end_sth->execute($object_xref_id,$job_id, $array_number);
-            confess "Problem loading error is $err";
-          } 
-        }
-        if ( $object_xref_sth2->err ) {
-          print STDERR "WARNING: Should not reach here??? object_xref_id = $object_xref_id\n";
-        }
-
-        $ins_dep_ix_sth->execute($object_xref_id, $query_identity, $target_identity);
-
-        push @master_xref_ids, $dep_xref_id; # get the dependent, dependents just in case
-      }
-    }
-  }  
-  close $mh;
+    $self->process_dependents($query_id, $target_id, $ensembl_type, $status, $job_id, $array_number, $query_identity, $target_identity);
+  } 
   $end_sth->execute($object_xref_id,$job_id, $array_number);
   $start_sth->finish;
   $end_sth->finish;
-  $dep_sth->finish;
   $ins_go_sth->finish;
   $object_xref_sth->finish;
   $identity_xref_sth->finish;
-  $ins_dep_ix_sth->finish;
-  $source_name_sth->finish;
-  $biotype_sth->finish;
 
   return $total_lines;
+}
+
+=head2 _check_biotype
+
+  Description: Alignments are processed depending on biotype
+  Return type: None
+  Caller     : internal
+
+=cut
+
+sub _check_biotype {
+
+  my ($self, $query_id, $target_id) = @_;
+  my $load_object_xref = 0;
+
+  my $xref_dbh = $self->xref->dbc()->db_handle();
+  my $source_name_sth = $xref_dbh->prepare("select s.name from xref x join source s using(source_id) where x.xref_id = ?");
+  my $biotype_sth = $xref_dbh->prepare("select biotype from transcript_stable_id where internal_id = ?");
+
+  my %mRNA_biotypes = (
+      'protein_coding'          => 1,
+      'TR_C_gene'               => 1,
+      'IG_V_gene'               => 1,
+      'nonsense_mediated_decay' => 1,
+      'polymorphic_pseudogene'  => 1
+  );
+
+  #check if source name is RefSeq_ncRNA or RefSeq_mRNA
+  #if yes check biotype, if ok store object xref
+  $source_name_sth->execute($query_id);
+  my ($source_name)  = $source_name_sth->fetchrow_array;
+
+  if ( $source_name && ($source_name =~ /^RefSeq_(m|nc)RNA/ || $source_name =~ /^miRBase/ || $source_name =~ /^RFAM/) ) {
+
+    #make sure mRNA xrefs are matched to protein_coding biotype only
+    $biotype_sth->execute($target_id);
+    my ($biotype) = $biotype_sth->fetchrow_array;
+
+    if ( $source_name =~ /^RefSeq_mRNA/ && exists($mRNA_biotypes{$biotype}) ) {
+      $load_object_xref = 1;
+    }
+    if ( $source_name =~ /^RefSeq_ncRNA/ && !exists($mRNA_biotypes{$biotype}) ) {
+      $load_object_xref = 1;
+    }
+    if ( ($source_name =~ /miRBase/ || $source_name =~ /^RFAM/) && $biotype =~ /RNA/ ) {
+      $load_object_xref = 1;
+    }
+  }
+  else {
+    $load_object_xref = 1;
+  }
+
+  return $load_object_xref;
+
+}
+
+=head2 process_dependents
+
+  Description: Ensure dependent_xrefs are correctly added
+  Return type: None
+  Caller     : internal
+
+=cut
+
+sub process_dependents {
+  my ($self, $query_id, $target_id, $ensembl_type, $status, $job_id, $array_number, $query_identity, $target_identity) = @_;
+
+  my $xref_dbh = $self->xref->dbc()->db_handle();
+  my $dep_sth    = $xref_dbh->prepare("select dependent_xref_id, linkage_annotation from dependent_xref where master_xref_id = ?");
+  my $object_xref_sth2 = $xref_dbh->prepare("insert into object_xref (ensembl_id,ensembl_object_type, xref_id, linkage_type, ox_status, master_xref_id ) values (?, ?, ?, ?, ?, ?)");
+  local $object_xref_sth2->{RaiseError}; #catch duplicates
+  local $object_xref_sth2->{PrintError}; # cut down on error messages
+  my $get_object_xref_id_master_sth = $xref_dbh->prepare("select object_xref_id from object_xref where ensembl_id = ? and ensembl_object_type = ? and xref_id = ? and linkage_type = ? and ox_status = ? and master_xref_id = ?");
+  my $end_sth    = $xref_dbh->prepare("update mapping_jobs set object_xref_end = ? where job_id = ? and array_number = ?");
+  my $ins_dep_ix_sth = $xref_dbh->prepare("insert ignore into identity_xref (object_xref_id, query_identity, target_identity) values(?, ?, ?)");
+
+  my (@master_xref_ids, $object_xref_id);
+  push @master_xref_ids, $query_id;
+  while ( my $master_xref_id = pop(@master_xref_ids) ) {
+    my ($dep_xref_id, $link);
+    $dep_sth->execute($master_xref_id);
+    $dep_sth->bind_columns(\$dep_xref_id, \$link);
+    while ( $dep_sth->fetch ) {
+      $object_xref_sth2->execute($target_id, $ensembl_type, $dep_xref_id, 'DEPENDENT', $status, $master_xref_id);
+      $get_object_xref_id_master_sth->execute($target_id, $ensembl_type, $dep_xref_id, 'DEPENDENT', $status, $master_xref_id);
+      $object_xref_id = ($get_object_xref_id_master_sth->fetchrow_array())[0];
+      if ( $object_xref_sth2->err ) {
+        my $err = $object_xref_sth2->errstr;
+        if ( $err =~ /Duplicate/ ) {
+          next;
+        }
+        else {
+          $end_sth->execute($object_xref_id,$job_id, $array_number);
+          confess "Problem loading error is $err";
+        }
+      }
+      if ( $object_xref_sth2->err ) {
+        confess "WARNING: Should not reach here??? object_xref_id = $object_xref_id";
+      }
+
+      $ins_dep_ix_sth->execute($object_xref_id, $query_identity, $target_identity);
+
+      push @master_xref_ids, $dep_xref_id; # get the dependent, dependents just in case
+    }
+  }
+
+  return;
+
 }
 
 
