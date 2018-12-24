@@ -31,7 +31,6 @@ use Cwd;
 use File::Spec;
 use File::Basename qw/dirname/;
 use Test::More;
-use Test::Warnings;
 
 use Test::Perl::Critic (
     -severity => 4,

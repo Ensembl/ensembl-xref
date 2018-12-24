@@ -247,10 +247,12 @@ sub create_db_row {
 
 
 =head2 populate_metadata
+
   Arg [1]    : Config file path, normally xref_config.ini
   Description: Loads species and source information into the schema from the
                supplied file in Config::IniFiles format
   Caller     : User
+
 =cut
 
 # TODO: Provide species AND division in order to limit quantity of madness
@@ -260,7 +262,7 @@ sub populate_metadata {
 
   my $config = $self->_load_xref_config($config_path);
 
-  # Populate species table with species taxa and aliases
+  # Populate species table with species taxa
   print "Iterating over species groups\n";
 
   my %sources;

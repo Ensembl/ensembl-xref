@@ -31,12 +31,20 @@ use base 'DBIx::Class::Schema';
 
 __PACKAGE__->load_namespaces;
 
+=head2 sqlt_deploy_hook
+
+Set all tables engine to MyISAM
+
+=cut
+
 sub sqlt_deploy_hook {
   my ($self, $sqlt_schema) = @_;
 
   for my $table ($sqlt_schema->get_tables) {
     $table->extra(mysql_table_type => 'MyISAM');
   }
+
+  return;
 }
 
 1;

@@ -153,7 +153,7 @@ sub process {
   # whether to run the comparison. It is removed to match the latest thinking in 
   # Bio::EnsEMBL::Production::Pipeline::Xrefs::UniParcMapping
   my $method = $self->method;
-  my $results = $method->compare_checksums_versus_file();
+  my $results = $self->compare_checksums_versus_file();
   $self->upload($results, $species_id);
 
   return;

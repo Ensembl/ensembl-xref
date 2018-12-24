@@ -37,7 +37,6 @@ use_ok 'Bio::EnsEMBL::Xref::Mapper::ChecksumMapper';
 use Bio::EnsEMBL::Xref::Test::TestDB;
 use Bio::EnsEMBL::Xref::DBSQL::BaseAdaptor;
 use Bio::EnsEMBL::Test::MultiTestDB;
-use_ok 'Bio::EnsEMBL::Xref::Parser';
 
 my $multi_db = Bio::EnsEMBL::Test::MultiTestDB->new;
 my $dba = $multi_db->get_DBAdaptor('core');
@@ -95,17 +94,5 @@ ok ($xref_2, 'Second accession was uploaded' );
 
 is($xref_1->object_xref->ensembl_id , $trans_1->dbID, 'Object Xref links to original translation dbID');
 is($xref_2->object_xref->ensembl_id , $trans_2->dbID, 'Object Xref links to original translation dbID');
-
-# Reset the mapper for end to end test
-
-$mapper = Bio::EnsEMBL::Xref::Mapper::ChecksumMapper->new(
-  xref_dba => $xref_dba,
-  core_dba => $dba,
-  external_db_name => 'UniParc'
-);
-
-$mapper->process();
-
-
 
 done_testing();
