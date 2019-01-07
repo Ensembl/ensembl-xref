@@ -1,4 +1,3 @@
-
 =head1 LICENSE
 
 See the NOTICE file distributed with this work for additional information
@@ -2514,14 +2513,13 @@ SQL
   $sth->bind_columns( \$source_name, \$source_count);
 
   return sub {
-    $sth->fetch;
-    print $source_name . ' - ' . $source_count . "\n";
-
-    return {
-      name  => $source_name,
-      count => $source_count
-    };
-  };
+    if ( $sth->fetch() ) {
+      return {
+        name  => $source_name,
+        count => $source_count
+      }
+    }
+  }
 } ## end sub get_source_ids_with_xrefs
 
 
@@ -2545,21 +2543,22 @@ SQL
   $sth->bind_columns(\$name,\$source_id, \$count, \$type, \$where_from, \$release_info);
 
   return sub {
-    $sth->fetch;
+    if ( $sth->fetch() ) {
 
-    return {
-      type         => $type,
-      source_id    => $source_id,
-      count        => $count,
-      name         => $name,
-      where_from   => $where_from,
-      release_info => $release_info,
+      return {
+        type         => $type,
+        source_id    => $source_id,
+        count        => $count,
+        name         => $name,
+        where_from   => $where_from,
+        release_info => $release_info,
+      }
     }
   }
 }
 
 
-
+## This looks to be an unused function, can this get removed?
 sub get_insert_identity_xref {
   my ( $self, $source_id, $type ) = @_;
 
@@ -2577,10 +2576,10 @@ sub get_insert_identity_xref {
     ORDER BY x.xref_id
 SQL
 
-  my $seq_sth = $self->dbi->prepare_cached($sql);
+  my $sth = $self->dbi->prepare_cached($sql);
 
   my $count = 0;
-  $seq_sth->execute($source_id, $type);
+  $sth->execute($source_id, $type);
 
   my ( $xref_id, $acc, $label, $version, $desc, $info, $object_xref_id,
        $ensembl_id, $ensembl_type );
@@ -2588,39 +2587,40 @@ SQL
   my ( $query_identity, $target_identity, $hit_start, $hit_end,
        $translation_start, $translation_end, $cigar_line, $score, $evalue);
 
-  $seq_sth->bind_columns(
+  $sth->bind_columns(
     \$xref_id, \$acc, \$label, \$version, \$desc, \$info, \$object_xref_id,
     \$ensembl_id, \$ensembl_type, \$query_identity, \$target_identity,
     \$hit_start, \$hit_end, \$translation_start, \$translation_end,
     \$cigar_line, \$score, \$evalue);
 
   return sub {
-    $seq_sth->fetch;
-
-    return {
-      xref_id          => $xref_id,
-      acc              => $acc,
-      label            => $label,
-      version          => $version,
-      desc             => $desc,
-      info             => $info,
-      ensembl_id       => $ensembl_id,
-      ensemb_type      => $ensembl_type,
-      object_xref_id   => $object_xref_id,
-      query_identity   => $query_identity,
-      ensembl_identity => $target_identity,
-      xref_start       => $hit_start,
-      xref_end         => $hit_end,
-      ensembl_start    => $translation_start,
-      ensembl_end      => $translation_end,
-      cigar_line       => $cigar_line,
-      score            => $score,
-      evalue           => $evalue
-    };
-  };
+    if ( $sth->fetch() ) {
+      return {
+        xref_id          => $xref_id,
+        acc              => $acc,
+        label            => $label,
+        version          => $version,
+        desc             => $desc,
+        info             => $info,
+        ensembl_id       => $ensembl_id,
+        ensemb_type      => $ensembl_type,
+        object_xref_id   => $object_xref_id,
+        query_identity   => $query_identity,
+        ensembl_identity => $target_identity,
+        xref_start       => $hit_start,
+        xref_end         => $hit_end,
+        ensembl_start    => $translation_start,
+        ensembl_end      => $translation_end,
+        cigar_line       => $cigar_line,
+        score            => $score,
+        evalue           => $evalue
+      }
+    }
+  }
 } ## end sub get_insert_identity_xref
 
 
+## This looks to be an unused function, can this get removed?
 sub get_insert_checksum_xref {
   my ( $self, $source_id, $type ) = @_;
 
@@ -2635,32 +2635,32 @@ sub get_insert_checksum_xref {
     ORDER BY x.xref_id
 SQL
 
-  my $dir_sth = $self->dbi->prepare( $sql );
+  my $sth = $self->dbi->prepare( $sql );
 
   my $count = 0;
-  $dir_sth->execute($source_id, $type);
+  $sth->execute($source_id, $type);
   my $last_xref = 0;
   my ($xref_id, $acc, $label, $version, $desc, $info, $object_xref_id, $ensembl_id, $ensembl_type);
 
-  $dir_sth->bind_columns(
+  $sth->bind_columns(
     \$xref_id, \$acc, \$label, \$version, \$desc, \$info, \$object_xref_id,
     \$ensembl_id, \$ensembl_type);
 
   return sub {
-    $dir_sth->fetch;
-
-    return {
-      xref_id          => $xref_id,
-      acc              => $acc,
-      label            => $label,
-      version          => $version,
-      desc             => $desc,
-      info             => $info,
-      ensembl_id       => $ensembl_id,
-      ensemb_type      => $ensembl_type,
-      object_xref_id   => $object_xref_id
-    };
-  };
+    if ( $sth->fetch() ) {
+      return {
+        xref_id          => $xref_id,
+        acc              => $acc,
+        label            => $label,
+        version          => $version,
+        desc             => $desc,
+        info             => $info,
+        ensembl_id       => $ensembl_id,
+        ensemb_type      => $ensembl_type,
+        object_xref_id   => $object_xref_id
+      }
+    }
+  }
 } ## end sub get_insert_checksum_xref
 
 
@@ -2679,31 +2679,31 @@ sub get_insert_dependent_xref {
     ORDER BY x.xref_id, ox.ensembl_id
 SQL
 
-  my $dependent_sth = $self->dbi->prepare( $sql );
-  $dependent_sth->execute($source_id, $type);
+  my $sth = $self->dbi->prepare( $sql );
+  $sth->execute($source_id, $type);
 
   my ( $xref_id, $acc, $label, $version, $desc, $info, $object_xref_id,
        $ensembl_id, $ensembl_type, $master_xref_id );
-  $dependent_sth->bind_columns(
+  $sth->bind_columns(
     \$xref_id, \$acc, \$label, \$version, \$desc, \$info, \$object_xref_id,
     \$ensembl_id, \$ensembl_type, \$master_xref_id);
 
   return sub {
-    $dependent_sth->fetch;
-
-    return {
-      xref_id          => $xref_id,
-      acc              => $acc,
-      label            => $label,
-      version          => $version,
-      desc             => $desc,
-      info             => $info,
-      ensembl_id       => $ensembl_id,
-      ensemb_type      => $ensembl_type,
-      object_xref_id   => $object_xref_id,
-      master_xref_id   => $master_xref_id
-    };
-  };
+    if ( $sth->fetch() ) {
+      return {
+        xref_id          => $xref_id,
+        acc              => $acc,
+        label            => $label,
+        version          => $version,
+        desc             => $desc,
+        info             => $info,
+        ensembl_id       => $ensembl_id,
+        ensemb_type      => $ensembl_type,
+        object_xref_id   => $object_xref_id,
+        master_xref_id   => $master_xref_id
+      }
+    }
+  }
 
 } ## end sub get_insert_dependent_xref
 
@@ -2715,20 +2715,20 @@ sub get_synonyms_for_xref {
   my $syn_sql = (<<"SQL");
     SELECT xref_id, synonym
     FROM synonym
-    WHERE xref_id IN ( @{[join',', ('?') x @{$syn}]} )
+    WHERE xref_id IN ( @{ [ join',', ('?') x @{ $xref_list } ] } )
 SQL
-  my $syn_sth = $self->dbi->prepare( $syn_sql );
-  $syn_sth->execute( @{ $xref_list } );
-  $syn_sth->bind_columns(\$xref_id, \$syn);
+  my $sth = $self->dbi->prepare( $syn_sql );
+  $sth->execute( @{ $xref_list } );
+  $sth->bind_columns(\$xref_id, \$syn);
 
   return sub {
-    $syn_sth-> fetch;
-
-    return {
-      xref_id => $xref_id,
-      syn     => $syn
-    };
-  };
+    if ( $sth->fetch() ) {
+      return {
+        xref_id => $xref_id,
+        syn     => $syn
+      }
+    }
+  }
 }
 
 
@@ -2915,7 +2915,7 @@ SQL
     }
   }
 
-} ## end sub get_insert_direct_xref_low_priority
+} ## end sub get_insert_dependent_xref_low_priority
 
 
 
@@ -2968,7 +2968,7 @@ SQL
     }
   }
 
-} ## end sub get_insert_direct_xref_low_priority
+} ## end sub get_insert_sequence_xref_remaining
 
 
 
@@ -3006,7 +3006,7 @@ SQL
       dbname  => $dbname
     }
   }
-}
+} ## end sub get_insert_misc_xref
 
 
 ###########################

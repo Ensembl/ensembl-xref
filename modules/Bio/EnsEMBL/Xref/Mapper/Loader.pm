@@ -122,13 +122,16 @@ sub update {
   # For each external_db to be updated #
   # Delete the existing ones           #
   ######################################
-  while( my $base_sources = $self->xref->get_source_ids_with_xrefs() ) {
-    if ( !defined $self->name_to_external_db_id{ $base_sources->name } ) {
+  my $base_sources = $self->xref->get_source_ids_with_xrefs();
+  while( my $base_source_ref = $base_sources->() ) {
+    my %base_source = %{ $base_source_ref };
+
+    if ( !defined $self->name_to_external_db_id{ $base_source{'name'} } ) {
       next;  #must end in notransfer
     }
 
     $self->delete_by_external_db_id(
-      $self->name_to_external_db_id{$base_sources->name}
+      $self->name_to_external_db_id{$base_source{'name'}}
     );
   }
 
@@ -140,7 +143,7 @@ sub update {
   my %offsets = $self->parsing_stored_data();
   my $xref_offset = $offset{ 'xref' };
   my $object_xref_offset = $offset{ 'object_xref' };
-my $xref_dbh = $xref_db->dbc()->db_handle();
+  my $xref_dbh = $xref_db->dbc()->db_handle();
   my $core_dbh = $core_db->dbc()->db_handle();
 
   ####################
@@ -217,17 +220,18 @@ sub map_xrefs_from_xrefdb_to_coredb {
 
   $transaction_start_sth->execute();
 
-  while ( my $xref_handle = $self->xref->get_dump_out_xrefs() ) {
+  my $xrefs_handle = $self->xref->get_dump_out_xrefs();
+  while ( my $xref_handle = $xrefs_handle->() ) {
 
     next if( !defined $name_to_external_db_id{ $xref_handle->name } );
 
-    if( defined $xref_handle->where_from and $xref_handle->where_from ne q{} ){
-      $xref_handle->where_from = "Generated via $where_from";
+    if( defined $xref_handle{'where_from'} and $xref_handle{'where_from'} ne q{} ){
+      $xref_handle{'where_from'} = "Generated via $where_from";
     }
-    my $ex_id = $self->name_to_external_db_id{ $xref_handle->name };
+    my $ex_id = $self->name_to_external_db_id{ $xref_handle{'name'} };
 
     if ( $verbose ) {
-      print "updating ($xref_handle->source_id) $xref_handle->name in core (for $type xrefs)\n";
+      print "updating ($xref_handle{'source_id'}) $xref_handle{'name'} in core (for $type xrefs)\n";
     }
 
     my @xref_list=();  # process at end. Add synonyms and set dumped = 1;
@@ -238,22 +242,22 @@ sub map_xrefs_from_xrefdb_to_coredb {
     ### if INFERRED_PAIR    xref, object_xref
     ### if MISC             xref, object_xref
 
-    if ( $xref_handle->type eq 'DIRECT' or $xref_handle->type eq 'INFERRED_PAIR' or
-         $xref_handle->type eq 'MISC'   or $xref_handle->type eq 'SEQUENCE_MATCH' ) {
+    if ( $xref_handle{'type'} eq 'DIRECT' or $xref_handle{'type'} eq 'INFERRED_PAIR' or
+         $xref_handle{'type'} eq 'MISC'   or $xref_handle{'type'} eq 'SEQUENCE_MATCH' ) {
       push @xref_list, $self->load_identity_xref(
-        $xref_handle->source_id, $xref_handle->type, $xref_offset, $ex_id );
+        $xref_handle{'source_id'}, $xref_handle{'type'}, $xref_offset, $ex_id );
     }
-    elsif ($xref_handle->type eq 'CHECKSUM') {
+    elsif ($xref_handle{'type'} eq 'CHECKSUM') {
       if(! defined $checksum_analysis_id) {
         $checksum_analysis_id = $self->get_single_analysis( 'xrefchecksum' );
       }
 
       push @xref_list, $self->load_checksum_xref(
-        $xref_handle->source_id, $xref_handle->type, $xref_offset, $ex_id );
+        $xref_handle{'source_id'}, $xref_handle{'type'}, $xref_offset, $ex_id );
     }
-    elsif ( $xref_handle->type eq 'DEPENDENT' ) {
+    elsif ( $xref_handle{'type'} eq 'DEPENDENT' ) {
       push @xref_list, $self->load_dependent_xref(
-        $xref_handle->source_id, $xref_handle->type, $xref_offset, $ex_id );
+        $xref_handle{'source_id'}, $xref_handle{'type'}, $xref_offset, $ex_id );
     }
     else {
       print "PROBLEM:: what type is $type\n";
@@ -268,9 +272,9 @@ sub map_xrefs_from_xrefdb_to_coredb {
     }
 
     # Update the core databases release in for source form the xref database
-    if ( defined $xref_handle->release_info and $xref_handle->release_info ne q{1} ){
+    if ( defined $xref_handle{'release_info'} and $xref_handle{'release_info'} ne q{1} ){
        my $add_release_info_sth   = $self->core->dbc->prepare('UPDATE external_db SET db_release = ? WHERE external_db_id = ?');
-       $add_release_info_sth->execute($xref_handle->release_info, $ex_id) ||
+       $add_release_info_sth->execute($xref_handle{'release_info'}, $ex_id) ||
          confess "Failed to add release info **$xref_handle->release_info** for external source $ex_id\n";
     }
   } ## end while for getting dump out xrefs
@@ -524,44 +528,46 @@ sub load_identity_xref {
 
   my $last_xref = 0;
   my @xref_list = ();
-  while ( my $identity_xref_handle = $self->xref->get_identity_xref( $source_id, $type ) ) {
-    if( $last_xref != $identity_xref_handle->xref_id ) {
-      push @xref_list, $identity_xref_handle->xref_id;
+  my $identity_xrefs_handle = $self->xref->get_insert_identity_xref( $source_id, $type );
+  while ( my $identity_xref_handle_ref = $identity_xrefs_handle->() ) {
+    my %identity_xref_handle = %{ $identity_xref_handle_ref };
+    if( $last_xref != $identity_xref_handle{'xref_id'} ) {
+      push @xref_list, $identity_xref_handle{'xref_id'};
       $count++;
       $xref_id = $self->add_xref(
         $xref_offset,
-        $identity_xref_handle->xref_id,
-        $self->name_to_external_db_id{ $identity_xref_handle->dbname },
-        $identity_xref_handle->acc,
-        $identity_xref_handle->label,
-        $identity_xref_handle->version,
-        $identity_xref_handle->desc,
-        $identity_xref_handle->type,
-        $identity_xref_handle->info || $where_from);
+        $identity_xref_handle{'xref_id'},
+        $self->name_to_external_db_id{ $identity_xref_handle{'dbname'} },
+        $identity_xref_handle{'acc'},
+        $identity_xref_handle{'label'},
+        $identity_xref_handle{'version'},
+        $identity_xref_handle{'desc'},
+        $identity_xref_handle{'type'},
+        $identity_xref_handle{'info'} || $where_from);
       $last_xref = $xref_id;
     }
 
     $object_xref_id = $self->add_object_xref(
-      $identity_xref_handle->object_xref_offset,
-      $identity_xref_handle->object_xref_id,
-      $identity_xref_handle->ensembl_id,
-      $identity_xref_handle->ensembl_type,
+      $identity_xref_handle{'object_xref_offset'},
+      $identity_xref_handle{'object_xref_id'},
+      $identity_xref_handle{'ensembl_id'},
+      $identity_xref_handle{'ensembl_type'},
       ( $xref_id + $xref_offset),
-      $identity_xref_handle->analysis_ids{ $identity_xref_handle->ensembl_type },
+      $identity_xref_handle{'analysis_ids'}{ $identity_xref_handle{'ensembl_type'} },
       $self->core->dbc);
 
     if $translation_start {
       $self->$add_identity_xref( {
-        object_xref_id   => ( $identity_xref_handle->object_xref_id + $object_xref_offset ),
-        query_identity   => $identity_xref_handle->query_identity,
-        ensembl_identity => $identity_xref_handle->target_identity,
-        xref_start       => $identity_xref_handle->hit_start,
-        xref_end         => $identity_xref_handle->hit_end,
-        ensembl_start    => $identity_xref_handle->translation_start,
-        ensembl_end      => $identity_xref_handle->translation_end,
-        cigar_line       => $identity_xref_handle->cigar_line,
-        score            => $identity_xref_handle->score,
-        evalue           => $identity_xref_handle->evalue
+        object_xref_id   => ( $identity_xref_handle{'object_xref_id'} + $object_xref_offset ),
+        query_identity   => $identity_xref_handle{'query_identity'},
+        ensembl_identity => $identity_xref_handle{'target_identity'},
+        xref_start       => $identity_xref_handle{'hit_start'},
+        xref_end         => $identity_xref_handle{'hit_end'},
+        ensembl_start    => $identity_xref_handle{'translation_start'},
+        ensembl_end      => $identity_xref_handle{'translation_end'},
+        cigar_line       => $identity_xref_handle{'cigar_line'},
+        score            => $identity_xref_handle{'score'},
+        evalue           => $identity_xref_handle{'evalue'}
       } );
     }
   }
@@ -576,26 +582,28 @@ sub load_checksum_xref {
   my $count = 0;
   my $last_xref = 0;
   my @xref_list = ();
-  while( my $checksum_xref_handle = $self->xref->get_insert_checksum_xref( $source_id, $type ) ) {
-    if($last_xref != $checksum_xref_handle->xref_id) {
-      push @xref_list, $checksum_xref_handle->xref_id;
+  my $checksum_xrefs_handle = $self->xref->get_insert_checksum_xref( $source_id, $type );
+  while( my $checksum_xref_handle_ref = $checksum_xrefs_handle->() ) {
+    my %checksum_xref_handle = %{ $checksum_xref_handle_ref };
+    if($last_xref != $checksum_xref_handle{'xref_id'}) {
+      push @xref_list, $checksum_xref_handle{'xref_id'};
       $count++;
       $xref_id = $self->add_xref(
         $xref_offset, $xref_id, $ex_id,
-        $checksum_xref_handle->acc,
-        $checksum_xref_handle->label,
-        $checksum_xref_handle->version,
-        $checksum_xref_handle->desc,
-        $checksum_xref_handle->type,
-        $checksum_xref_handle->info || $where_from, $self->core->dbc);
+        $checksum_xref_handle{'acc'},
+        $checksum_xref_handle{'label'},
+        $checksum_xref_handle{'version'},
+        $checksum_xref_handle{'desc'},
+        $checksum_xref_handle{'type'},
+        $checksum_xref_handle{'info'} || $where_from, $self->core->dbc);
       $last_xref = $xref_id;
     }
     my $object_xref_id = $self->add_object_xref(
       $object_xref_offset,
-      $checksum_xref_handle->object_xref_id,
-      $checksum_xref_handle->ensembl_id,
-      $checksum_xref_handle->ensembl_type,
-      ( $checksum_xref_handle->xref_id + $xref_offset ),
+      $checksum_xref_handle{'object_xref_id'},
+      $checksum_xref_handle{'ensembl_id'},
+      $checksum_xref_handle{'ensembl_type'},
+      ( $checksum_xref_handle{'xref_id'} + $xref_offset ),
       $checksum_analysis_id,
       $self->core->dbc);
   }
@@ -688,9 +696,11 @@ sub load_synonyms {
 
   my ($xref_id, $syn);
 
-  while( my $syn_handle = $self->xref->get_synonyms_for_xref( @{ $xref_list } ) ) {
+  my $syns_handle = $self->xref->get_synonyms_for_xref( @{ $xref_list } );
+  while( my $syn_handle_ref = $syns_handle-> ) {
+    my %syn_handle = %{ $syn_handle_ref };
     $self->add_xref_synonym(
-      $syn_handle->xref_id, $syn_handle->syn );
+      $syn_handle{'xref_id'}, $syn_handle{'syn'} );
     $syn_count++;
   }
 

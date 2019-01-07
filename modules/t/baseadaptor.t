@@ -19,11 +19,15 @@ See the NOTICE file distributed with this work for additional information
 use strict;
 use warnings;
 
+use Data::Dumper;
+
 use Test::More;
 use Test::Exception;
 use Test::Warnings;
 use Bio::EnsEMBL::Xref::Test::TestDB;
 use Bio::EnsEMBL::Xref::DBSQL::BaseAdaptor;
+
+use experimental 'smartmatch';
 
 # Check that the module loaded correctly
 use_ok 'Bio::EnsEMBL::Xref::DBSQL::BaseAdaptor';
@@ -121,6 +125,10 @@ my $source2 = $db->schema->resultset('Source')->create({
 is(
   $xref_dba->get_source_id_for_source_name('RefSeq'),
   $source->source_id, 'get_source_id_for_source_name' );
+
+is(
+  $xref_dba->get_source_id_for_source_name('Second_fake_source'),
+  $source2->source_id, 'get_source_id_for_source_name' );
 
 
 # get_source_ids_for_source_name_pattern
@@ -557,6 +565,13 @@ is( _check_db( $db, 'PrimaryXref', { xref_id => $xref_id_new } )->sequence, 'CTA
 
 note 'Test methods to support base mapper';
 
+# Add an example source to the db
+my $species_id_autoincrement = $db->schema->resultset('Species')->create({
+  taxonomy_id => 9606,
+  name => 'Homo sapiens',
+  aliases => 'Human'
+});
+
 throws_ok {
   $xref_dba->get_id_from_species_name()
 } qr/Undefined/, 'Throws with no name argument';
@@ -605,27 +620,114 @@ $xref_dba->update_mapping_jobs_status( 'SUCCESS' );
 is( _check_db( $db, 'MappingJob', { job_id => 1 } )->status, 'SUCCESS', 'Updated mapping job status' );
 
 # get/set_species
-ok( !defined($xref_dba->species), "Species not defined yet");
-is($xref_dba->species("human"), "human", "Species set to ". $xref_dba->species);
+ok( !defined($xref_dba->species), 'Species not defined yet');
+is($xref_dba->species('human'), 'human', 'Species set to '. $xref_dba->species);
 
 # get_dba
-ok( defined($xref_dba->dba), "dba defined");
+ok( defined($xref_dba->dba), 'dba defined');
 isa_ok( $xref_dba->dba, 'Bio::EnsEMBL::DBSQL::DBAdaptor' );
 
+# Test for a new xref
+my $new_xref_07 = {
+  ACCESSION   => 'NM01236',
+  VERSION     => 1,
+  LABEL       => 'NM01236.1',
+  DESCRIPTION => 'Fake RefSeq transcript',
+  SPECIES_ID  => '9606',
+  SOURCE_ID   => $source2->source_id,
+  INFO_TYPE   => 'DIRECT',
+  INFO_TEXT   => 'These are normally aligned',
+  update_label => 1,
+  update_desc  => 1
+};
+
+my @new_xref_array_07 = ( $new_xref_07 );
+$xref_dba->upload_xref_object_graphs( \@new_xref_array_07 );
+
+my $object_xref_id_01 = $xref_dba->add_object_xref(
+  {
+    xref_id     => $xref_dba->get_xref('NM01236', $source2->source_id, 9606),
+    ensembl_id  => 1,
+    object_type => 'Gene'
+  }
+);
+ok( defined $object_xref_id_01, "add_object_xref - Object_xref entry inserted - $object_xref_id" );
 
 # get_source_ids_with_xrefs
-while( my $base_sources = $xref_dba->get_source_ids_with_xrefs() ) {
-  is( $base_sources->source_name, 'RefSeq', 'get_source_ids_with_xrefs' );
+my $base_sources = $xref_dba->get_source_ids_with_xrefs();
+while( my $base_source_ref = $base_sources->() ) {
+  my %base_source = %{ $base_source_ref };
+  ok(
+    ( $base_source{'name'} ~~ [ 'RefSeq', 'Second_fake_source' ] ),
+    "get_source_ids_with_xrefs - $base_source{'name'}"
+  );
+}
+
+# get_dump_out_xrefs
+my $dumped_xrefs = $xref_dba->get_dump_out_xrefs();
+while( my $dumped_xref_ref = $dumped_xrefs->() ) {
+  my %dumped_xref = %{ $dumped_xref_ref };
+  ok(
+    ( $dumped_xref{'name'} ~~ [ 'RefSeq', 'Second_fake_source' ] ),
+    "get_dump_out_xrefs - $dumped_xref{'name'}"
+  );
+}
+
+# get_insert_identity_xref
+my $insert_identity_xrefs = $xref_dba->get_insert_identity_xref(
+  $source->source_id, 'DIRECT' );
+
+while( my $insert_identity_xref_ref = $insert_identity_xrefs->() ) {
+  my %insert_identity_xref = %{ $insert_identity_xref_ref };
+  is(
+    $insert_identity_xref{'acc'}, 'NM01235' ,
+    "get_insert_identity_xref - $insert_identity_xref{'acc'}"
+  );
+}
+
+# get_insert_checksum_xref
+my $insert_checksum_xrefs = $xref_dba->get_insert_checksum_xref(
+  $source->source_id, 'DIRECT' );
+
+while( my $insert_checksum_xref_ref = $insert_checksum_xrefs->() ) {
+  my %insert_checksum_xref = %{ $insert_checksum_xref_ref };
+  is(
+    $insert_checksum_xref{'acc'}, 'NM01235' ,
+    "get_insert_checksum_xref - $insert_checksum_xref{'acc'}"
+  );
+}
+
+# get_insert_dependent_xref
+my $insert_dependent_xrefs = $xref_dba->get_insert_dependent_xref(
+  $source->source_id, 'DIRECT' );
+
+while( my $insert_dependent_xref_ref = $insert_dependent_xrefs->() ) {
+  my %insert_dependent_xref = %{ $insert_dependent_xref_ref };
+  is(
+    $insert_dependent_xref{'acc'}, 'NM01235' ,
+    "get_insert_dependent_xref - $insert_dependent_xref{'acc'}"
+  );
+}
+
+# get_synonyms_for_xref
+my $synonyms_for_xref = $xref_dba->get_synonyms_for_xref( [$xref_id_new] );
+
+while( my $synonym_for_xref_ref = $synonyms_for_xref->() ) {
+  my %synonym_for_xref = %{ $synonym_for_xref_ref };
+  ok(
+    ( $synonym_for_xref{'syn'} ~~ [ 'fake_synonym', 'fs:000', 'fs:001', 'fs:002' ] ),
+    "get_synonyms_for_xref - $synonym_for_xref{'syn'}"
+  );
 }
 
 done_testing();
 
 
 sub _check_db {
-   my ($db, $table, $search_conditions) = @_;
+   my ($dba, $table, $search_conditions) = @_;
 
-   my $rs = $db->schema->resultset( $table )->search( $search_conditions );
-   return $rs->next;
+   my $result_set = $dba->schema->resultset( $table )->search( $search_conditions );
+   return $result_set->next;
 }
 
 
