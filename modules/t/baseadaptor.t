@@ -27,8 +27,6 @@ use Test::Warnings;
 use Bio::EnsEMBL::Xref::Test::TestDB;
 use Bio::EnsEMBL::Xref::DBSQL::BaseAdaptor;
 
-use experimental 'smartmatch';
-
 # Check that the module loaded correctly
 use_ok 'Bio::EnsEMBL::Xref::DBSQL::BaseAdaptor';
 
@@ -733,7 +731,8 @@ my $base_sources = $xref_dba->get_source_ids_with_xrefs();
 while( my $base_source_ref = $base_sources->() ) {
   my %base_source = %{ $base_source_ref };
   ok(
-    ( $base_source{'name'} ~~ [ 'RefSeq', 'Second_fake_source' ] ),
+    ( $base_source{'name'} eq 'RefSeq' or
+      $base_source{'name'} eq 'Second_fake_source' ),
     "get_source_ids_with_xrefs - $base_source{'name'}"
   );
 }
@@ -744,7 +743,8 @@ my $dumped_xrefs = $xref_dba->get_dump_out_xrefs();
 while( my $dumped_xref_ref = $dumped_xrefs->() ) {
   my %dumped_xref = %{ $dumped_xref_ref };
   ok(
-    ( $dumped_xref{'name'} ~~ [ 'RefSeq', 'Second_fake_source' ] ),
+    ( $dumped_xref{'name'} eq 'RefSeq' or
+      $dumped_xref{'name'} eq 'Second_fake_source' ),
     "get_dump_out_xrefs - $dumped_xref{'name'}"
   );
 }
@@ -795,7 +795,10 @@ my $synonyms_for_xref = $xref_dba->get_synonyms_for_xref( [$xref_id_new] );
 while( my $synonym_for_xref_ref = $synonyms_for_xref->() ) {
   my %synonym_for_xref = %{ $synonym_for_xref_ref };
   ok(
-    ( $synonym_for_xref{'syn'} ~~ [ 'fake_synonym', 'fs:000', 'fs:001', 'fs:002' ] ),
+    ( $synonym_for_xref{'syn'} eq 'fake_synonym' or
+      $synonym_for_xref{'syn'} eq 'fs:000' or
+      $synonym_for_xref{'syn'} eq 'fs:001' or
+      $synonym_for_xref{'syn'} eq 'fs:002' ),
     "get_synonyms_for_xref - $synonym_for_xref{'syn'}"
   );
 }
@@ -807,7 +810,8 @@ my $insert_direct_lp_xrefs = $xref_dba->get_insert_direct_xref_low_priority();
 while( my $insert_direct_lp_xref_ref = $insert_direct_lp_xrefs->() ) {
   my %insert_direct_lp_xref = %{ $insert_direct_lp_xref_ref };
   ok(
-    ( $insert_direct_lp_xref{'acc'} ~~ [ 'NM01235', 'NM01236' ] ),
+    ( $insert_direct_lp_xref{'acc'} eq 'NM01235' or
+      $insert_direct_lp_xref{'acc'} eq 'NM01236' ),
     "get_insert_direct_lp_xref - $insert_direct_lp_xref{'acc'}"
   );
 }
@@ -819,7 +823,8 @@ my $insert_dependent_lp_xrefs = $xref_dba->get_insert_dependent_xref_low_priorit
 while( my $insert_dependent_lp_xref_ref = $insert_dependent_lp_xrefs->() ) {
   my %insert_dependent_lp_xref = %{ $insert_dependent_lp_xref_ref };
   ok(
-    ( $insert_dependent_lp_xref{'acc'} ~~ [ 'NM01235', 'NM01236' ] ),
+    ( $insert_dependent_lp_xref{'acc'} eq 'NM01235' or
+      $insert_dependent_lp_xref{'acc'} eq 'NM01236' ),
     "get_insert_dependent_lp_xref - $insert_dependent_lp_xref{'acc'}"
   );
 }
@@ -831,7 +836,7 @@ my $insert_sequence_xrefs = $xref_dba->get_insert_sequence_xref_remaining();
 while( my $insert_sequence_xref_ref = $insert_sequence_xrefs->() ) {
   my %insert_sequence_xref = %{ $insert_sequence_xref_ref };
   ok(
-    ( $insert_sequence_xref{'acc'} ~~ [ 'NM01238' ] ),
+    ( $insert_sequence_xref{'acc'} eq 'NM01238' ),
     "get_insert_sequence_xref - $insert_sequence_xref{'acc'}"
   );
 }
@@ -843,7 +848,7 @@ my $insert_misc_xrefs = $xref_dba->get_insert_misc_xref();
 while( my $insert_misc_xref_ref = $insert_misc_xrefs->() ) {
   my %insert_misc_xref = %{ $insert_misc_xref_ref };
   ok(
-    ( $insert_misc_xref{'acc'} ~~ [ 'NM01239' ] ),
+    ( $insert_misc_xref{'acc'} eq 'NM01239' ),
     "get_insert_misc_xref - $insert_misc_xref{'acc'}"
   );
 }
@@ -855,7 +860,8 @@ my $insert_other_xrefs = $xref_dba->get_insert_other_xref();
 while( my $insert_other_xref_ref = $insert_other_xrefs->() ) {
   my %insert_other_xref = %{ $insert_other_xref_ref };
   ok(
-    ( $insert_other_xref{'acc'} ~~ [ 'XX123456', 'NM01237' ] ),
+    ( $insert_other_xref{'acc'} eq 'XX123456' or
+      $insert_other_xref{'acc'} eq 'NM01237' ),
     "get_insert_other_xref - $insert_other_xref{'acc'}"
   );
 }
@@ -876,7 +882,7 @@ my @xref_list = (
   $xref_dba->get_xref('NM01236', $source2->source_id, 9606),
   $xref_dba->get_xref('NM01237', $source2->source_id, 9606),
   $xref_dba->get_xref('NM01238', $source2->source_id, 9606),
-  $xref_dba->get_xref('NM01239', $source2->source_id, 9606)
+  $xref_dba->get_xref('NM01239', $source2->source_id, 9606),
 );
 
 ok( !defined $xref_dba->mark_mapped_xrefs( \@xref_list, 'MAPPED' ), 'mark_mapped_xrefs' );
