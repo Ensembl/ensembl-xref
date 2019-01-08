@@ -47,6 +47,8 @@ use warnings;
 
 use Carp;
 
+use Data::Dumper;
+
 use Bio::EnsEMBL::Utils::Exception;
 use Bio::EnsEMBL::Xref::FetchFiles;
 use Getopt::Long;
@@ -1061,12 +1063,12 @@ sub add_xref {
     return $xref_id;
   }
 
-  my $sql = (<<"AXS");
+  my $sql = (<<'SQL');
   INSERT INTO xref (
     accession, version, label, description,
     source_id, species_id, info_type, info_text)
   VALUES (?,?,?,?,?,?,?,?)
-AXS
+SQL
 
   my $add_xref_sth = $self->dbi->prepare_cached($sql);
 
@@ -2826,8 +2828,8 @@ SQL
   $desc_failed{'NO_MASTER'}    = 'The dependent xref was not matched due to there being no master xref';
 
   return {
-    summary => %summary_failed,
-    desc    => %desc_failed
+    summary => \%summary_failed,
+    desc    => \%desc_failed
   };
 }
 
@@ -2856,17 +2858,17 @@ SQL
     \$xref_id, \$acc, \$version, \$label, \$desc, \$type, \$info, \$dbname);
 
   return sub {
-    $sth->fetch;
-
-    return {
-      xref_id => $xref_id,
-      acc     => $acc,
-      label   => $label,
-      version => $version,
-      desc    => $desc,
-      info    => $info,
-      type    => $type,
-      dbname  => $dbname
+    if ( $sth->fetch() ) {
+      return {
+        xref_id => $xref_id,
+        acc     => $acc,
+        label   => $label,
+        version => $version,
+        desc    => $desc,
+        info    => $info,
+        type    => $type,
+        dbname  => $dbname
+      }
     }
   }
 
@@ -2888,7 +2890,7 @@ sub get_insert_dependent_xref_low_priority {
           dx.master_xref_id = mx.xref_id AND
           x.dumped IS NULL AND
           ox.ox_status != 'FAILED_PRIORITY' AND
-          x.info_type = 'DEPENDENT' AND
+          x.info_type = 'DEPENDENT'
     ORDER BY s.name, x.accession
 SQL
 
@@ -2901,17 +2903,17 @@ SQL
     \$xref_id, \$acc, \$version, \$label, \$desc, \$type, \$info, \$dbname, \$parent);
 
   return sub {
-    $sth->fetch;
-
-    return {
-      xref_id => $xref_id,
-      acc     => $acc,
-      label   => $label,
-      version => $version,
-      desc    => $desc,
-      info    => $info,
-      type    => $type,
-      dbname  => $dbname
+    if ( $sth->fetch() ) {
+      return {
+        xref_id => $xref_id,
+        acc     => $acc,
+        label   => $label,
+        version => $version,
+        desc    => $desc,
+        info    => $info,
+        type    => $type,
+        dbname  => $dbname
+      }
     }
   }
 
@@ -2948,23 +2950,23 @@ SQL
     \$seq_type, \$ensembl_object_type, \$ensembl_id, \$q_id, \$t_id, \$status);
 
   return sub {
-    $sth->fetch;
-
-    return {
-      xref_id             => $xref_id,
-      acc                 => $acc,
-      label               => $label,
-      version             => $version,
-      desc                => $desc,
-      info                => $info,
-      type                => $type,
-      dbname              => $dbname,
-      seq_type            => $seq_type,
-      ensembl_object_type => $ensembl_object_type,
-      ensembl_id          => $ensembl_id,
-      q_id                => $q_id,
-      t_id                => $t_id,
-      status              => $status
+    if ( $sth->fetch() ) {
+      return {
+        xref_id             => $xref_id,
+        acc                 => $acc,
+        label               => $label,
+        version             => $version,
+        desc                => $desc,
+        info                => $info,
+        type                => $type,
+        dbname              => $dbname,
+        seq_type            => $seq_type,
+        ensembl_object_type => $ensembl_object_type,
+        ensembl_id          => $ensembl_id,
+        q_id                => $q_id,
+        t_id                => $t_id,
+        status              => $status
+      }
     }
   }
 
@@ -2993,17 +2995,17 @@ SQL
     \$xref_id, \$acc, \$version, \$label, \$desc, \$type, \$info, \$dbname);
 
   return sub {
-    $sth->fetch;
-
-    return {
-      xref_id => $xref_id,
-      acc     => $acc,
-      label   => $label,
-      version => $version,
-      desc    => $desc,
-      info    => $info,
-      type    => $type,
-      dbname  => $dbname
+    if ( $sth->fetch() ) {
+      return {
+        xref_id => $xref_id,
+        acc     => $acc,
+        label   => $label,
+        version => $version,
+        desc    => $desc,
+        info    => $info,
+        type    => $type,
+        dbname  => $dbname
+      }
     }
   }
 } ## end sub get_insert_misc_xref
@@ -3037,17 +3039,17 @@ SQL
     \$xref_id, \$acc, \$version, \$label, \$desc, \$type, \$info, \$dbname);
 
   return sub {
-    $sth->fetch;
-
-    return {
-      xref_id => $xref_id,
-      acc     => $acc,
-      label   => $label,
-      version => $version,
-      desc    => $desc,
-      info    => $info,
-      type    => $type,
-      dbname  => $dbname
+    if ( $sth->fetch() ) {
+      return {
+        xref_id => $xref_id,
+        acc     => $acc,
+        label   => $label,
+        version => $version,
+        desc    => $desc,
+        info    => $info,
+        type    => $type,
+        dbname  => $dbname
+      }
     }
   }
 }

@@ -641,7 +641,46 @@ my $new_xref_07 = {
   update_desc  => 1
 };
 
-my @new_xref_array_07 = ( $new_xref_07 );
+my $new_xref_08 = {
+  ACCESSION   => 'NM01237',
+  VERSION     => 1,
+  LABEL       => 'NM01237.1',
+  DESCRIPTION => 'Fake RefSeq transcript',
+  SPECIES_ID  => '9606',
+  SOURCE_ID   => $source2->source_id,
+  INFO_TYPE   => 'DEPENDENT',
+  INFO_TEXT   => 'These are normally aligned',
+  update_label => 1,
+  update_desc  => 1
+};
+
+my $new_xref_09 = {
+  ACCESSION   => 'NM01238',
+  VERSION     => 1,
+  LABEL       => 'NM01238.1',
+  DESCRIPTION => 'Fake RefSeq transcript',
+  SPECIES_ID  => '9606',
+  SOURCE_ID   => $source2->source_id,
+  INFO_TYPE   => 'SEQUENCE_MATCH',
+  INFO_TEXT   => 'These are normally aligned',
+  update_label => 1,
+  update_desc  => 1
+};
+
+my $new_xref_10 = {
+  ACCESSION   => 'NM01239',
+  VERSION     => 1,
+  LABEL       => 'NM01239.1',
+  DESCRIPTION => 'Fake RefSeq misc',
+  SPECIES_ID  => '9606',
+  SOURCE_ID   => $source2->source_id,
+  INFO_TYPE   => 'MISC',
+  INFO_TEXT   => 'These are normally aligned',
+  update_label => 1,
+  update_desc  => 1
+};
+
+my @new_xref_array_07 = ( $new_xref_07, $new_xref_08, $new_xref_09, $new_xref_10 );
 $xref_dba->upload_xref_object_graphs( \@new_xref_array_07 );
 
 my $object_xref_id_01 = $xref_dba->add_object_xref(
@@ -651,7 +690,43 @@ my $object_xref_id_01 = $xref_dba->add_object_xref(
     object_type => 'Gene'
   }
 );
-ok( defined $object_xref_id_01, "add_object_xref - Object_xref entry inserted - $object_xref_id" );
+ok( defined $object_xref_id_01, "add_object_xref - Object_xref entry inserted - $object_xref_id_01" );
+
+my $object_xref_id_02 = $xref_dba->add_object_xref(
+  {
+    xref_id     => $xref_dba->get_xref('NM01237', $source2->source_id, 9606),
+    ensembl_id  => 1,
+    object_type => 'Gene'
+  }
+);
+ok( defined $object_xref_id_02, "add_object_xref - Object_xref entry inserted - $object_xref_id_02" );
+
+my $object_xref_id_03 = $xref_dba->add_object_xref(
+  {
+    xref_id     => $xref_dba->get_xref('NM01238', $source2->source_id, 9606),
+    ensembl_id  => 1,
+    object_type => 'Gene'
+  }
+);
+ok( defined $object_xref_id_03, "add_object_xref - Object_xref entry inserted - $object_xref_id_03" );
+
+ok(
+  defined $xref_dba->_add_primary_xref(
+    $xref_dba->get_xref('NM01238', $source2->source_id, 9606),
+    'GATACCA', 'dna', 'experimental'
+  ),
+  '_add_primary_xref'
+);
+
+my $object_xref_id_04 = $xref_dba->add_object_xref(
+  {
+    xref_id     => $xref_dba->get_xref('NM01239', $source2->source_id, 9606),
+    ensembl_id  => 1,
+    object_type => 'Gene'
+  }
+);
+ok( defined $object_xref_id_04, "add_object_xref - Object_xref entry inserted - $object_xref_id_04" );
+
 
 # get_source_ids_with_xrefs
 my $base_sources = $xref_dba->get_source_ids_with_xrefs();
@@ -663,6 +738,7 @@ while( my $base_source_ref = $base_sources->() ) {
   );
 }
 
+
 # get_dump_out_xrefs
 my $dumped_xrefs = $xref_dba->get_dump_out_xrefs();
 while( my $dumped_xref_ref = $dumped_xrefs->() ) {
@@ -672,6 +748,7 @@ while( my $dumped_xref_ref = $dumped_xrefs->() ) {
     "get_dump_out_xrefs - $dumped_xref{'name'}"
   );
 }
+
 
 # get_insert_identity_xref
 my $insert_identity_xrefs = $xref_dba->get_insert_identity_xref(
@@ -685,6 +762,7 @@ while( my $insert_identity_xref_ref = $insert_identity_xrefs->() ) {
   );
 }
 
+
 # get_insert_checksum_xref
 my $insert_checksum_xrefs = $xref_dba->get_insert_checksum_xref(
   $source->source_id, 'DIRECT' );
@@ -696,6 +774,7 @@ while( my $insert_checksum_xref_ref = $insert_checksum_xrefs->() ) {
     "get_insert_checksum_xref - $insert_checksum_xref{'acc'}"
   );
 }
+
 
 # get_insert_dependent_xref
 my $insert_dependent_xrefs = $xref_dba->get_insert_dependent_xref(
@@ -709,6 +788,7 @@ while( my $insert_dependent_xref_ref = $insert_dependent_xrefs->() ) {
   );
 }
 
+
 # get_synonyms_for_xref
 my $synonyms_for_xref = $xref_dba->get_synonyms_for_xref( [$xref_id_new] );
 
@@ -719,6 +799,85 @@ while( my $synonym_for_xref_ref = $synonyms_for_xref->() ) {
     "get_synonyms_for_xref - $synonym_for_xref{'syn'}"
   );
 }
+
+
+# get_insert_direct_xref_low_priority
+my $insert_direct_lp_xrefs = $xref_dba->get_insert_direct_xref_low_priority();
+
+while( my $insert_direct_lp_xref_ref = $insert_direct_lp_xrefs->() ) {
+  my %insert_direct_lp_xref = %{ $insert_direct_lp_xref_ref };
+  ok(
+    ( $insert_direct_lp_xref{'acc'} ~~ [ 'NM01235', 'NM01236' ] ),
+    "get_insert_direct_lp_xref - $insert_direct_lp_xref{'acc'}"
+  );
+}
+
+
+# get_insert_dependent_xref_low_priority
+my $insert_dependent_lp_xrefs = $xref_dba->get_insert_dependent_xref_low_priority();
+
+while( my $insert_dependent_lp_xref_ref = $insert_dependent_lp_xrefs->() ) {
+  my %insert_dependent_lp_xref = %{ $insert_dependent_lp_xref_ref };
+  ok(
+    ( $insert_dependent_lp_xref{'acc'} ~~ [ 'NM01235', 'NM01236' ] ),
+    "get_insert_dependent_lp_xref - $insert_dependent_lp_xref{'acc'}"
+  );
+}
+
+
+# get_insert_sequence_xref_remaining
+my $insert_sequence_xrefs = $xref_dba->get_insert_sequence_xref_remaining();
+
+while( my $insert_sequence_xref_ref = $insert_sequence_xrefs->() ) {
+  my %insert_sequence_xref = %{ $insert_sequence_xref_ref };
+  ok(
+    ( $insert_sequence_xref{'acc'} ~~ [ 'NM01238' ] ),
+    "get_insert_sequence_xref - $insert_sequence_xref{'acc'}"
+  );
+}
+
+
+# get_insert_misc_xref
+my $insert_misc_xrefs = $xref_dba->get_insert_misc_xref();
+
+while( my $insert_misc_xref_ref = $insert_misc_xrefs->() ) {
+  my %insert_misc_xref = %{ $insert_misc_xref_ref };
+  ok(
+    ( $insert_misc_xref{'acc'} ~~ [ 'NM01239' ] ),
+    "get_insert_misc_xref - $insert_misc_xref{'acc'}"
+  );
+}
+
+
+# get_insert_other_xref
+my $insert_other_xrefs = $xref_dba->get_insert_other_xref();
+
+while( my $insert_other_xref_ref = $insert_other_xrefs->() ) {
+  my %insert_other_xref = %{ $insert_other_xref_ref };
+  ok(
+    ( $insert_other_xref{'acc'} ~~ [ 'XX123456', 'NM01237' ] ),
+    "get_insert_other_xref - $insert_other_xref{'acc'}"
+  );
+}
+
+
+# get_unmapped_reason
+my %reasons = %{ $xref_dba->get_unmapped_reason() };
+ok( defined $reasons{'summary'}, 'get_unmapped_reason - Summary' );
+ok( defined $reasons{'desc'}, 'get_unmapped_reason - Description' );
+
+
+# mark_mapped_xrefs_already_run
+
+
+
+# mark_mapped_xrefs
+
+
+
+# insert_process_status
+
+
 
 done_testing();
 
