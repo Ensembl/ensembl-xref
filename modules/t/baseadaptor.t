@@ -868,15 +868,29 @@ ok( defined $reasons{'desc'}, 'get_unmapped_reason - Description' );
 
 
 # mark_mapped_xrefs_already_run
-
+ok( !defined $xref_dba->mark_mapped_xrefs_already_run(), 'mark_mapped_xrefs_already_run' );
 
 
 # mark_mapped_xrefs
+my @xref_list = (
+  $xref_dba->get_xref('NM01236', $source2->source_id, 9606),
+  $xref_dba->get_xref('NM01237', $source2->source_id, 9606),
+  $xref_dba->get_xref('NM01238', $source2->source_id, 9606),
+  $xref_dba->get_xref('NM01239', $source2->source_id, 9606)
+);
 
+ok( !defined $xref_dba->mark_mapped_xrefs( \@xref_list, 'MAPPED' ), 'mark_mapped_xrefs' );
+
+for my $mapped_xref_id ( @xref_list ) {
+  is(
+    _check_db( $db, 'Xref', { xref_id => $mapped_xref_id } )->dumped,
+    'MAPPED', "mark_mapped_xrefs - $mapped_xref_id" );
+}
 
 
 # insert_process_status
-
+ok( !defined $xref_dba->insert_process_status( 'tests_finished' ), 'insert_process_status' );
+is( _check_db( $db, 'ProcessStatus', { id => 2 } )->status, 'tests_finished', 'insert_process_status - TESTING' );
 
 
 done_testing();
