@@ -732,7 +732,7 @@ sub get_analysis{
                              'Transcript'  => 'xrefexoneratedna',
                              'Translation' => 'xrefexonerateprotein', );
   my %analysis_id;
-  foreach my $key (qw(Gene Transcript Translation)){
+  foreach my $key ( qw(Gene Transcript Translation) ) {
     my $logic_name = $type_to_logic_name{$key};
     $analysis_id{$key} = $self->get_single_analysis($logic_name);
   }

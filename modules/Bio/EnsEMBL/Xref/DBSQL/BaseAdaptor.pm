@@ -2736,7 +2736,7 @@ SQL
 
 # just incase this is being run again
 sub mark_mapped_xrefs_already_run {
-  my ( $self, $xref_list, $status ) = @_;
+  my ( $self ) = @_;
 
   my $sql = (<<"SQL");
     UPDATE xref
