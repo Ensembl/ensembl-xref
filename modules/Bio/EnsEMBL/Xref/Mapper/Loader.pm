@@ -534,9 +534,12 @@ sub load_identity_xref {
 
   my $last_xref = 0;
   my @xref_list = ();
+
   my $identity_xrefs_handle = $self->xref->get_insert_identity_xref( $source_id, $type );
+
   while ( my $identity_xref_handle_ref = $identity_xrefs_handle->() ) {
     my %identity_xref_handle = %{ $identity_xref_handle_ref };
+
     if( $last_xref != $identity_xref_handle{'xref_id'} ) {
       push @xref_list, $identity_xref_handle{'xref_id'};
       $count++;
@@ -588,9 +591,12 @@ sub load_checksum_xref {
   my $count = 0;
   my $last_xref = 0;
   my @xref_list = ();
+
   my $checksum_xrefs_handle = $self->xref->get_insert_checksum_xref( $source_id, $type );
+
   while( my $checksum_xref_handle_ref = $checksum_xrefs_handle->() ) {
     my %checksum_xref_handle = %{ $checksum_xref_handle_ref };
+
     if($last_xref != $checksum_xref_handle{'xref_id'}) {
       push @xref_list, $checksum_xref_handle{'xref_id'};
       $count++;
@@ -604,6 +610,7 @@ sub load_checksum_xref {
         $checksum_xref_handle{'info'} || $where_from, $self->core->dbc);
       $last_xref = $xref_id;
     }
+
     my $object_xref_id = $self->add_object_xref(
       $object_xref_offset,
       $checksum_xref_handle{'object_xref_id'},
@@ -635,32 +642,37 @@ sub load_dependent_xref {
   my $last_xref = 0;
   my $last_ensembl = 0;
   my @xref_list = ();
-  while ( my $dependent_xref_handle = $self->xref->get_insert_dependent_xref( $source_id, $type ) ) {
-    my $xref_id = $dependent_xref_handle->xref_id;
+
+  my $dependent_xrefs_handle = $self->xref->get_insert_dependent_xref( $source_id, $type );
+
+  while ( my $dependent_xref_handle_ref = $dependent_xrefs_handle->() ) {
+    my %dependent_xref_handle = %{ $dependent_xref_handle_ref };
+    my $xref_id = $dependent_xref_handle{'xref_id'};
+
     if ( $last_xref != $xref_id ) {
       push @xref_list, $xref_id;
       $count++;
       $xref_id = $self->add_xref(
         $xref_offset, $xref_id, $ex_id,
-        $dependent_xref_handle->acc,
-        $dependent_xref_handle->label || $dependent_xref_handle->acc,
-        $dependent_xref_handle->version,
-        $dependent_xref_handle->desc,
-        $dependent_xref_handle->type,
-        $dependent_xref_handle->info || $where_from,
+        $dependent_xref_handle{'acc'},
+        $dependent_xref_handle{'label'} || $dependent_xref_handle{'acc'},
+        $dependent_xref_handle{'version'},
+        $dependent_xref_handle{'desc'},
+        $dependent_xref_handle{'type'},
+        $dependent_xref_handle{'info'} || $where_from,
         $self->core->dbc);
       $last_xref = $xref_id;
     }
 
     # If the IDs all match then don't enter the if block
-    if ( !( $last_xref == $xref_id and $last_ensembl == $dependent_xref_handle->ensembl_id ) ) {
+    if ( !( $last_xref == $xref_id and $last_ensembl == $dependent_xref_handle{'ensembl_id'} ) ) {
       my $object_xref_id = $self->add_object_xref(
         $object_xref_offset,
-        $dependent_xref_handle->object_xref_id,
-        $dependent_xref_handle->ensembl_id,
-        $dependent_xref_handle->ensembl_type,
+        $dependent_xref_handle{'object_xref_id'},
+        $dependent_xref_handle{'ensembl_id'},
+        $dependent_xref_handle{'ensembl_type'},
         $xref_id + $xref_offset,
-        $analysis_ids{ $dependent_xref_handle->ensembl_type },
+        $analysis_ids{ $dependent_xref_handle{'ensembl_type'} },
         $self->core->dbc
       );
 
@@ -673,7 +685,7 @@ sub load_dependent_xref {
         );
       }
       else {
-        push @master_problems, $dependent_xref_handle->acc;
+        push @master_problems, $dependent_xref_handle{'acc'};
         $err_master_count++;
       }
       $ox_count++;
