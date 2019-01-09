@@ -216,6 +216,11 @@ sub update {
 } ## end sub update
 
 
+=head2 map_xrefs_from_xrefdb_to_coredb
+
+
+=cut
+
 sub map_xrefs_from_xrefdb_to_coredb {
   my ( $self, $xref_offset, $object_xref_offset, $analysis_ids ) = @_;
 
@@ -285,8 +290,13 @@ sub map_xrefs_from_xrefdb_to_coredb {
   } ## end while for getting dump out xrefs
 
   return;
-}
+} ## end sub map_xrefs_from_xrefdb_to_coredb
 
+
+=head2 load_unmapped_direct_xref
+
+
+=cut
 
 sub load_unmapped_direct_xref {
   my ( $self, $xref_offset, $analysis_ids ) = @_;
@@ -328,9 +338,13 @@ sub load_unmapped_direct_xref {
   }
 
   return;
-}
+} ## end sub load_unmapped_direct_xref
 
 
+=head2 load_unmapped_dependent_xref
+
+
+=cut
 
 sub load_unmapped_dependent_xref {
   my ( $self, $xref_offset, $object_xref_offset, $analysis_ids ) = @_;
@@ -379,9 +393,13 @@ sub load_unmapped_dependent_xref {
   }
 
   return;
-}
+} ## end sub load_unmapped_dependent_xref
 
 
+=head2 load_unmapped_sequence_xrefs
+
+
+=cut
 
 sub load_unmapped_sequence_xrefs {
   my ( $self, $xref_offset, $analysis_ids ) = @_;
@@ -454,8 +472,13 @@ sub load_unmapped_sequence_xrefs {
   }
 
   return;
-}
+} ## end sub load_unmapped_sequence_xrefs
 
+
+=head2 load_unmapped_misc_xref
+
+
+=cut
 
 sub load_unmapped_misc_xref {
   my ( $self, $xref_offset, $analysis_ids ) = @_;
@@ -495,9 +518,13 @@ sub load_unmapped_misc_xref {
   }
 
   return;
-}
+} ## end sub load_unmapped_misc_xref
 
 
+=head2 load_unmapped_other_xref
+
+
+=cut
 
 sub load_unmapped_other_xref {
   ###########################
@@ -549,9 +576,13 @@ sub load_unmapped_other_xref {
   }
 
   return;
-}
+} ## end sub load_unmapped_other_xref
 
 
+=head2 load_identity_xref
+
+
+=cut
 
 sub load_identity_xref {
    my ( $self, $source_id, $type, $xref_offset, $ex_id, $object_xref_offset ) = @_;
@@ -608,9 +639,13 @@ sub load_identity_xref {
   }
 
   return @xref_list;
-}
+} ## end sub load_identity_xref
 
 
+=head2 load_checksum_xref
+
+
+=cut
 
 sub load_checksum_xref {
   my ( $self, $source_id, $type, $xref_offset, $ex_id, $object_xref_offset, $checksum_analysis_id ) = @_;
@@ -650,9 +685,13 @@ sub load_checksum_xref {
   }
 
   return @xref_list;
-}
+} ## end sub load_checksum_xref
 
 
+=head2 load_dependent_xref
+
+
+=cut
 
 sub load_dependent_xref {
   my ( $self, $source_id, $type, $xref_offset, $ex_id, $object_xref_offset, $analysis_ids ) = @_;
@@ -722,9 +761,13 @@ sub load_dependent_xref {
   }
 
   return @xref_list;
-}
+} ## end sub load_dependent_xref
 
 
+=head2 load_synonyms
+
+
+=cut
 
 sub load_synonyms {
   my ( $self, $xref_list, $xref_offset ) = @_;
@@ -749,7 +792,7 @@ sub load_synonyms {
   }
 
   return;
-}
+} ## end sub load_synonyms
 
 
 
@@ -897,7 +940,7 @@ SQL
 ################################################################################
 ################################################################################
 ################################################################################
-### The following files are for use with the core db                         ###
+### The following functions are for use with the core db                     ###
 ### They should probably get placed in a more central location to facilitate ###
 ### code sharing and reduce duplication.                                     ###
 ################################################################################
@@ -963,6 +1006,11 @@ SQL
 } ## end sub get_valid_source_id_to_external_db_id
 
 
+=head2 delete_projected_xrefs
+
+
+=cut
+
 sub delete_projected_xrefs {
   my $self = shift;
 
@@ -1012,7 +1060,7 @@ SQL
   if ( $self->verbose ) {
     print "\tDeleted $affected_rows PROJECTED xref row(s)\n";
   }
-}
+} ## end sub delete_projected_xrefs
 
 
 =head2 delete_by_external_db_id
@@ -1153,7 +1201,10 @@ sub parsing_stored_data {
 } ## end sub parsing_stored_data
 
 
+=head2 add_identity_xref
 
+
+=cut
 
 sub add_identity_xref {
   my ( $self, $xref ) = @_;
@@ -1185,9 +1236,13 @@ SQL
     $score, $evalue);
 
   return;
-}
+} ## end sub add_identity_xref
 
 
+=head2 add_dependent_xref
+
+
+=cut
 
 sub add_dependent_xref {
   my ( $self, $object_xref_id, $master_xref_id, $dependent_xref_id ) = @_;
@@ -1204,9 +1259,13 @@ my $sth  = $self->core->dbc->prepare_cached( $sql );
     $object_xref_id, $master_xref_id, $dependent_xref_id);
 
   return;
-}
+} ## end sub add_dependent_xref
 
 
+=head2 add_xref_synonym
+
+
+=cut
 
 sub add_xref_synonym {
   my ( $self, $xref_id, $syn) = @_;
@@ -1216,9 +1275,13 @@ sub add_xref_synonym {
   $add_syn_sth->execute( $xref_id, $syn);
 
   return;
-}
+} ## end sub add_xref_synonym
 
 
+=head2 get_unmapped_reason_id
+
+
+=cut
 
 sub get_unmapped_reason_id {
   my ( $self, $desc_failed ) = @_;
@@ -1236,9 +1299,13 @@ SQL
   $sth->fetch;
 
   return $failed_id;
-}
+} ## end sub get_unmapped_reason_id
 
 
+=head2 add_unmapped_reason
+
+
+=cut
 
 sub add_unmapped_reason {
   my ( $self, $summary_failed, $desc_failed ) = @_;
@@ -1252,9 +1319,13 @@ SQL
   my $sth = $self->core->dbc->prepare_cached( $sql);
   $sth->execute( $summary_failed, $desc_failed );
   return $sth->{'mysql_insertid'};
-}
+} ## end sub add_unmapped_reason
 
 
+=head2 add_unmapped_object
+
+
+=cut
 
 sub add_unmapped_object {
   my ( $self, $param ) = @_;
@@ -1288,6 +1359,6 @@ SQL
   my $sth =  $self->core->dbc->prepare_cached( $sql );
   $sth->execute( @row );
   return;
-}
+} ## end sub add_unmapped_object
 
 1;
