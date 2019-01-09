@@ -990,19 +990,19 @@ SQL
 sub add_coordinate_xref {
   my ( $self, $arg_ref ) = @_;
 
-  my $accession    = $arg_ref->{accession} || confess 'add_coordinate_xref needs an accession';
-  my $source_id    = $arg_ref->{source_id} || confess 'add_coordinate_xref needs a source_id';
+  my $accession    = $arg_ref->{accession}  || confess 'add_coordinate_xref needs an accession';
+  my $source_id    = $arg_ref->{source_id}  || confess 'add_coordinate_xref needs a source_id';
   my $species_id   = $arg_ref->{species_id} || confess 'add_coordinate_xref needs a species_id';
   my $chromosome   = $arg_ref->{chromosome} || confess 'add_coordinate_xref needs a chromosome';
-  my $strand       = $arg_ref->{strand} || confess 'add_coordinate_xref needs a strand';
-  my $tx_start     = $arg_ref->{txStart} || confess 'add_coordinate_xref needs a txStart';
-  my $tx_end       = $arg_ref->{txEnd} || confess 'add_coordinate_xref needs a txEnd';
+  my $strand       = $arg_ref->{strand}     || confess 'add_coordinate_xref needs a strand';
+  my $tx_start     = $arg_ref->{txStart}    || confess 'add_coordinate_xref needs a txStart';
+  my $tx_end       = $arg_ref->{txEnd}      || confess 'add_coordinate_xref needs a txEnd';
   my $cds_start    = $arg_ref->{cdsStart};
   my $cds_end      = $arg_ref->{cdsEnd};
   my $exon_starts  = $arg_ref->{exonStarts} || confess 'add_coordinate_xref needs exonStarts';
-  my $exon_ends    = $arg_ref->{exonEnds} || confess 'add_coordinate_xref needs exonEnds';
+  my $exon_ends    = $arg_ref->{exonEnds}   || confess 'add_coordinate_xref needs exonEnds';
 
-  my $sql = (<<"AXS");
+  my $sql = (<<"SQL");
   INSERT INTO coordinate_xref
   ( source_id,  species_id,
     accession,
@@ -1011,7 +1011,7 @@ sub add_coordinate_xref {
     cdsStart,   cdsEnd,
     exonStarts, exonEnds )
   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-AXS
+SQL
 
   my $add_coordinate_xref_sth =
     $self->dbi->prepare_cached( $sql );
