@@ -54,10 +54,32 @@ sub new {
   my( $class, $mapper ) = @_;
 
   my $self ={};
-  bless $self,$class;
+  bless $self, $class;
   $self->core( $mapper->core );
   $self->xref( $mapper->xref );
   $self->mapper( $mapper );
+
+  $self->name_to_external_db_id = %{ $self->get_xref_external_dbs() };
+
+  # Get the cutoff values
+  my $failed_sources = $self->xref->get_unmapped_regions();
+
+  my %summary_failed = $failed_sources->summary;
+  my %desc_failed    = $failed_sources->desc;
+
+  my %reason_id;
+  foreach my $key (keys %desc_failed){
+    my $failed_id = $self->get_unmapped_reasons( $desc_failed{$key} );
+
+    if(!defined $failed_id ) {
+      $failed_id = $self->add_unmapped_reason(
+        $summary_failed{$key}, $desc_failed{$key} );
+    }
+    $reason_id{$key} = $failed_id;
+  }
+
+  $self->reason_id = %reason_id;
+
   return $self;
 }
 
@@ -83,12 +105,12 @@ sub mapper{
 =cut
 
 sub update {
-  my ($self, $arg) = @_;
+  my ( $self, $arg ) = @_;
   # remove xref, object_xref, identity_xref, depenedent_xref, go_xref, unmapped_object, (interpro???), external_synonym, projections.
 
-  my $verbose = $self->mapper->verbose;
-  my $core_dbi = $self->core->dbc;
-  my $xref_dbi = $self->xref->dbc;
+  my $verbose  = $self->mapper->verbose;
+  # my $core_dbi = $self->core->dbc;
+  # my $xref_dbi = $self->xref->dbc;
 
   #####################################
   # first remove all the projections. #
@@ -101,13 +123,13 @@ sub update {
   # Get source_id to external_db_id       #
   #########################################
 
-  $self->name_to_external_db_id = %{ $self->get_xref_external_dbs() };
+  my %name_to_external_db_id = $self->name_to_external_db_id;
 
   my %source_id_to_external_db_id;
   my %source_list = $self->xref->get_valid_source_id_to_external_db_id();
   while ( my ( $name, $id ) = each %source_list ) {
-    if ( defined $self->name_to_external_db_id{ $name } ) {
-      $source_id_to_external_db_id{ $id } = $self->name_to_external_db_id{ $name };
+    if ( defined $name_to_external_db_id{ $name } ) {
+      $source_id_to_external_db_id{ $id } = $name_to_external_db_id{ $name };
     }
     elsif ( $name =~ m/notransfer$/xms) {}
     else {
@@ -126,12 +148,12 @@ sub update {
   while( my $base_source_ref = $base_sources->() ) {
     my %base_source = %{ $base_source_ref };
 
-    if ( !defined $self->name_to_external_db_id{ $base_source{'name'} } ) {
+    if ( !defined $name_to_external_db_id{ $base_source{'name'} } ) {
       next;  #must end in notransfer
     }
 
     $self->delete_by_external_db_id(
-      $self->name_to_external_db_id{$base_source{'name'}}
+      $name_to_external_db_id{$base_source{'name'}}
     );
   }
 
@@ -141,10 +163,10 @@ sub update {
   ##########################################
 
   my %offsets = $self->parsing_stored_data();
-  my $xref_offset = $offset{ 'xref' };
-  my $object_xref_offset = $offset{ 'object_xref' };
-  my $xref_dbh = $xref_db->dbc()->db_handle();
-  my $core_dbh = $core_db->dbc()->db_handle();
+  my $xref_offset = $offsets{ 'xref' };
+  my $object_xref_offset = $offsets{ 'object_xref' };
+  # my $xref_dbh = $xref_dbi->db_handle();
+  # my $core_dbh = $core_dbi->db_handle();
 
   ####################
   # Get analysis id's
@@ -160,7 +182,7 @@ sub update {
   # Now add the new ones from xref to core #
   ##########################################
 
-  $self->map_xrefs_from_xrefdb_to_coredb();
+  $self->map_xrefs_from_xrefdb_to_coredb( $xref_offset, $object_xref_offset, %analysis_ids );
 
 
   #######################################
@@ -168,46 +190,25 @@ sub update {
   # 1) make sure the reason exist/create them and get the ids for these.
   # 2) Process where dumped is null and type = DIRECT, DEPENDENT, SEQUENCE_MATCH, MISC seperately
   ########################################
-  my %reason_id;
-
-  # Get the cutoff values
-  my $failed_sources = $self->xref->get_unmapped_regions();
-
-  my %summary_failed = $failed_sources->summary;
-  my %desc_failed    = $failed_sources->desc;
-
-  foreach my $key (keys %desc_failed){
-    my $failed_id = $self->get_unmapped_reasons( $desc_failed{$key} );
-
-    if(!defined $failed_id ) {
-      $failed_id = $self->add_unmapped_reason(
-        $summary_failed{$key}, $desc_failed{$key} );
-    }
-    $reason_id{$key} = $failed_id;
-  }
-
-  $transaction_start_sth->execute();
 
   # DIRECT #
-  $self->load_unmapped_direct_xref( $xref_offset );
+  $self->load_unmapped_direct_xref( $xref_offset, %analysis_ids );
 
   # MISC #
-  $self->load_unmapped_misc_xref( $xref_offset );
+  $self->load_unmapped_misc_xref( $xref_offset, %analysis_ids );
 
   # DEPENDENT #
-  $self->load_unmapped_dependent_xref( $xref_offset );
+  $self->load_unmapped_dependent_xref( $xref_offset, $object_xref_offset, %analysis_ids );
 
   # SEQUENCE_MATCH #
-  $self->load_unmapped_sequence_xrefs( $xref_offset, $analysis_id );
+  $self->load_unmapped_sequence_xrefs( $xref_offset, %analysis_ids );
 
   # WEL (What ever is left) #
   # These are those defined as dependent but the master never existed and the xref and their descriptions etc are loaded first
   # with the dependencys added later so did not know they had no masters at time of loading.
   # (e.g. EntrezGene, WikiGene, MIN_GENE, MIM_MORBID)
-  $self->load_unmapped_other_xref( $xref_offset, $analysis_id );
+  $self->load_unmapped_other_xref( $xref_offset, %analysis_ids );
 
-
-  $transaction_end_sth->execute();
 
   $self->xref->insert_process_status( 'core_loaded' );
 
@@ -216,22 +217,26 @@ sub update {
 
 
 sub map_xrefs_from_xrefdb_to_coredb {
-  my ( $self, $xref_offset ) = @_;
+  my ( $self, $xref_offset, $object_xref_offset, $analysis_ids ) = @_;
 
-  $transaction_start_sth->execute();
+  my %name_to_external_db_id = $self->name_to_external_db_id;
 
   my $xrefs_handle = $self->xref->get_dump_out_xrefs();
-  while ( my $xref_handle = $xrefs_handle->() ) {
+  while ( my $xref_handle_ref = $xrefs_handle->() ) {
+    my %xref_handle = %{ $xref_handle_ref };
 
-    next if( !defined $name_to_external_db_id{ $xref_handle->name } );
+    next if( !defined $name_to_external_db_id{ $xref_handle{'name'} } );
 
-    if( defined $xref_handle{'where_from'} and $xref_handle{'where_from'} ne q{} ){
-      $xref_handle{'where_from'} = "Generated via $where_from";
+    if ( defined $xref_handle{'where_from'} and $xref_handle{'where_from'} ne q{} ) {
+
+      $xref_handle{'where_from'} = "Generated via $xref_handle{'where_from'}";
+
     }
-    my $ex_id = $self->name_to_external_db_id{ $xref_handle{'name'} };
 
-    if ( $verbose ) {
-      print "updating ($xref_handle{'source_id'}) $xref_handle{'name'} in core (for $type xrefs)\n";
+    my $ex_id = $name_to_external_db_id{ $xref_handle{'name'} };
+
+    if ( $self->verbose ) {
+      print "updating ($xref_handle{'source_id'}) $xref_handle{'name'} in core (for $xref_handle{'type'} xrefs)\n";
     }
 
     my @xref_list=();  # process at end. Add synonyms and set dumped = 1;
@@ -245,28 +250,28 @@ sub map_xrefs_from_xrefdb_to_coredb {
     if ( $xref_handle{'type'} eq 'DIRECT' or $xref_handle{'type'} eq 'INFERRED_PAIR' or
          $xref_handle{'type'} eq 'MISC'   or $xref_handle{'type'} eq 'SEQUENCE_MATCH' ) {
       push @xref_list, $self->load_identity_xref(
-        $xref_handle{'source_id'}, $xref_handle{'type'}, $xref_offset, $ex_id );
+        $xref_handle{'source_id'}, $xref_handle{'type'}, $xref_offset, $ex_id, $object_xref_offset );
     }
     elsif ($xref_handle{'type'} eq 'CHECKSUM') {
-      if(! defined $checksum_analysis_id) {
-        $checksum_analysis_id = $self->get_single_analysis( 'xrefchecksum' );
-      }
-
       push @xref_list, $self->load_checksum_xref(
-        $xref_handle{'source_id'}, $xref_handle{'type'}, $xref_offset, $ex_id );
+        $xref_handle{'source_id'}, $xref_handle{'type'},
+        $xref_offset, $ex_id, $object_xref_offset,
+        $self->get_single_analysis( 'xrefchecksum' )
+      );
     }
     elsif ( $xref_handle{'type'} eq 'DEPENDENT' ) {
       push @xref_list, $self->load_dependent_xref(
-        $xref_handle{'source_id'}, $xref_handle{'type'}, $xref_offset, $ex_id );
+        $xref_handle{'source_id'}, $xref_handle{'type'},
+        $xref_offset, $ex_id, $object_xref_offset, $analysis_ids );
     }
     else {
-      print "PROBLEM:: what type is $type\n";
+      print "PROBLEM:: what type is $xref_handle{'type'}\n";
     }
 
 
     # Transfer data for synonym and set xref database xrefs to dumped.
     if ( @xref_list ) {
-      $self->load_synonyms( @xref_list );
+      $self->load_synonyms( @xref_list, $xref_offset );
 
       $self->xref->mark_mapped_xrefs( @xref_list, 'MAPPED' );
     }
@@ -275,28 +280,30 @@ sub map_xrefs_from_xrefdb_to_coredb {
     if ( defined $xref_handle{'release_info'} and $xref_handle{'release_info'} ne q{1} ){
        my $add_release_info_sth   = $self->core->dbc->prepare('UPDATE external_db SET db_release = ? WHERE external_db_id = ?');
        $add_release_info_sth->execute($xref_handle{'release_info'}, $ex_id) ||
-         confess "Failed to add release info **$xref_handle->release_info** for external source $ex_id\n";
+         confess "Failed to add release info **$xref_handle{'release_info'}** for external source $xref_handle{'ex_id'}\n";
     }
   } ## end while for getting dump out xrefs
-  $transaction_end_sth->execute();
 
   return;
 }
 
 
 sub load_unmapped_direct_xref {
-  my ( $self, $xref_offset, $analysis_id ) = @_;
+  my ( $self, $xref_offset, $analysis_ids ) = @_;
 
   my @xref_list = ();
-  # my $analysis_id = $analysis_ids{'Transcript'};   # No real analysis here but in table it is set to not NULL
+  my %name_to_external_db_id = $self->name_to_external_db_id;
+  my %reason_id = $self->reason_id;
+
+  my $analysis_id = %{ $analysis_ids }{'Transcript'};   # No real analysis here but in table it is set to not NULL
   my $direct_xref_handle = $self->xref->get_insert_direct_xref_low_priority();
   while ( my $direct_handle_ref = $direct_xref_handle->() ) {
-    my $direct_handle = %{ $direct_handle_ref };
-    if( defined $self->name_to_external_db_id{ $direct_handle{'dbname'} } ) {
-      $xref_id = $self->add_xref(
+    my %direct_handle = %{ $direct_handle_ref };
+    if( defined $name_to_external_db_id{ $direct_handle{'dbname'} } ) {
+      my $xref_id = $self->add_xref(
         $xref_offset,
         $direct_handle{'xref_id'},
-        $self->name_to_external_db_id{ $direct_handle{'dbname'} },
+        $name_to_external_db_id{ $direct_handle{'dbname'} },
         $direct_handle{'acc'},
         $direct_handle{'label'},
         $direct_handle{'version'},
@@ -308,8 +315,8 @@ sub load_unmapped_direct_xref {
 
       $self->add_unmapped_object( {
         analysis_id        => $analysis_id,
-        external_db_id      => $self->name_to_external_db_id{ $direct_handle{'dbname'} },
-        identifier         => $acc,
+        external_db_id     => $name_to_external_db_id{ $direct_handle{'dbname'} },
+        identifier         => $direct_handle{'acc'},
         unmapped_reason_id => $reason_id{'NO_STABLE_ID'} } );
 
       push @xref_list, $xref_id;
@@ -326,24 +333,26 @@ sub load_unmapped_direct_xref {
 
 
 sub load_unmapped_dependent_xref {
-  my ( $self, $xref_offset, $analysis_id ) = @_;
+  my ( $self, $xref_offset, $object_xref_offset, $analysis_ids ) = @_;
 
   my @xref_list = ();
+  my %name_to_external_db_id = $self->name_to_external_db_id;
+  my %reason_id = $self->reason_id;
 
   @xref_list = ();
   my $last_acc= 0;
-  # $analysis_id = $analysis_ids{'Transcript'};
+  my $analysis_id = %{ $analysis_ids }{'Transcript'};
   my $dependent_xref_handle = $self->xref->get_insert_dependent_xref_low_priority();
   while ( my $dependent_handle_ref = $dependent_xref_handle->() ) {
-    my $dependent_handle = %{ $dependent_handle_ref };
-    if( !defined $self->name_to_external_db_id{ $dependent_handle{'dbname'} } ){
+    my %dependent_handle = %{ $dependent_handle_ref };
+    if( !defined $name_to_external_db_id{ $dependent_handle{'dbname'} } ){
       next;
     }
-    if ( $last_acc ne $acc ) {
-      $xref_id = $self->add_xref(
+    if ( $last_acc ne $dependent_handle{'acc'} ) {
+      my $xref_id = $self->add_xref(
         $xref_offset,
         $dependent_handle{'xref_id'},
-        $self->name_to_external_db_id{ $dependent_handle{'dbname'} },
+        $name_to_external_db_id{ $dependent_handle{'dbname'} },
         $dependent_handle{'acc'},
         $dependent_handle{'label'} || $dependent_handle{'acc'},
         $dependent_handle{'version'},
@@ -351,15 +360,18 @@ sub load_unmapped_dependent_xref {
         'UNMAPPED',
         $dependent_handle{'info'},
         $self->core->dbc);
+
+      $last_acc = $dependent_handle{'acc'};
+
+      $self->add_unmapped_object( {
+        analysis_id        => $analysis_id,
+        external_db_id     => $name_to_external_db_id{ $dependent_handle{'dbname'} },
+        identifier         => $dependent_handle{'acc'},
+        unmapped_reason_id => $reason_id{ 'MASTER_FAILED' },
+        parent             => $dependent_handle{'parent'} } );
+
+      push @xref_list, $xref_id;
     }
-    $last_acc = $acc;
-    $self->add_unmapped_object( {
-      analysis_id        => $analysis_id,
-      external_db_id     => $self->name_to_external_db_id{ $dependent_handle{'dbname'} },
-      identifier         => $dependent_handle{'acc'},
-      unmapped_reason_id => $reason_id{ 'MASTER_FAILED' },
-      parent             => $dependent_handle{'parent'} } );
-    push @xref_list, $xref_id;
   }
 
   if ( @xref_list ) {
@@ -372,64 +384,70 @@ sub load_unmapped_dependent_xref {
 
 
 sub load_unmapped_sequence_xrefs {
-  my ( $self, $xref_offset, $analysis_id ) = @_;
+  my ( $self, $xref_offset, $analysis_ids ) = @_;
 
-  @xref_list = ();
+  my @xref_list = ();
+  my %name_to_external_db_id = $self->name_to_external_db_id;
+  my %reason_id = $self->reason_id;
   my $last_xref = 0;
-  while ( my $xref_handle = $self->xref->get_insert_sequence_xref_remaining() ){
+  my $xref_id;
+  my $analysis_id;
+
+  my $xref_handles = $self->xref->get_insert_sequence_xref_remaining();
+  while ( my $xref_handle_ref = $xref_handles->() ){
+    my %xref_handle = %{ $xref_handle_ref };
     if (
-      !defined $self->name_to_external_db_id{ $dbname } ||
-      ( defined $xref_handle->status and $xref_handle->status eq 'FAILED_PRIORITY')
+      !defined $name_to_external_db_id{ $xref_handle{'dbname'} } ||
+      ( defined $xref_handle{'status'} and $xref_handle{'status'} eq 'FAILED_PRIORITY')
     ) {
       next;
     }
     if ( $last_xref != $xref_id ) {
       $xref_id = $self->add_xref(
         $xref_offset,
-        $xref_handle->xref_id,
-        $self->name_to_external_db_id{ $dbname },
-        $xref_handle->acc,
-        $xref_handle->label,
-        $xref_handle->version,
-        $xref_handle->desc,
+        $xref_handle{'xref_id'},
+        $name_to_external_db_id{ $xref_handle{'dbname'} },
+        $xref_handle{'acc'},
+        $xref_handle{'label'},
+        $xref_handle{'version'},
+        $xref_handle{'desc'},
         'UNMAPPED',
-        $xref_handle->info,
+        $xref_handle{'info'},
         $self->core->dbc);
-    }
-    $last_xref = $xref_id;
 
-    if ( defined $ensembl_id ) {
-      $analysis_id= $analysis_ids{$xref_handle->ensembl_object_type};
+      $last_xref = $xref_id;
+      push @xref_list, $xref_id;
+    }
+
+    if ( defined $xref_handle{'ensembl_id'} ) {
+      $analysis_id= %{ $analysis_ids }{$xref_handle{'ensembl_object_type'}};
 
       $self->add_unmapped_object( {
         analysis_id         => $analysis_id,
-        external_db_id      => $self->name_to_external_db_id{ $dbname },
-        identifier          => $xref_handle->acc,
-        unmapped_reason_id  => $reason_id{$dbname},
-        query_score         => $xref_handle->q_id,
-        target_score        => $xref_handle->t_id,
-        ensembl_id          => $xref_handle->ensembl_id,
-        ensembl_object_type => $xref_handle->ensembl_object_type
+        external_db_id      => $name_to_external_db_id{ $xref_handle{'dbname'} },
+        identifier          => $xref_handle{'acc'},
+        unmapped_reason_id  => $reason_id{ $xref_handle{'dbname'} },
+        query_score         => $xref_handle{'q_id'},
+        target_score        => $xref_handle{'t_id'},
+        ensembl_id          => $xref_handle{'ensembl_id'},
+        ensembl_object_type => $xref_handle{'ensembl_object_type'}
       } );
     }
     else{
-      if ( $xref_handle->seq_type eq 'dna' ) {
+      my $ensembl_object_type = 'Translation';
+      if ( $xref_handle{'seq_type'} eq 'dna' ) {
         $ensembl_object_type = 'Transcript';
       }
-      else{
-        $ensembl_object_type = 'Translation';
-      }
-      $analysis_id = $analysis_ids{$xref_handle->ensembl_object_type};
+
+      $analysis_id = %{ $analysis_ids }{ $xref_handle{'ensembl_object_type'} };
       $self->add_unmapped_object( {
         analysis_id         => $analysis_id,
-        external_db_id      => $self->name_to_external_db_id{ $dbname },
-        identifier          => $xref_handle->acc,
-        unmapped_reason_id  => $reason_id{ 'MASTER_FAILED' },
-        ensembl_object_type => $xref_handle->ensembl_object_type } );
+        external_db_id      => $name_to_external_db_id{ $xref_handle{'dbname'} },
+        identifier          => $xref_handle{'acc'},
+        unmapped_reason_id  => $reason_id{'MASTER_FAILED'},
+        ensembl_object_type => $xref_handle{'ensembl_object_type'} } );
     }
-    push @xref_list, $xref_id;
   }
-
 
   if ( @xref_list ) {
     $self->xref->mark_mapped_xrefs( @xref_list, 'UNMAPPED_NO_MAPPING' );
@@ -440,18 +458,21 @@ sub load_unmapped_sequence_xrefs {
 
 
 sub load_unmapped_misc_xref {
-  my ( $self, $xref_offset, $analysis_id ) = @_;
+  my ( $self, $xref_offset, $analysis_ids ) = @_;
 
-  @xref_list = ();
-  # $analysis_id = $analysis_ids{'Transcript'};   # No real analysis here but in table it is set to not NULL
+  my @xref_list = ();
+  my %name_to_external_db_id = $self->name_to_external_db_id;
+  my %reason_id = $self->reason_id;
+
+  my $analysis_id = %{ $analysis_ids }{'Transcript'};   # No real analysis here but in table it is set to not NULL
   my $misc_xref_handle = $self->xref->get_insert_misc_xref();
   while ( my $misc_handle_ref = $misc_xref_handle->() ) {
     my %misc_handle = %{ $misc_handle_ref };
-    if ( defined $name_to_external_db_id{ $dbname } ) {
-      $xref_id = $self->add_xref(
+    if ( defined $name_to_external_db_id{ $misc_handle{'dbname'} } ) {
+      my $xref_id = $self->add_xref(
         $xref_offset,
         $misc_handle{'xref_id'},
-        $self->name_to_external_db_id{ $misc_handle{'dbname'} },
+        $name_to_external_db_id{ $misc_handle{'dbname'} },
         $misc_handle{'acc'},
         $misc_handle{'label'},
         $misc_handle{'version'},
@@ -462,7 +483,7 @@ sub load_unmapped_misc_xref {
 
       $self->add_unmapped_object( {
         analysis_id        => $analysis_id,
-        external_db_id     => $self->name_to_external_db_id{ $misc_handle{'dbname'} },
+        external_db_id     => $name_to_external_db_id{ $misc_handle{'dbname'} },
         identifier         => $misc_handle{'acc'},
         unmapped_reason_id => $reason_id{'NO_MAPPING'} } );
       push @xref_list, $xref_id;
@@ -487,34 +508,37 @@ sub load_unmapped_other_xref {
   # with the dependencys added later so did not know they had no masters at time of loading.
   # (e.g. EntrezGene, WikiGene, MIN_GENE, MIM_MORBID)
 
-  my ( $self, $xref_offset, $analysis_id ) = @_;
+  my ( $self, $xref_offset, $analysis_ids ) = @_;
+  my %name_to_external_db_id = $self->name_to_external_db_id;
+  my %reason_id = $self->reason_id;
 
-  $set_unmapped_sth  =  $self->core->dbc->prepare("insert into unmapped_object (type, analysis_id, external_db_id, identifier, unmapped_reason_id) values ('xref', ?, ?, ?, '".$reason_id{"NO_MASTER"}."')");
+  my $analysis_id = %{ $analysis_ids }{'Transcript'};   # No real analysis here but in table it is set to not NULL
+  my @xref_list = ();
+  my $other_xrefs_handle = $self->xref->get_insert_other_xref();
 
-  # $analysis_id = $analysis_ids{'Transcript'};   # No real analysis here but in table it is set to not NULL
-  @xref_list = ();
-  while ( my $other_handle = $self->xref->get_insert_other_xref() ){
-    if ( !defined $self->name_to_external_db_id{ $other_handle->dbname } ){
+  while ( my $other_handle_ref = $other_xrefs_handle->() ){
+    my %other_handle = %{ $other_handle_ref };
+    if ( !defined $name_to_external_db_id{ $other_handle{'dbname'} } ){
       next;
     }
 
-    $xref_id = $self->add_xref(
+    my $xref_id = $self->add_xref(
       $xref_offset,
-      $other_handle->xref_id,
-      $self->name_to_external_db_id{ $other_handle->dbname },
-      $other_handle->acc,
-      $other_handle->label,
-      $other_handle->version,
-      $other_handle->desc,
+      $other_handle{'xref_id'},
+      $name_to_external_db_id{ $other_handle{'dbname'} },
+      $other_handle{'acc'},
+      $other_handle{'label'},
+      $other_handle{'version'},
+      $other_handle{'desc'},
       'UNMAPPED',
-      $other_handle->info,
+      $other_handle{'info'},
       $self->core->dbc
     );
 
     $self->add_unmapped_object( {
       analysis_id        => $analysis_id,
-      external_db_id     => $self->name_to_external_db_id{ $other_handle->dbname },
-      identifier         => $other_handle->acc,
+      external_db_id     => $name_to_external_db_id{ $other_handle{'dbname'} },
+      identifier         => $other_handle{'acc'},
       unmapped_reason_id => $reason_id{ 'NO_MASTER' }
     } );
     push @xref_list, $xref_id;
@@ -530,7 +554,7 @@ sub load_unmapped_other_xref {
 
 
 sub load_identity_xref {
-   my ( $self, $source_id, $type, $xref_offset, $ex_id ) = @_;
+   my ( $self, $source_id, $type, $xref_offset, $ex_id, $object_xref_offset ) = @_;
 
   my $last_xref = 0;
   my @xref_list = ();
@@ -539,34 +563,36 @@ sub load_identity_xref {
 
   while ( my $identity_xref_handle_ref = $identity_xrefs_handle->() ) {
     my %identity_xref_handle = %{ $identity_xref_handle_ref };
+    my $xref_id = $identity_xref_handle{'xref_id'};
 
-    if( $last_xref != $identity_xref_handle{'xref_id'} ) {
-      push @xref_list, $identity_xref_handle{'xref_id'};
-      $count++;
+    if ( $last_xref != $xref_id ) {
+      push @xref_list, $xref_id;
+
       $xref_id = $self->add_xref(
-        $xref_offset,
-        $identity_xref_handle{'xref_id'},
-        $self->name_to_external_db_id{ $identity_xref_handle{'dbname'} },
+        $xref_offset, $xref_id, $ex_id,
         $identity_xref_handle{'acc'},
         $identity_xref_handle{'label'},
         $identity_xref_handle{'version'},
         $identity_xref_handle{'desc'},
         $identity_xref_handle{'type'},
-        $identity_xref_handle{'info'} || $where_from);
+        $identity_xref_handle{'info'} || $identity_xref_handle{'where_from'}
+      );
+
       $last_xref = $xref_id;
     }
 
-    $object_xref_id = $self->add_object_xref(
+    my $object_xref_id = $self->add_object_xref(
       $identity_xref_handle{'object_xref_offset'},
       $identity_xref_handle{'object_xref_id'},
       $identity_xref_handle{'ensembl_id'},
       $identity_xref_handle{'ensembl_type'},
       ( $xref_id + $xref_offset),
       $identity_xref_handle{'analysis_ids'}{ $identity_xref_handle{'ensembl_type'} },
-      $self->core->dbc);
+      $self->core->dbc
+    );
 
-    if $translation_start {
-      $self->$add_identity_xref( {
+    if ( defined $identity_xref_handle{'translation_start'} ) {
+      $self->add_identity_xref( {
         object_xref_id   => ( $identity_xref_handle{'object_xref_id'} + $object_xref_offset ),
         query_identity   => $identity_xref_handle{'query_identity'},
         ensembl_identity => $identity_xref_handle{'target_identity'},
@@ -587,7 +613,7 @@ sub load_identity_xref {
 
 
 sub load_checksum_xref {
-  my ( $self, $source_id, $type, $xref_offset, $ex_id ) = @_;
+  my ( $self, $source_id, $type, $xref_offset, $ex_id, $object_xref_offset, $checksum_analysis_id ) = @_;
   my $count = 0;
   my $last_xref = 0;
   my @xref_list = ();
@@ -596,10 +622,11 @@ sub load_checksum_xref {
 
   while( my $checksum_xref_handle_ref = $checksum_xrefs_handle->() ) {
     my %checksum_xref_handle = %{ $checksum_xref_handle_ref };
+    my $xref_id = $checksum_xref_handle{'xref_id'};
 
-    if($last_xref != $checksum_xref_handle{'xref_id'}) {
-      push @xref_list, $checksum_xref_handle{'xref_id'};
-      $count++;
+    if($last_xref != $xref_id) {
+      push @xref_list, $xref_id;
+
       $xref_id = $self->add_xref(
         $xref_offset, $xref_id, $ex_id,
         $checksum_xref_handle{'acc'},
@@ -607,7 +634,8 @@ sub load_checksum_xref {
         $checksum_xref_handle{'version'},
         $checksum_xref_handle{'desc'},
         $checksum_xref_handle{'type'},
-        $checksum_xref_handle{'info'} || $where_from, $self->core->dbc);
+        $checksum_xref_handle{'info'} || $checksum_xref_handle{'where_from'},
+        $self->core->dbc);
       $last_xref = $xref_id;
     }
 
@@ -616,12 +644,9 @@ sub load_checksum_xref {
       $checksum_xref_handle{'object_xref_id'},
       $checksum_xref_handle{'ensembl_id'},
       $checksum_xref_handle{'ensembl_type'},
-      ( $checksum_xref_handle{'xref_id'} + $xref_offset ),
+      $xref_id + $xref_offset,
       $checksum_analysis_id,
       $self->core->dbc);
-  }
-  if ( $verbose ) {
-    print "CHECKSUM $count\n";
   }
 
   return @xref_list;
@@ -630,10 +655,8 @@ sub load_checksum_xref {
 
 
 sub load_dependent_xref {
-  my ( $self, $source_id, $type, $xref_offset, $ex_id ) = @_;
+  my ( $self, $source_id, $type, $xref_offset, $ex_id, $object_xref_offset, $analysis_ids ) = @_;
 
-  my $count = 0;
-  my $ox_count = 0;
   my @master_problems;
   my $err_master_count=0;
   # $dependent_sth->execute($source_id, $type);
@@ -651,7 +674,6 @@ sub load_dependent_xref {
 
     if ( $last_xref != $xref_id ) {
       push @xref_list, $xref_id;
-      $count++;
       $xref_id = $self->add_xref(
         $xref_offset, $xref_id, $ex_id,
         $dependent_xref_handle{'acc'},
@@ -659,7 +681,7 @@ sub load_dependent_xref {
         $dependent_xref_handle{'version'},
         $dependent_xref_handle{'desc'},
         $dependent_xref_handle{'type'},
-        $dependent_xref_handle{'info'} || $where_from,
+        $dependent_xref_handle{'info'} || $dependent_xref_handle{'where_from'},
         $self->core->dbc);
       $last_xref = $xref_id;
     }
@@ -672,15 +694,15 @@ sub load_dependent_xref {
         $dependent_xref_handle{'ensembl_id'},
         $dependent_xref_handle{'ensembl_type'},
         $xref_id + $xref_offset,
-        $analysis_ids{ $dependent_xref_handle{'ensembl_type'} },
+        %{ $analysis_ids }{ $dependent_xref_handle{'ensembl_type'} },
         $self->core->dbc
       );
 
-      if ( defined $master_xref_id ) { # need to sort this out for FlyBase since there are EMBL direct entries from the GFF and dependent xrefs from Uniprot
+      if ( defined $dependent_xref_handle{'master_xref_id'} ) { # need to sort this out for FlyBase since there are EMBL direct entries from the GFF and dependent xrefs from Uniprot
         # $add_dependent_xref_sth->execute(($object_xref_id+$object_xref_offset), ($master_xref_id+$xref_offset), ($xref_id+$xref_offset) );
         $self->add_dependent_xref (
           $object_xref_id + $object_xref_offset,
-          $master_xref_id + $xref_offset,
+          $dependent_xref_handle{'master_xref_id'} + $xref_offset,
           $xref_id + $xref_offset
         );
       }
@@ -688,20 +710,15 @@ sub load_dependent_xref {
         push @master_problems, $dependent_xref_handle{'acc'};
         $err_master_count++;
       }
-      $ox_count++;
     }
 
     $last_xref = $xref_id;
-    $last_ensembl = $ensembl_id;
+    $last_ensembl = $dependent_xref_handle{'ensembl_id'};
   }
   if ( @master_problems ){
-    print "WARNING:: for $name $err_master_count problem master xrefs\nExamples are :-\t";
+    print "WARNING:: for $ex_id $err_master_count problem master xrefs\nExamples are :-\t";
     print join ', ', @master_problems;
     print "\n";
-  }
-
-  if ( $verbose ) {
-    print "DEP $count xrefs, $ox_count object_xrefs\n";
   }
 
   return @xref_list;
@@ -710,17 +727,20 @@ sub load_dependent_xref {
 
 
 sub load_synonyms {
-  my ( $self, $xref_list) = @_;
+  my ( $self, $xref_list, $xref_offset ) = @_;
 
   my $syn_count = 0;
 
   my ($xref_id, $syn);
 
   my $syns_handle = $self->xref->get_synonyms_for_xref( @{ $xref_list } );
-  while( my $syn_handle_ref = $syns_handle-> ) {
+  while( my $syn_handle_ref = $syns_handle->() ) {
     my %syn_handle = %{ $syn_handle_ref };
     $self->add_xref_synonym(
-      $syn_handle{'xref_id'}, $syn_handle{'syn'} );
+      $syn_handle{'xref_id'} + $xref_offset,
+      $syn_handle{'syn'}
+    );
+
     $syn_count++;
   }
 
@@ -798,7 +818,7 @@ sub add_xref {
   my ( $self, $offset, $xref_id, $external_db_id, $dbprimary_acc, $display_label,
        $version, $description, $info_type, $info_text, $dbc)  = @_;
 
-  my select_sql = (<<'SQL');
+  my $select_sql = (<<'SQL');
     SELECT xref_id
     FROM xref
     WHERE dbprimary_acc = ? AND
@@ -923,7 +943,7 @@ sub get_valid_source_id_to_external_db_id {
 
   my %source_id_to_external_db_id;
 
-  my $sql = (<<'SQL')
+  my $sql = (<<'SQL');
     SELECT s.source_id, s.name
     FROM source s, xref x
     WHERE x.source_id = s.source_id
@@ -944,14 +964,17 @@ SQL
 
 
 sub delete_projected_xrefs {
+  my $self = shift;
+
   my $sql = (<<'SQL');
     DELETE es
     FROM xref x, external_synonym es
     WHERE x.xref_id = es.xref_id and x.info_type = 'PROJECTION'
 SQL
+
   my $sth = $self->core->dbc->prepare($sql);
   my $affected_rows = $sth->execute();
-  if ( $verbose ) {
+  if ( $self->verbose ) {
     print "\tDeleted $affected_rows PROJECTED external_synonym row(s)\n";
   }
 
@@ -964,7 +987,7 @@ SQL
 SQL
   $sth = $self->core->dbc->prepare($sql);
   $affected_rows = $sth->execute();
-  if ( $verbose ) {
+  if ( $self->verbose ) {
   print "\tDeleted $affected_rows PROJECTED ontology_xref row(s)\n";
   }
 
@@ -975,7 +998,7 @@ SQL
 SQL
   $sth = $self->core->dbc->prepare($sql);
   $affected_rows = $sth->execute();
-  if ( $verbose ) {
+  if ( $self->verbose ) {
     print "\tDeleted $affected_rows PROJECTED object_xref row(s)\n";
   }
 
@@ -986,7 +1009,7 @@ SQL
 SQL
   $sth = $self->core->dbc->prepare($sql);
   $affected_rows = $sth->execute();
-  if ( $verbose ) {
+  if ( $self->verbose ) {
     print "\tDeleted $affected_rows PROJECTED xref row(s)\n";
   }
 }
@@ -1019,7 +1042,7 @@ SQL
           xref.external_db_id = ?
 SQL
 
-  my $identity = (<<'SQL');
+  my $identity_xref = (<<'SQL');
     DELETE identity_xref
     FROM identity_xref, object_xref, xref
     WHERE identity_xref.object_xref_id = object_xref.object_xref_id AND
@@ -1054,10 +1077,10 @@ SQL
 SQL
 
   my $unmapped = (<<'SQL');
-    DELETE FROM unmapped_object WHERE type="xref" and external_db_id = ?
+    DELETE FROM unmapped_object WHERE type='xref' and external_db_id = ?
 SQL
 
-  %sql_hash = (
+  my %sql_hash = (
     external_synonym => $external_synonym,
     ontology_xref    => $ontology_xref,
     identity_xref    => $identity_xref,
@@ -1079,7 +1102,7 @@ SQL
   my $transaction_end_sth    =  $self->core->dbc->prepare('commit');
   $transaction_start_sth->execute();
 
-  for Readonly::Array my $ii ( 0..7 ) {
+  for my $ii ( 0..7 ) {
     $sth[$ii]->execute($external_db_id) or
       confess $self->dbi->errstr() . "\n $external_db_id\n\n";
   }
@@ -1110,8 +1133,8 @@ sub parsing_stored_data {
     'object_xref' => 'SELECT MAX(object_xref_id) FROM object_xref' );
 
   my %results = (
-    xref => 0
-    object_xref => 0
+    xref => 0,
+    object_xref => 0,
   );
 
   foreach my $table ( keys %table_and_key ) {
@@ -1157,8 +1180,8 @@ SQL
   my $add_identity_xref_sth  = $self->core->dbc->prepare_cached( $identity_sql );
 
   $add_identity_xref_sth->execute(
-    ($object_xref_id+$object_xref_offset), $query_identity, $target_identity,
-    $hit_start, $hit_end, $translation_start, $translation_end, $cigar_line,
+    $object_xref_id, $xref_identity, $ensembl_identity,
+    $xref_start, $xref_end, $ensembl_start, $ensembl_end, $cigar_line,
     $score, $evalue);
 
   return;
@@ -1186,11 +1209,11 @@ my $sth  = $self->core->dbc->prepare_cached( $sql );
 
 
 sub add_xref_synonym {
-  my ( @self, $xref_id, $syn)
+  my ( $self, $xref_id, $syn) = @_;
   my $add_syn_sth = $self->core->dbc->prepare_cached(
     'INSERT IGNORE INTO external_synonym (xref_id, synonym) VALUES (?, ?)');
 
-  $add_syn_sth->execute( ($xref_id+$xref_offset), $syn);
+  $add_syn_sth->execute( $xref_id, $syn);
 
   return;
 }
@@ -1238,14 +1261,32 @@ sub add_unmapped_object {
 
   my %params = %{ $param };
 
+  my @columns = qw(analysis_id external_db_id identifier unmapped_reason_id);
+  my @row = (
+    $params{'analysis_id'},
+    $params{'external_db_id'},
+    $params{'identifier'},
+    $params{'unmapped_reason_id'},
+  );
+  foreach my $column_name ( keys %params ) {
+    if ( $column_name eq 'query_score' or
+         $column_name eq 'target_score' or
+         $column_name eq 'ensembl_id' or
+         $column_name eq 'ensembl_object_type' or
+         $column_name eq 'parent') {
+      push @columns, $column_name;
+      push @row, $params{ $column_name };
+    }
+  }
+
   my $sql = (<<"SQL");
     INSERT INTO
-      unmapped_object (type, analysis_id, external_db_id, identifier, unmapped_reason_id )
+      unmapped_object ( type, @{ [ join ', ', @columns ] } )
     VALUES ('xref', @{ [ join', ', ('?') x keys %params ] } )
 SQL
 
   my $sth =  $self->core->dbc->prepare_cached( $sql );
-  $sth->execute( $analysis_id, external_db_id, $accession, $reason_id );
+  $sth->execute( @row );
   return;
 }
 
