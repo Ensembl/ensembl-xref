@@ -244,15 +244,122 @@ ok(
 ## Loader Tests
 #  Tests for calling the loader functions
 
+## Prepare the xref db
+my $new_xref_00 = {
+  ACCESSION   => 'NM04560',
+  VERSION     => 1,
+  LABEL       => 'NM04560.1',
+  DESCRIPTION => 'Fake RefSeq transcript',
+  SPECIES_ID  => '9606',
+  SOURCE_ID   => $source2->source_id,
+  INFO_TYPE   => 'DIRECT',
+  INFO_TEXT   => 'These are normally aligned',
+  update_label => 1,
+  update_desc  => 1
+};
+
+my $new_xref_01 = {
+  ACCESSION   => 'NM04561',
+  VERSION     => 1,
+  LABEL       => 'NM04561.1',
+  DESCRIPTION => 'Fake RefSeq transcript',
+  SPECIES_ID  => '9606',
+  SOURCE_ID   => $source2->source_id,
+  INFO_TYPE   => 'DEPENDENT',
+  INFO_TEXT   => 'These are normally aligned',
+  update_label => 1,
+  update_desc  => 1
+};
+
+my $new_xref_02 = {
+  ACCESSION   => 'NM04562',
+  VERSION     => 1,
+  LABEL       => 'NM04562.1',
+  DESCRIPTION => 'Fake RefSeq transcript',
+  SPECIES_ID  => '9606',
+  SOURCE_ID   => $source2->source_id,
+  INFO_TYPE   => 'SEQUENCE_MATCH',
+  INFO_TEXT   => 'These are normally aligned',
+  update_label => 1,
+  update_desc  => 1
+};
+
+my $new_xref_03 = {
+  ACCESSION   => 'NM04563',
+  VERSION     => 1,
+  LABEL       => 'NM04563.1',
+  DESCRIPTION => 'Fake RefSeq misc',
+  SPECIES_ID  => '9606',
+  SOURCE_ID   => $source2->source_id,
+  INFO_TYPE   => 'MISC',
+  INFO_TEXT   => 'These are normally aligned',
+  update_label => 1,
+  update_desc  => 1
+};
+
+my @new_xref_array = ( $new_xref_00, $new_xref_01, $new_xref_02, $new_xref_03 );
+$loader_handle->xref->upload_xref_object_graphs( \@new_xref_array );
+
+my $object_xref_id_00 = $loader_handle->xref->add_object_xref(
+  {
+    xref_id     => $loader_handle->xref->get_xref('NM04560', $source2->source_id, 9606),
+    ensembl_id  => 1,
+    object_type => 'Gene'
+  }
+);
+ok( defined $object_xref_id_00, "add_object_xref - Object_xref entry inserted - $object_xref_id_00" );
+
+my $object_xref_id_01 = $loader_handle->xref->add_object_xref(
+  {
+    xref_id     => $loader_handle->xref->get_xref('NM04561', $source2->source_id, 9606),
+    ensembl_id  => 1,
+    object_type => 'Gene'
+  }
+);
+ok( defined $object_xref_id_01, "add_object_xref - Object_xref entry inserted - $object_xref_id_01" );
+
+my $object_xref_id_02 = $loader_handle->xref->add_object_xref(
+  {
+    xref_id     => $loader_handle->xref->get_xref('NM04562', $source2->source_id, 9606),
+    ensembl_id  => 1,
+    object_type => 'Gene'
+  }
+);
+ok( defined $object_xref_id_02, "add_object_xref - Object_xref entry inserted - $object_xref_id_02" );
+
+ok(
+  defined $loader_handle->xref->_add_primary_xref(
+    $loader_handle->xref->get_xref('NM04562', $source2->source_id, 9606),
+    'GATACCA', 'dna', 'experimental'
+  ),
+  '_add_primary_xref'
+);
+
+my $object_xref_id_03 = $loader_handle->xref->add_object_xref(
+  {
+    xref_id     => $loader_handle->xref->get_xref('NM04563', $source2->source_id, 9606),
+    ensembl_id  => 1,
+    object_type => 'Gene'
+  }
+);
+ok( defined $object_xref_id_03, "add_object_xref - Object_xref entry inserted - $object_xref_id_03" );
+
+
+## Mapped Xrefs
+# load_identity_xref
+
+
+
+# load_checksum_xref
+# load_dependent_xref
+# load_synonyms
+
+## Unmapped Xrefs
 # load_unmapped_direct_xref
 # load_unmapped_dependent_xref
 # load_unmapped_sequence_xrefs
 # load_unmapped_misc_xref
 # load_unmapped_other_xref
-# load_identity_xref
-# load_checksum_xref
-# load_dependent_xref
-# load_synonyms
 
 
 ## Wrapper Tests
