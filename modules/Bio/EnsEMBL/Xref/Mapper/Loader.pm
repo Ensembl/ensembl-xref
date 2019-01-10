@@ -170,22 +170,39 @@ sub update {
   ########################################
 
   # DIRECT #
-  $self->load_unmapped_direct_xref( $xref_offset, %analysis_ids );
+  my @direct_xref_list = $self->load_unmapped_direct_xref( $xref_offset, %analysis_ids );
+  if ( @direct_xref_list ) {
+    $self->xref->mark_mapped_xrefs( @direct_xref_list, 'UNMAPPED_NO_STABLE_ID' );
+  }
 
   # MISC #
-  $self->load_unmapped_misc_xref( $xref_offset, %analysis_ids );
+  my @misc_xref_list = $self->load_unmapped_misc_xref( $xref_offset, %analysis_ids );
+  if ( @misc_xref_list ) {
+    $self->xref->mark_mapped_xrefs( @misc_xref_list, 'UNMAPPED_NO_MAPPING' );
+  }
 
   # DEPENDENT #
-  $self->load_unmapped_dependent_xref( $xref_offset, $object_xref_offset, %analysis_ids );
+  my @dependent_xref_list = $self->load_unmapped_dependent_xref(
+    $xref_offset, $object_xref_offset, %analysis_ids
+  );
+  if ( @dependent_xref_list ) {
+    $self->xref->mark_mapped_xrefs( @dependent_xref_list, 'UNMAPPED_MASTER_FAILED' );
+  }
 
   # SEQUENCE_MATCH #
-  $self->load_unmapped_sequence_xrefs( $xref_offset, %analysis_ids );
+  my @sequence_xref_list = $self->load_unmapped_sequence_xrefs( $xref_offset, %analysis_ids );
+  if ( @sequence_xref_list ) {
+    $self->xref->mark_mapped_xrefs( @sequence_xref_list, 'UNMAPPED_NO_MAPPING' );
+  }
 
   # WEL (What ever is left) #
   # These are those defined as dependent but the master never existed and the xref and their descriptions etc are loaded first
   # with the dependencys added later so did not know they had no masters at time of loading.
   # (e.g. EntrezGene, WikiGene, MIN_GENE, MIM_MORBID)
-  $self->load_unmapped_other_xref( $xref_offset, %analysis_ids );
+  my @other_xref_list = $self->load_unmapped_other_xref( $xref_offset, %analysis_ids );
+  if ( @other_xref_list ) {
+    $self->xref->mark_mapped_xrefs( @other_xref_list, 'UNMAPPED_NO_MASTER' );
+  }
 
 
   $self->xref->insert_process_status( 'core_loaded' );
@@ -311,11 +328,7 @@ sub load_unmapped_direct_xref {
     }
   }
 
-  if ( @xref_list ) {
-    $self->xref->mark_mapped_xrefs( @xref_list, 'UNMAPPED_NO_STABLE_ID' );
-  }
-
-  return;
+  return @xref_list;
 } ## end sub load_unmapped_direct_xref
 
 
@@ -366,11 +379,7 @@ sub load_unmapped_dependent_xref {
     }
   }
 
-  if ( @xref_list ) {
-    $self->xref->mark_mapped_xrefs( @xref_list, 'UNMAPPED_MASTER_FAILED' );
-  }
-
-  return;
+  return @xref_list;
 } ## end sub load_unmapped_dependent_xref
 
 
@@ -445,11 +454,7 @@ sub load_unmapped_sequence_xrefs {
     }
   }
 
-  if ( @xref_list ) {
-    $self->xref->mark_mapped_xrefs( @xref_list, 'UNMAPPED_NO_MAPPING' );
-  }
-
-  return;
+  return @xref_list;
 } ## end sub load_unmapped_sequence_xrefs
 
 
@@ -491,11 +496,7 @@ sub load_unmapped_misc_xref {
     }
   }
 
-  if ( @xref_list ) {
-    $self->xref->mark_mapped_xrefs( @xref_list, 'UNMAPPED_NO_MAPPING' );
-  }
-
-  return;
+  return @xref_list;
 } ## end sub load_unmapped_misc_xref
 
 
@@ -549,11 +550,7 @@ sub load_unmapped_other_xref {
     push @xref_list, $xref_id;
   }
 
-  if ( @xref_list ) {
-    $self->xref->mark_mapped_xrefs( @xref_list, 'UNMAPPED_NO_MASTER' );
-  }
-
-  return;
+  return @xref_list;
 } ## end sub load_unmapped_other_xref
 
 
