@@ -61,6 +61,103 @@ ok( defined $xref_dba, 'BaseAdaptor handle returned');
 my $loader_handle = Bio::EnsEMBL::Xref::Mapper::Loader->new( xref_dba => $xref_dba, core_dba => $dba );
 isa_ok( $loader_handle, 'Bio::EnsEMBL::Xref::Mapper::Loader' );
 
+
+## Primary Tests
+#  These are tests for single operation functions that do not rely on the
+#  functionality of other functions in the module
+
+
+# get_analysis
+my %analysis_ids = $loader_handle->get_analysis();
+ok( defined $analysis_ids{'Gene'}, 'get_analysis - Gene');
+ok( defined $analysis_ids{'Transcript'}, 'get_analysis - Transcript');
+ok( defined $analysis_ids{'Translation'}, 'get_analysis - Translation');
+
+
+# get_single_analysis
+is(
+   $loader_handle->get_single_analysis('xrefexoneratedna'), $analysis_ids{'Gene'},
+   "get_single_analysis - Gene - xrefexoneratedna ($analysis_ids{'Gene'})"
+);
+
+is(
+   $loader_handle->get_single_analysis('xrefexoneratedna'), $analysis_ids{'Transcript'},
+   "get_single_analysis - Transcript - xrefexoneratedna ($analysis_ids{'Transcript'})"
+);
+
+is(
+   $loader_handle->get_single_analysis('xrefexonerateprotein'), $analysis_ids{'Translation'},
+   "get_single_analysis - Translation - xrefexonerateprotein ($analysis_ids{'Translation'})"
+);
+
+
+# add_xref
+my $returned_xref_id = $loader_handle->add_xref(
+   10,
+   123,
+   1,
+   'dbprimary_acc',
+   'display_label',
+   0,
+   'description',
+   'MISC',
+   'info_text',
+   $loader_handle->core->dbc
+);
+is( $returned_xref_id, 123, 'add_xref');
+
+
+# add_object_xref
+my $returned_object_xref_id = $loader_handle->add_object_xref(
+   10,
+   5000,
+   1,
+   'Gene',
+   $returned_xref_id + 10,
+   $analysis_ids{'Gene'},
+   $loader_handle->core->dbc
+);
+is( $returned_object_xref_id, 5000, 'add_object_xref');
+
+
+# get_xref_external_dbs
+my %returned_external_db_ids = $loader_handle->get_xref_external_dbs();
+ok( defined $returned_external_db_ids{'GO'}, 'get_xref_external_dbs' );
+
+
+# delete_projected_xrefs
+# delete_by_external_db_id
+# parsing_stored_data
+# add_identity_xref
+# add_dependent_xref
+# add_xref_synonym
+# get_unmapped_reason_id
+# add_unmapped_reason
+# add_unmapped_object
+
+
+## Loader Tests
+#  Tests for calling the loader functions
+
+# load_unmapped_direct_xref
+# load_unmapped_dependent_xref
+# load_unmapped_sequence_xrefs
+# load_unmapped_misc_xref
+# load_unmapped_other_xref
+# load_identity_xref
+# load_checksum_xref
+# load_dependent_xref
+# load_synonyms
+
+
+## Wrapper Tests
+#  The are functions that wrap the logical calling of multiple functions
+
+# update
+# map_xrefs_from_xrefdb_to_coredb
+
+
+
 done_testing();
 
 

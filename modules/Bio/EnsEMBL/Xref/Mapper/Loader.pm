@@ -50,14 +50,20 @@ use parent qw( Bio::EnsEMBL::Xref::Mapper );
 
 use DBI;
 
-sub new {
-  my( $class, $mapper ) = @_;
 
-  my $self ={};
-  bless $self, $class;
-  $self->core( $mapper->core );
-  $self->xref( $mapper->xref );
-  $self->mapper( $mapper );
+=head2 update
+
+
+=cut
+
+sub update {
+  my ( $self, $arg ) = @_;
+  # remove xref, object_xref, identity_xref, depenedent_xref, go_xref, unmapped_object, (interpro???), external_synonym, projections.
+
+  ##################################################
+  # Setup constant parameters for use in the       #
+  # module                                         #
+  ##################################################
 
   $self->name_to_external_db_id = %{ $self->get_xref_external_dbs() };
 
@@ -80,35 +86,7 @@ sub new {
 
   $self->reason_id = %reason_id;
 
-  return $self;
-}
-
-
-=head2 mapper
-
-
-=cut
-
-sub mapper{
-  my ($self, $arg) = @_;
-
-  if ( defined $arg ) {
-    $self->{_mapper} = $arg;
-  }
-  return $self->{_mapper};
-}
-
-
-=head2 update
-
-
-=cut
-
-sub update {
-  my ( $self, $arg ) = @_;
-  # remove xref, object_xref, identity_xref, depenedent_xref, go_xref, unmapped_object, (interpro???), external_synonym, projections.
-
-  my $verbose  = $self->mapper->verbose;
+  # my $verbose  = $self->verbose;
   # my $core_dbi = $self->core->dbc;
   # my $xref_dbi = $self->xref->dbc;
 
@@ -801,7 +779,7 @@ sub load_synonyms {
 
 =cut
 
-sub get_analysis{
+sub get_analysis {
   my $self = shift;
   my %type_to_logic_name = ( 'Gene'        => 'xrefexoneratedna',
                              'Transcript'  => 'xrefexoneratedna',
@@ -960,8 +938,8 @@ sub get_xref_external_dbs {
 
   my %externalname_to_externalid;
 
-  my $sth = $self->dbi->prepare_cached('SELECT db_name, external_db_id FROM external_db');
-  $sth->execute() or confess( $self->dbi->errstr() );
+  my $sth = $self->core->dbc->prepare('SELECT db_name, external_db_id FROM external_db');
+  $sth->execute() or confess( $self->core->errstr() );
   while ( my @row = $sth->fetchrow_array() ) {
     my $external_db_name = $row[0];
     my $external_db_id   = $row[1];
@@ -970,40 +948,6 @@ sub get_xref_external_dbs {
 
   return %externalname_to_externalid;
 } ## end sub get_xref_external_dbs
-
-
-=head2 get_valid_source_id_to_external_db_id
-  Description: Create a hash of all the external db names and ids that have
-               associated xrefs
-  Return type: Hashref
-  Caller     : internal
-
-=cut
-
-sub get_valid_source_id_to_external_db_id {
-
-  my $self = shift;
-
-  my %source_id_to_external_db_id;
-
-  my $sql = (<<'SQL');
-    SELECT s.source_id, s.name
-    FROM source s, xref x
-    WHERE x.source_id = s.source_id
-    GROUP BY s.source_id
-SQL
-
-  my $sth = $self->dbi->prepare_cached( $sql );
-  $sth->execute() or confess( $self->dbi->errstr() );
-  while ( my @row = $sth->fetchrow_array() ) {
-    my $source_name = $row[0];
-    my $source_id   = $row[1];
-    $source_id_to_external_db_id{ $source_name } = $source_id;
-  }
-
-
-  return %source_id_to_external_db_id;
-} ## end sub get_valid_source_id_to_external_db_id
 
 
 =head2 delete_projected_xrefs

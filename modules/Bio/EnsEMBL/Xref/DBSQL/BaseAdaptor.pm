@@ -2493,6 +2493,41 @@ sub get_refseq_sources {
 ################################################################################
 ################################################################################
 
+
+=head2 get_valid_source_id_to_external_db_id
+  Description: Create a hash of all the external db names and ids that have
+               associated xrefs
+  Return type: Hashref
+  Caller     : internal
+
+=cut
+
+sub get_valid_source_id_to_external_db_id {
+
+  my $self = shift;
+
+  my %source_id_to_external_db_id;
+
+  my $sql = (<<'SQL');
+    SELECT s.source_id, s.name
+    FROM source s, xref x
+    WHERE x.source_id = s.source_id
+    GROUP BY s.source_id
+SQL
+
+  my $sth = $self->dbi->prepare_cached( $sql );
+  $sth->execute() or confess( $self->dbi->errstr() );
+  while ( my @row = $sth->fetchrow_array() ) {
+    my $source_name = $row[0];
+    my $source_id   = $row[1];
+    $source_id_to_external_db_id{ $source_name } = $source_id;
+  }
+
+
+  return %source_id_to_external_db_id;
+} ## end sub get_valid_source_id_to_external_db_id
+
+
 =head2
 
 =cut

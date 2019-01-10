@@ -738,6 +738,19 @@ while( my $base_source_ref = $base_sources->() ) {
 }
 
 
+# get_valid_source_id_to_external_db_id
+my %returned_source_to_external =  $xref_dba->get_valid_source_id_to_external_db_id();
+foreach my $key ( keys %returned_source_to_external) {
+  ok(
+    ( $returned_source_to_external{$key} eq 'RefSeq' or
+      $returned_source_to_external{$key} eq 'Second_fake_source' ),
+    "get_valid_source_id_to_external_db_id - $returned_source_to_external{$key}"
+  );
+}
+
+
+
+
 # get_dump_out_xrefs
 my $dumped_xrefs = $xref_dba->get_dump_out_xrefs();
 while( my $dumped_xref_ref = $dumped_xrefs->() ) {
