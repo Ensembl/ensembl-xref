@@ -76,46 +76,60 @@ ok( defined $analysis_ids{'Translation'}, 'get_analysis - Translation');
 
 # get_single_analysis
 is(
-   $loader_handle->get_single_analysis('xrefexoneratedna'), $analysis_ids{'Gene'},
-   "get_single_analysis - Gene - xrefexoneratedna ($analysis_ids{'Gene'})"
+  $loader_handle->get_single_analysis('xrefexoneratedna'), $analysis_ids{'Gene'},
+  "get_single_analysis - Gene - xrefexoneratedna ($analysis_ids{'Gene'})"
 );
 
 is(
-   $loader_handle->get_single_analysis('xrefexoneratedna'), $analysis_ids{'Transcript'},
-   "get_single_analysis - Transcript - xrefexoneratedna ($analysis_ids{'Transcript'})"
+  $loader_handle->get_single_analysis('xrefexoneratedna'), $analysis_ids{'Transcript'},
+  "get_single_analysis - Transcript - xrefexoneratedna ($analysis_ids{'Transcript'})"
 );
 
 is(
-   $loader_handle->get_single_analysis('xrefexonerateprotein'), $analysis_ids{'Translation'},
-   "get_single_analysis - Translation - xrefexonerateprotein ($analysis_ids{'Translation'})"
+  $loader_handle->get_single_analysis('xrefexonerateprotein'), $analysis_ids{'Translation'},
+  "get_single_analysis - Translation - xrefexonerateprotein ($analysis_ids{'Translation'})"
 );
 
 
 # add_xref
 my $returned_xref_id = $loader_handle->add_xref(
-   10,
-   123,
-   1,
-   'dbprimary_acc',
-   'display_label',
-   0,
-   'description',
-   'MISC',
-   'info_text',
-   $loader_handle->core->dbc
+  10,
+  123,
+  1,
+  'dbprimary_acc',
+  'display_label',
+  0,
+  'description',
+  'MISC',
+  'info_text',
+  $loader_handle->core->dbc
 );
-is( $returned_xref_id, 123, 'add_xref');
+is( $returned_xref_id, 123, "add_xref - xref ($returned_xref_id)");
+
+my $dependent_xref_id = $loader_handle->add_xref(
+  10,
+  124,
+  1,
+  'dependent_primary_acc',
+  'dependent_display_label',
+  0,
+  'dependent_description',
+  'SEQUENCE_MATCH',
+  'info_text',
+  $loader_handle->core->dbc
+);
+is( $dependent_xref_id, 124, "add_xref - dependent ($dependent_xref_id)");
 
 
 # add_object_xref
 my $returned_object_xref_id = $loader_handle->add_object_xref(
-   10,
-   5000,
-   1,
-   'Gene',
-   $returned_xref_id + 10,
-   $analysis_ids{'Gene'},
-   $loader_handle->core->dbc
+  10,
+  5000,
+  1,
+  'Gene',
+  $returned_xref_id + 10,
+  $analysis_ids{'Gene'},
+  $loader_handle->core->dbc
 );
 is( $returned_object_xref_id, 5000, 'add_object_xref');
 
@@ -126,10 +140,50 @@ ok( defined $returned_external_db_ids{'GO'}, 'get_xref_external_dbs' );
 
 
 # delete_projected_xrefs
+ok(
+  $loader_handle->delete_projected_xrefs(
+    $returned_external_db_ids{'RefSeq'}
+  ),
+  'delete_projected_xrefs'
+);
+
+
 # delete_by_external_db_id
+ok( !defined $loader_handle->delete_by_external_db_id(), 'delete_by_external_db_id' );
+
 # parsing_stored_data
+my %returned_stored_data = $loader_handle->parsing_stored_data();
+ok(
+  defined $returned_stored_data{'xref'},
+  "parsing_stored_data - xref ($returned_stored_data{'xref'})"
+);
+ok(
+  defined $returned_stored_data{'object_xref'},
+  "parsing_stored_data - object_xref ($returned_stored_data{'object_xref'})"
+);
+
 # add_identity_xref
+ok (
+  !defined $loader_handle->add_identity_xref( {
+    object_xref_id => $returned_object_xref_id,
+    xref_identity => 100,
+    ensembl_identity => 100,
+    xref_start => 1,
+    xref_end => 256,
+    ensembl_start => 1,
+    ensembl_end => 256,
+    cigar_line => '256M',
+    score => 100,
+    evalue => 24_000_000
+  } ),
+  'add_identity_xref'
+);
+
+
 # add_dependent_xref
+
+
+
 # add_xref_synonym
 # get_unmapped_reason_id
 # add_unmapped_reason

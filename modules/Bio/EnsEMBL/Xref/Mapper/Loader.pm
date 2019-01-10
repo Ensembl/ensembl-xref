@@ -1087,7 +1087,7 @@ SQL
   my $i = 0;
   foreach my $table ( qw(external_synonym ontology_xref identity_xref
                          object_xref master dependent xref unmapped) ) {
-    $sth[ $i++ ] = $self->dbi->prepare_cached( $sql_hash{$table} );
+    $sth[ $i++ ] = $self->core->dbc->prepare( $sql_hash{$table} );
   }
 
   my $transaction_start_sth  =  $self->core->dbc->prepare('start transaction');
@@ -1096,7 +1096,7 @@ SQL
 
   for my $ii ( 0..7 ) {
     $sth[$ii]->execute($external_db_id) or
-      confess $self->dbi->errstr() . "\n $external_db_id\n\n";
+      confess $self->core->dbc->errstr() . "\n $external_db_id\n\n";
   }
 
   $transaction_end_sth->execute();
@@ -1129,14 +1129,14 @@ sub parsing_stored_data {
     object_xref => 0,
   );
 
+  my $meta_container = $self->core->get_MetaContainer();
   foreach my $table ( keys %table_and_key ) {
-    my $sth = $self->dbi->prepare_cached( $table_and_key{$table} );
+    my $sth = $self->core->dbc->prepare( $table_and_key{$table} );
     $sth->execute;
     my $max_val;
     $sth->bind_columns( \$max_val );
     $sth->fetch;
-    $self->add_meta_pair( $table . '_offset',
-                          $max_val || 0);
+    $meta_container->store_key_value($table . '_offset', $max_val || 0);
     $sth->finish();
 
     $results{ $table } = $max_val || 0;
@@ -1172,7 +1172,7 @@ sub add_identity_xref {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 SQL
 
-  my $add_identity_xref_sth  = $self->core->dbc->prepare_cached( $identity_sql );
+  my $add_identity_xref_sth  = $self->core->dbc->db_handle->prepare_cached( $identity_sql );
 
   $add_identity_xref_sth->execute(
     $object_xref_id, $xref_identity, $ensembl_identity,
@@ -1197,7 +1197,7 @@ sub add_dependent_xref {
     VALUES (?, ?, ?)
 SQL
 
-my $sth  = $self->core->dbc->prepare_cached( $sql );
+my $sth  = $self->core->dbc->prepare( $sql );
 
   $sth->execute(
     $object_xref_id, $master_xref_id, $dependent_xref_id);
