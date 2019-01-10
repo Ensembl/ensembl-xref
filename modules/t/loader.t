@@ -181,13 +181,64 @@ ok (
 
 
 # add_dependent_xref
-
+ok (
+  !defined $loader_handle->add_dependent_xref(
+    $returned_object_xref_id,
+    $returned_xref_id,
+    $dependent_xref_id
+  ),
+  'add_dependent_xref'
+);
 
 
 # add_xref_synonym
+ok(
+  !defined $loader_handle->add_xref_synonym( $returned_xref_id, 'TestsSynonym' ),
+  'add_xref_synonym'
+);
+
+
 # get_unmapped_reason_id
+ok(
+  !defined $loader_handle->get_unmapped_reason_id('Example Reason'),
+  'get_unmapped_reason_id'
+);
+
+
 # add_unmapped_reason
+my $unmapped_reason_id = $loader_handle->add_unmapped_reason(
+  'unaligned', 'Sequence did not match to known sequenecs'
+);
+ok( defined $unmapped_reason_id, "add_unmapped_reason - $unmapped_reason_id" );
+
+ok(
+  defined $loader_handle->get_unmapped_reason_id('Sequence did not match%'),
+  'get_unmapped_reason_id'
+);
+
+
 # add_unmapped_object
+ok(
+  !defined $loader_handle->add_unmapped_object({
+    analysis_id        => $analysis_ids{'Gene'},
+    external_db_id     => $returned_external_db_ids{'RefSeq'},
+    identifier         => 'TestIdentifier',
+    unmapped_reason_id => $unmapped_reason_id
+  } ),
+  'add_unmapped_object - basic'
+);
+
+ok(
+  !defined $loader_handle->add_unmapped_object({
+    analysis_id        => $analysis_ids{'Gene'},
+    external_db_id     => $returned_external_db_ids{'RefSeq'},
+    identifier         => 'TestIdentifier',
+    unmapped_reason_id => $unmapped_reason_id,
+    query_score        => 100
+  } ),
+  'add_unmapped_object - basic and query_score'
+);
+
 
 
 ## Loader Tests

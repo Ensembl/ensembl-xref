@@ -1300,7 +1300,7 @@ sub add_unmapped_object {
     VALUES ('xref', @{ [ join', ', ('?') x keys %params ] } )
 SQL
 
-  my $sth =  $self->core->dbc->prepare_cached( $sql );
+  my $sth =  $self->core->dbc->prepare( $sql );
   $sth->execute( @row );
   return;
 } ## end sub add_unmapped_object
