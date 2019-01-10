@@ -560,10 +560,12 @@ sub load_unmapped_other_xref {
 =cut
 
 sub load_identity_xref {
-   my ( $self, $source_id, $type, $xref_offset, $ex_id, $object_xref_offset ) = @_;
+  my ( $self, $source_id, $type, $xref_offset, $ex_id, $object_xref_offset ) = @_;
 
   my $last_xref = 0;
   my @xref_list = ();
+
+  use Data::Dumper;
 
   my $identity_xrefs_handle = $self->xref->get_insert_identity_xref( $source_id, $type );
 
@@ -580,15 +582,16 @@ sub load_identity_xref {
         $identity_xref_handle{'label'},
         $identity_xref_handle{'version'},
         $identity_xref_handle{'desc'},
-        $identity_xref_handle{'type'},
-        $identity_xref_handle{'info'} || $identity_xref_handle{'where_from'}
+        $type,
+        $identity_xref_handle{'info'} || $identity_xref_handle{'where_from'},
+        $self->core->dbc
       );
 
       $last_xref = $xref_id;
     }
 
     my $object_xref_id = $self->add_object_xref(
-      $identity_xref_handle{'object_xref_offset'},
+      $object_xref_offset,
       $identity_xref_handle{'object_xref_id'},
       $identity_xref_handle{'ensembl_id'},
       $identity_xref_handle{'ensembl_type'},
@@ -903,7 +906,7 @@ SQL
   $select_sth->fetch();
   if (!$new_object_xref_id) {
     $insert_sth->execute(
-      ($object_xref_id+$offset), $ensembl_id, $ensembl_object_type,
+      ($object_xref_id + $offset), $ensembl_id, $ensembl_object_type,
       $xref_id, $analysis_id);
     return $object_xref_id;
   }

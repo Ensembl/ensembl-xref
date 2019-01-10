@@ -142,7 +142,7 @@ ok( defined $returned_external_db_ids{'GO'}, 'get_xref_external_dbs' );
 # delete_projected_xrefs
 ok(
   $loader_handle->delete_projected_xrefs(
-    $returned_external_db_ids{'RefSeq'}
+    $returned_external_db_ids{'RefSeq_dna_predicted'}
   ),
   'delete_projected_xrefs'
 );
@@ -245,54 +245,68 @@ ok(
 #  Tests for calling the loader functions
 
 ## Prepare the xref db
+my $source = $db->schema->resultset('Source')->create({
+  name                 => 'RefSeq',
+  status               => 'KNOWN',
+  source_release       => '38',
+  download             => 'Y',
+  priority             => 1,
+  priority_description => 'Like a boss',
+});
+
+is(
+  $loader_handle->xref->get_source_id_for_source_name('RefSeq'),
+  $source->source_id, 'get_source_id_for_source_name'
+);
+
 my $new_xref_00 = {
-  ACCESSION   => 'NM04560',
-  VERSION     => 1,
-  LABEL       => 'NM04560.1',
-  DESCRIPTION => 'Fake RefSeq transcript',
-  SPECIES_ID  => '9606',
-  SOURCE_ID   => $source2->source_id,
-  INFO_TYPE   => 'DIRECT',
-  INFO_TEXT   => 'These are normally aligned',
+  ACCESSION    => 'NM04560',
+  VERSION      => 1,
+  LABEL        => 'NM04560.1',
+  DESCRIPTION  => 'Fake RefSeq transcript',
+  SPECIES_ID   => '9606',
+  SOURCE_ID    => $source->source_id,
+  INFO_TYPE    => 'DIRECT',
+  INFO_TEXT    => 'These are normally aligned',
   update_label => 1,
   update_desc  => 1
 };
 
 my $new_xref_01 = {
-  ACCESSION   => 'NM04561',
-  VERSION     => 1,
-  LABEL       => 'NM04561.1',
-  DESCRIPTION => 'Fake RefSeq transcript',
-  SPECIES_ID  => '9606',
-  SOURCE_ID   => $source2->source_id,
-  INFO_TYPE   => 'DEPENDENT',
-  INFO_TEXT   => 'These are normally aligned',
+  ACCESSION    => 'NM04561',
+  VERSION      => 1,
+  LABEL        => 'NM04561.1',
+  DESCRIPTION  => 'Fake RefSeq transcript',
+  SPECIES_ID   => '9606',
+  SOURCE_ID    => $source->source_id,
+  INFO_TYPE    => 'DEPENDENT',
+  INFO_TEXT    => 'These are normally aligned',
   update_label => 1,
   update_desc  => 1
 };
 
 my $new_xref_02 = {
-  ACCESSION   => 'NM04562',
-  VERSION     => 1,
-  LABEL       => 'NM04562.1',
-  DESCRIPTION => 'Fake RefSeq transcript',
-  SPECIES_ID  => '9606',
-  SOURCE_ID   => $source2->source_id,
-  INFO_TYPE   => 'SEQUENCE_MATCH',
-  INFO_TEXT   => 'These are normally aligned',
+  ACCESSION    => 'NM04562',
+  VERSION      => 1,
+  LABEL        => 'NM04562.1',
+  DESCRIPTION  => 'Fake RefSeq transcript',
+  SPECIES_ID   => '9606',
+  SOURCE_ID    => $source->source_id,
+  INFO_TYPE    => 'SEQUENCE_MATCH',
+  INFO_TEXT    => 'These are normally aligned',
   update_label => 1,
   update_desc  => 1
 };
 
 my $new_xref_03 = {
-  ACCESSION   => 'NM04563',
-  VERSION     => 1,
-  LABEL       => 'NM04563.1',
-  DESCRIPTION => 'Fake RefSeq misc',
-  SPECIES_ID  => '9606',
-  SOURCE_ID   => $source2->source_id,
-  INFO_TYPE   => 'MISC',
-  INFO_TEXT   => 'These are normally aligned',
+  ACCESSION    => 'NM04563',
+  VERSION      => 1,
+  LABEL        => 'NM04563.1',
+  DESCRIPTION  => 'Fake RefSeq misc',
+  SPECIES_ID   => '9606',
+  SOURCE_ID    => $source->source_id,
+  INFO_TYPE    => 'MISC',
+  INFO_TEXT    => 'These are normally aligned',
   update_label => 1,
   update_desc  => 1
 };
@@ -302,16 +316,22 @@ $loader_handle->xref->upload_xref_object_graphs( \@new_xref_array );
 
 my $object_xref_id_00 = $loader_handle->xref->add_object_xref(
   {
-    xref_id     => $loader_handle->xref->get_xref('NM04560', $source2->source_id, 9606),
+    xref_id     => $loader_handle->xref->get_xref('NM04560', $source->source_id, 9606),
     ensembl_id  => 1,
     object_type => 'Gene'
   }
 );
 ok( defined $object_xref_id_00, "add_object_xref - Object_xref entry inserted - $object_xref_id_00" );
 
+ok(
+   !defined $loader_handle->xref->add_identity_xref(
+      { object_xref_id => $object_xref_id_00, score => 1, target_identity => 1, query_identity => 1 } ),
+   "add_identity_xref - Identity xref row added" );
+
+
 my $object_xref_id_01 = $loader_handle->xref->add_object_xref(
   {
-    xref_id     => $loader_handle->xref->get_xref('NM04561', $source2->source_id, 9606),
+    xref_id     => $loader_handle->xref->get_xref('NM04561', $source->source_id, 9606),
     ensembl_id  => 1,
     object_type => 'Gene'
   }
@@ -320,7 +340,7 @@ ok( defined $object_xref_id_01, "add_object_xref - Object_xref entry inserted - 
 
 my $object_xref_id_02 = $loader_handle->xref->add_object_xref(
   {
-    xref_id     => $loader_handle->xref->get_xref('NM04562', $source2->source_id, 9606),
+    xref_id     => $loader_handle->xref->get_xref('NM04562', $source->source_id, 9606),
     ensembl_id  => 1,
     object_type => 'Gene'
   }
@@ -329,7 +349,7 @@ ok( defined $object_xref_id_02, "add_object_xref - Object_xref entry inserted - 
 
 ok(
   defined $loader_handle->xref->_add_primary_xref(
-    $loader_handle->xref->get_xref('NM04562', $source2->source_id, 9606),
+    $loader_handle->xref->get_xref('NM04562', $source->source_id, 9606),
     'GATACCA', 'dna', 'experimental'
   ),
   '_add_primary_xref'
@@ -337,17 +357,39 @@ ok(
 
 my $object_xref_id_03 = $loader_handle->xref->add_object_xref(
   {
-    xref_id     => $loader_handle->xref->get_xref('NM04563', $source2->source_id, 9606),
+    xref_id     => $loader_handle->xref->get_xref('NM04563', $source->source_id, 9606),
     ensembl_id  => 1,
     object_type => 'Gene'
   }
 );
 ok( defined $object_xref_id_03, "add_object_xref - Object_xref entry inserted - $object_xref_id_03" );
 
+# Set the dumping on the object_xref table
+$db->schema->resultset('ObjectXref')->update({ ox_status => 'DUMP_OUT' });
+
 
 ## Mapped Xrefs
 # load_identity_xref
+# get_insert_identity_xref
+my $insert_identity_xrefs = $loader_handle->xref->get_insert_identity_xref(
+  $source->source_id, 'DIRECT' );
 
+while( my $insert_identity_xref_ref = $insert_identity_xrefs->() ) {
+  my %insert_identity_xref = %{ $insert_identity_xref_ref };
+  is(
+    $insert_identity_xref{'acc'}, 'NM04560' ,
+    "get_insert_identity_xref - $insert_identity_xref{'acc'}"
+  );
+}
+
+my $loaded_identity_xrefs = $loader_handle->load_identity_xref(
+  $source->source_id,                                # $source_id
+  'DIRECT',                                          # $type
+  $returned_stored_data{'xref'},                     # $xref_offset
+  $returned_external_db_ids{'RefSeq_dna_predicted'}, # $ex_id
+  $returned_stored_data{'object_xref'}               # $object_xref_offset
+);
+is( $loaded_identity_xrefs, 1, 'load_identity_xref');
 
 
 # load_checksum_xref

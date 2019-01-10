@@ -626,6 +626,7 @@ sub upload_xref_object_graphs {
       'source_id'    => $xref->{SOURCE_ID},
       'species_id'   => $xref->{SPECIES_ID},
       'info_type'    => $xref->{INFO_TYPE},
+      'info_text'    => $xref->{INFO_TEXT},
       'update_label' => 1, 'update_desc' => 1 } );
 
     # If there are any direct_xrefs, add these to the relevant tables
@@ -2640,7 +2641,7 @@ SQL
         desc             => $desc,
         info             => $info,
         ensembl_id       => $ensembl_id,
-        ensemb_type      => $ensembl_type,
+        ensembl_type     => $ensembl_type,
         object_xref_id   => $object_xref_id,
         query_identity   => $query_identity,
         ensembl_identity => $target_identity,
