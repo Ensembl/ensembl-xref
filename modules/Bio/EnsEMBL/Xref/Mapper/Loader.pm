@@ -262,7 +262,7 @@ sub map_xrefs_from_xrefdb_to_coredb {
     elsif ( $xref_handle{'type'} eq 'DEPENDENT' ) {
       push @xref_list, $self->load_dependent_xref(
         $xref_handle{'source_id'}, $xref_handle{'type'},
-        $xref_offset, $ex_id, $object_xref_offset, $analysis_ids );
+        $xref_offset, $ex_id, $object_xref_offset );
     }
     else {
       print "PROBLEM:: what type is $xref_handle{'type'}\n";
@@ -646,9 +646,10 @@ sub load_checksum_xref {
         $checksum_xref_handle{'label'},
         $checksum_xref_handle{'version'},
         $checksum_xref_handle{'desc'},
-        $checksum_xref_handle{'type'},
+        $type,
         $checksum_xref_handle{'info'} || $checksum_xref_handle{'where_from'},
-        $self->core->dbc);
+        $self->core->dbc
+      );
       $last_xref = $xref_id;
     }
 
@@ -659,7 +660,8 @@ sub load_checksum_xref {
       $checksum_xref_handle{'ensembl_type'},
       $xref_id + $xref_offset,
       $checksum_analysis_id,
-      $self->core->dbc);
+      $self->core->dbc
+    );
   }
 
   return @xref_list;
@@ -672,7 +674,7 @@ sub load_checksum_xref {
 =cut
 
 sub load_dependent_xref {
-  my ( $self, $source_id, $type, $xref_offset, $ex_id, $object_xref_offset, $analysis_ids ) = @_;
+  my ( $self, $source_id, $type, $xref_offset, $ex_id, $object_xref_offset ) = @_;
 
   my @master_problems;
   my $err_master_count=0;
@@ -682,6 +684,8 @@ sub load_dependent_xref {
   my $last_xref = 0;
   my $last_ensembl = 0;
   my @xref_list = ();
+
+  my %analysis_ids = $self->get_analysis();
 
   my $dependent_xrefs_handle = $self->xref->get_insert_dependent_xref( $source_id, $type );
 
@@ -697,7 +701,7 @@ sub load_dependent_xref {
         $dependent_xref_handle{'label'} || $dependent_xref_handle{'acc'},
         $dependent_xref_handle{'version'},
         $dependent_xref_handle{'desc'},
-        $dependent_xref_handle{'type'},
+        $type,
         $dependent_xref_handle{'info'} || $dependent_xref_handle{'where_from'},
         $self->core->dbc);
       $last_xref = $xref_id;
@@ -711,7 +715,7 @@ sub load_dependent_xref {
         $dependent_xref_handle{'ensembl_id'},
         $dependent_xref_handle{'ensembl_type'},
         $xref_id + $xref_offset,
-        %{ $analysis_ids }{ $dependent_xref_handle{'ensembl_type'} },
+        $analysis_ids{ $dependent_xref_handle{'ensembl_type'} },
         $self->core->dbc
       );
 
@@ -754,7 +758,7 @@ sub load_synonyms {
 
   my ($xref_id, $syn);
 
-  my $syns_handle = $self->xref->get_synonyms_for_xref( @{ $xref_list } );
+  my $syns_handle = $self->xref->get_synonyms_for_xref( $xref_list );
   while( my $syn_handle_ref = $syns_handle->() ) {
     my %syn_handle = %{ $syn_handle_ref };
     $self->add_xref_synonym(

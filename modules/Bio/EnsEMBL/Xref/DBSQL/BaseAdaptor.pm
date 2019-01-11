@@ -2710,9 +2710,9 @@ sub get_insert_dependent_xref {
     SELECT x.xref_id, x.accession, x.label, x.version, x.description, x.info_text,
            ox.object_xref_id, ox.ensembl_id, ox.ensembl_object_type, ox.master_xref_id
     FROM xref x, object_xref ox
-    WHERE ox.ox_status = 'DUMP_OUT' and
-          ox.xref_id = x.xref_id and
-          x.source_id = ? and
+    WHERE ox.ox_status = 'DUMP_OUT' AND
+          ox.xref_id = x.xref_id AND
+          x.source_id = ? AND
           x.info_type = ?
     ORDER BY x.xref_id, ox.ensembl_id
 SQL
@@ -2736,7 +2736,7 @@ SQL
         desc             => $desc,
         info             => $info,
         ensembl_id       => $ensembl_id,
-        ensemb_type      => $ensembl_type,
+        ensembl_type     => $ensembl_type,
         object_xref_id   => $object_xref_id,
         master_xref_id   => $master_xref_id
       }

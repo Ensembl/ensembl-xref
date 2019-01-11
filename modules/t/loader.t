@@ -240,7 +240,6 @@ ok(
 );
 
 
-
 ## Loader Tests
 #  Tests for calling the loader functions
 
@@ -279,7 +278,7 @@ my $new_xref_01 = {
   DESCRIPTION  => 'Fake RefSeq transcript',
   SPECIES_ID   => '9606',
   SOURCE_ID    => $source->source_id,
-  INFO_TYPE    => 'DEPENDENT',
+  INFO_TYPE    => 'DIRECT',
   INFO_TEXT    => 'These are normally aligned',
   update_label => 1,
   update_desc  => 1
@@ -364,6 +363,43 @@ my $object_xref_id_03 = $loader_handle->xref->add_object_xref(
 );
 ok( defined $object_xref_id_03, "add_object_xref - Object_xref entry inserted - $object_xref_id_03" );
 
+# add_dependent_xref
+my $new_xref_04 = {
+  master_xref_id => $object_xref_id_01,
+  type           => 'Gene',
+  acc            => 'NM04564',
+  version        => 1,
+  label          => 'DPNDT',
+  desc           => 'Fake dependent xref',
+  species_id     => '9606',
+  source_id      => $source->source_id,
+  info_text      => 'These are normally aligned',
+  linkage        => $source->source_id,
+  update_label   => 1,
+  update_desc    => 1
+};
+
+my $new_xref_04_id = $loader_handle->xref->add_dependent_xref( $new_xref_04 );
+ok( defined $new_xref_04_id, "add_dependent_xref - Dependent xref entry inserted - $new_xref_04_id" );
+
+my $object_xref_id_04 = $loader_handle->xref->add_object_xref(
+  {
+    xref_id     => $new_xref_04_id,
+    ensembl_id  => 1,
+    object_type => 'Gene'
+  }
+);
+ok( defined $object_xref_id_04, "add_object_xref - Object_xref entry inserted - $object_xref_id_04" );
+
+my $xref_dbi = $loader_handle->xref->dbi();
+
+my $dependent_update_sth = $xref_dbi->prepare(
+  'UPDATE object_xref SET master_xref_id = ? WHERE object_xref_id = ?' );
+
+$dependent_update_sth->execute(
+  $loader_handle->xref->get_xref('NM04561', $source->source_id, 9606),
+  $object_xref_id_04 );
+
 # Set the dumping on the object_xref table
 $db->schema->resultset('ObjectXref')->update({ ox_status => 'DUMP_OUT' });
 
@@ -393,8 +429,75 @@ is( $loaded_identity_xrefs, 1, 'load_identity_xref');
 
 
 # load_checksum_xref
+my $insert_checksum_xrefs = $loader_handle->xref->get_insert_checksum_xref(
+  $source->source_id, 'DIRECT' );
+
+while( my $insert_checksum_xref_ref = $insert_checksum_xrefs->() ) {
+  my %insert_checksum_xref = %{ $insert_checksum_xref_ref };
+  ok(
+    (
+      $insert_checksum_xref{'acc'}, 'NM04560' or
+      $insert_checksum_xref{'acc'}, 'NM04561'
+    ) ,
+    "get_insert_checksum_xref - $insert_checksum_xref{'acc'}"
+  );
+}
+
+my $loaded_checksum_xrefs = $loader_handle->load_checksum_xref(
+  $source->source_id,                                   # $source_id
+  'DIRECT',                                             # $type
+  $returned_stored_data{'xref'},                        # $xref_offset
+  $returned_external_db_ids{'RefSeq_dna_predicted'},    # $ex_id
+  $returned_stored_data{'object_xref'},                 # $object_xref_offset
+  $loader_handle->get_single_analysis( 'xrefchecksum' ) # $checksum_analysis_id
+);
+is( $loaded_checksum_xrefs, 2, 'load_checksum_xref');
+
+
 # load_dependent_xref
+my $insert_dependent_xrefs = $loader_handle->xref->get_insert_dependent_xref(
+  $source->source_id, 'DEPENDENT' );
+
+while( my $insert_dependent_xref_ref = $insert_dependent_xrefs->() ) {
+  my %insert_dependent_xref = %{ $insert_dependent_xref_ref };
+  is(
+    $insert_dependent_xref{'acc'}, 'NM04564' ,
+    "get_insert_dependent_xref - $insert_dependent_xref{'acc'}"
+  );
+}
+
+my $loaded_dependent_xrefs = $loader_handle->load_dependent_xref(
+  $source->source_id,                                # $source_id
+  'DEPENDENT',                                       # $type
+  $returned_stored_data{'xref'},                     # $xref_offset
+  $returned_external_db_ids{'RefSeq_dna_predicted'}, # $ex_id
+  $returned_stored_data{'object_xref'},              # $object_xref_offset
+);
+is( $loaded_dependent_xrefs, 1, 'load_dependent_xref');
+
+
 # load_synonyms
+# add_multiple_synonyms
+my @multi_syn_array = ( 'fs:000', 'fs:001', 'fs:002' );
+ok(
+  !defined $loader_handle->xref->add_multiple_synonyms(
+    $loader_handle->xref->get_xref('NM04562', $source->source_id, 9606),
+    \@multi_syn_array
+  ),
+  'Add multiple fake synonyms'
+);
+
+my @xref_with_syn_list = (
+  $loader_handle->xref->get_xref('NM04562', $source->source_id, 9606),
+);
+
+ok(
+  !defined $loader_handle->load_synonyms(
+    \@xref_with_syn_list,
+    $returned_stored_data{'xref'}
+  ),
+  'load_synonyms'
+);
 
 ## Unmapped Xrefs
 # load_unmapped_direct_xref
