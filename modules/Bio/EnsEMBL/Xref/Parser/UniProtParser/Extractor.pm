@@ -250,6 +250,7 @@ sub extract {
        'citation_groups'   => $self->_get_citation_groups(),
        'crossreferences'   => $self->_get_database_crossreferences(),
        'description'       => $self->_get_description() // undef,
+       'features'          => $self->_get_features(),
        'gene_names'        => $self->_get_gene_names(),
        'quality'           => $self->_get_quality(),
        'sequence'          => $self->_get_sequence(),
@@ -471,6 +472,23 @@ sub _get_database_crossreferences {
   }
 
   return $crossreferences;
+}
+
+
+# Parse the FT fields of the current record, if any, and produce a
+# list of features associated with the sequence data.
+sub _get_features {
+  my ( $self ) = @_;
+
+  my $ft_fields = $self->{'record'}->{'FT'};
+  if ( ! defined $ft_fields ) {
+    return {};
+  }
+
+  # If we made it this far FT must have been explicitly added to one
+  # of the lists of prefixes of interest. Make sure it is noticed that
+  # this would not in fact produce any useful data.
+  confess 'Feature extraction requested but not implemented';
 }
 
 
