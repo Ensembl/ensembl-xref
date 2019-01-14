@@ -59,6 +59,83 @@ sub _get_description {  ## no critic (ProhibitUnusedPrivateSubroutines)
 }
 
 
+# In miRBase records, mature miRNAs are expressed as features of their
+# respective stem-loop sequences.
+sub _get_features {  ## no critic (ProhibitUnusedPrivateSubroutines)
+  my ( $self ) = @_;
+
+  my $ft_fields = $self->{'record'}->{'FT'};
+  if ( ! defined $ft_fields ) {
+    return {};
+  }
+
+  my $feature_list = {};
+
+  my $current_feature;
+  my $current_component_name;
+  foreach my $ft_line ( @{ $ft_fields } ) {
+
+    # See if the line begins with a keyword or whitespace
+    my ( $feature_type, $from_endpoint, $to_endpoint )
+      = ( $ft_line =~ m{
+                         \A
+                         ( \S+ )
+                         \s+
+                         ( \d+ ) [.][.] ( \d+ )
+                     }msx );
+    if ( defined $feature_type ) {
+
+      # Found a keyword so this is a new feature. Push it to the
+      # output array right away so that we needn't handle the final
+      # feature in a special way, as long as we keep the original
+      # reference we can continue updating it.
+      $current_feature = {};
+      $current_component_name = undef;
+      push @{ $feature_list->{ lc( $feature_type ) } }, $current_feature;
+
+      $current_feature->{'from_endpoint'} = $from_endpoint;
+      $current_feature->{'to_endpoint'}   = $to_endpoint;
+
+    }
+    else {
+
+      # Line begins with whitespace so it is part of the description
+      # of the current feature. miRBase descriptions are structured
+      # following /key="value" syntax (with quotation marks optional),
+      # with at most one such declaration per line but a single
+      # declaration possibly spanning multiple lines.
+      my ( $component_name, $component_value )
+        = ( $ft_line =~ m{
+                           / ( [^=]+ )
+                           = "? ( [^"]+ ) "?
+                           \s* \z
+                       }msx );
+      if ( defined $component_name ) {
+        $current_component_name = $component_name;
+        $current_feature->{$current_component_name} = $component_value;
+      }
+      else {
+        # It isn't clear at this point whether a value has to be
+        # enclosed by quotation marks or not so let's assume it does
+        # not. Either way, strip all decoration and append what is
+        # left to the value of last detected key.
+        $ft_line =~ s{
+                       \s+
+                       ( [^"]+ )
+                       "?
+                       \s* \z
+                   }{ $1}msx;
+        $current_feature->{$current_component_name} .= $ft_line;
+      }
+
+    }
+
+  }
+
+  return $feature_list;
+}
+
+
 # Even if there is anything counting as quality information in miRBase
 # records, we do not use it.
 sub _get_quality {  ## no critic (ProhibitUnusedPrivateSubroutines)

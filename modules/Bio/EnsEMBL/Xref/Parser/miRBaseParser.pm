@@ -42,6 +42,8 @@ my $DEFAULT_LOADER_CHECKPOINT_SECONDS = 300;
 # processing.
 my $mandatory_prefixes_of_interest
   = [ 'ID', 'AC', 'DE', 'SQ', q{  }, ];
+my $optional_prefixes_of_interest
+  = [ 'FT' ];
 
 
 =head2 run
@@ -117,6 +119,7 @@ sub run {
   my $extractor = $extractor_class->new({
     'file_names'         => $files,
     'mandatory_prefixes' => $mandatory_prefixes_of_interest,
+    'optional_prefixes'  => $optional_prefixes_of_interest,
     'species_name'       => $species_name,
     'xref_dba'           => $xref_dba,
   });
