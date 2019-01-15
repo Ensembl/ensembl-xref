@@ -44,6 +44,7 @@ package Bio::EnsEMBL::Xref::Mapper::Loader;
 use strict;
 use warnings;
 use Carp;
+use Data::Dumper;
 use Bio::EnsEMBL::Utils::Exception;
 
 use parent qw( Bio::EnsEMBL::Xref::Mapper );
@@ -68,14 +69,14 @@ sub update {
   $self->name_to_external_db_id = %{ $self->get_xref_external_dbs() };
 
   # Get the cutoff values
-  my $failed_sources = $self->xref->get_unmapped_regions();
+  my %failed_sources = %{ $self->xref->get_unmapped_reason() };
 
-  my %summary_failed = $failed_sources->summary;
-  my %desc_failed    = $failed_sources->desc;
+  my %summary_failed = %{ $failed_sources{'summary'} };
+  my %desc_failed    = %{ $failed_sources{'desc'} };
 
   my %reason_id;
   foreach my $key (keys %desc_failed){
-    my $failed_id = $self->get_unmapped_reasons( $desc_failed{$key} );
+    my $failed_id = $self->get_unmapped_reason_id( $desc_failed{$key} );
 
     if(!defined $failed_id ) {
       $failed_id = $self->add_unmapped_reason(
@@ -170,27 +171,41 @@ sub update {
   ########################################
 
   # DIRECT #
-  my @direct_xref_list = $self->load_unmapped_direct_xref( $xref_offset, %analysis_ids );
+  my @direct_xref_list = $self->load_unmapped_direct_xref(
+    $xref_offset,
+    $analysis_ids{'Transcript'},   # No real analysis here but in table it is set to not NULL
+    $reason_id{'NO_STABLE_ID'}
+  );
   if ( @direct_xref_list ) {
     $self->xref->mark_mapped_xrefs( @direct_xref_list, 'UNMAPPED_NO_STABLE_ID' );
   }
 
   # MISC #
-  my @misc_xref_list = $self->load_unmapped_misc_xref( $xref_offset, %analysis_ids );
+  my @misc_xref_list = $self->load_unmapped_misc_xref(
+    $xref_offset,
+    $analysis_ids{'Transcript'},
+    $reason_id{'NO_MAPPING'}
+  );
   if ( @misc_xref_list ) {
     $self->xref->mark_mapped_xrefs( @misc_xref_list, 'UNMAPPED_NO_MAPPING' );
   }
 
   # DEPENDENT #
   my @dependent_xref_list = $self->load_unmapped_dependent_xref(
-    $xref_offset, $object_xref_offset, %analysis_ids
+    $xref_offset,
+    $analysis_ids{'Transcript'},
+    $reason_id{ 'MASTER_FAILED' }
   );
   if ( @dependent_xref_list ) {
     $self->xref->mark_mapped_xrefs( @dependent_xref_list, 'UNMAPPED_MASTER_FAILED' );
   }
 
   # SEQUENCE_MATCH #
-  my @sequence_xref_list = $self->load_unmapped_sequence_xrefs( $xref_offset, %analysis_ids );
+  my @sequence_xref_list = $self->load_unmapped_sequence_xrefs(
+    $xref_offset,
+    \%analysis_ids,
+    \%reason_ids
+  );
   if ( @sequence_xref_list ) {
     $self->xref->mark_mapped_xrefs( @sequence_xref_list, 'UNMAPPED_NO_MAPPING' );
   }
@@ -199,7 +214,11 @@ sub update {
   # These are those defined as dependent but the master never existed and the xref and their descriptions etc are loaded first
   # with the dependencys added later so did not know they had no masters at time of loading.
   # (e.g. EntrezGene, WikiGene, MIN_GENE, MIM_MORBID)
-  my @other_xref_list = $self->load_unmapped_other_xref( $xref_offset, %analysis_ids );
+  my @other_xref_list = $self->load_unmapped_other_xref(
+    $xref_offset,
+    $analysis_ids{'Transcript'},
+    $reason_id{ 'NO_MASTER' }
+  );
   if ( @other_xref_list ) {
     $self->xref->mark_mapped_xrefs( @other_xref_list, 'UNMAPPED_NO_MASTER' );
   }
@@ -294,16 +313,15 @@ sub map_xrefs_from_xrefdb_to_coredb {
 =cut
 
 sub load_unmapped_direct_xref {
-  my ( $self, $xref_offset, $analysis_ids ) = @_;
+  my ( $self, $xref_offset, $analysis_id, $reason_id ) = @_;
 
   my @xref_list = ();
-  my %name_to_external_db_id = $self->name_to_external_db_id;
-  my %reason_id = $self->reason_id;
+  my %name_to_external_db_id = $self->get_xref_external_dbs();
 
-  my $analysis_id = %{ $analysis_ids }{'Transcript'};   # No real analysis here but in table it is set to not NULL
   my $direct_xref_handle = $self->xref->get_insert_direct_xref_low_priority();
   while ( my $direct_handle_ref = $direct_xref_handle->() ) {
     my %direct_handle = %{ $direct_handle_ref };
+
     if( defined $name_to_external_db_id{ $direct_handle{'dbname'} } ) {
       my $xref_id = $self->add_xref(
         $xref_offset,
@@ -322,7 +340,7 @@ sub load_unmapped_direct_xref {
         analysis_id        => $analysis_id,
         external_db_id     => $name_to_external_db_id{ $direct_handle{'dbname'} },
         identifier         => $direct_handle{'acc'},
-        unmapped_reason_id => $reason_id{'NO_STABLE_ID'} } );
+        unmapped_reason_id => $reason_id } );
 
       push @xref_list, $xref_id;
     }
@@ -338,15 +356,13 @@ sub load_unmapped_direct_xref {
 =cut
 
 sub load_unmapped_dependent_xref {
-  my ( $self, $xref_offset, $object_xref_offset, $analysis_ids ) = @_;
+  my ( $self, $xref_offset, $analysis_id, $reason_id ) = @_;
 
   my @xref_list = ();
-  my %name_to_external_db_id = $self->name_to_external_db_id;
-  my %reason_id = $self->reason_id;
+  my %name_to_external_db_id = $self->get_xref_external_dbs();
 
   @xref_list = ();
   my $last_acc= 0;
-  my $analysis_id = %{ $analysis_ids }{'Transcript'};
   my $dependent_xref_handle = $self->xref->get_insert_dependent_xref_low_priority();
   while ( my $dependent_handle_ref = $dependent_xref_handle->() ) {
     my %dependent_handle = %{ $dependent_handle_ref };
@@ -372,7 +388,7 @@ sub load_unmapped_dependent_xref {
         analysis_id        => $analysis_id,
         external_db_id     => $name_to_external_db_id{ $dependent_handle{'dbname'} },
         identifier         => $dependent_handle{'acc'},
-        unmapped_reason_id => $reason_id{ 'MASTER_FAILED' },
+        unmapped_reason_id => $reason_id,
         parent             => $dependent_handle{'parent'} } );
 
       push @xref_list, $xref_id;
@@ -389,11 +405,11 @@ sub load_unmapped_dependent_xref {
 =cut
 
 sub load_unmapped_sequence_xrefs {
-  my ( $self, $xref_offset, $analysis_ids ) = @_;
+  my ( $self, $xref_offset, $analysis_ids, $reason_ids ) = @_;
 
   my @xref_list = ();
-  my %name_to_external_db_id = $self->name_to_external_db_id;
-  my %reason_id = $self->reason_id;
+  my %name_to_external_db_id = $self->get_xref_external_dbs();
+  my %reason_id = %{ $reason_ids };
   my $last_xref = 0;
   my $xref_id;
   my $analysis_id;
@@ -407,7 +423,7 @@ sub load_unmapped_sequence_xrefs {
     ) {
       next;
     }
-    if ( $last_xref != $xref_id ) {
+    if ( !defined $xref_id or $last_xref != $xref_id ) {
       $xref_id = $self->add_xref(
         $xref_offset,
         $xref_handle{'xref_id'},
@@ -464,13 +480,11 @@ sub load_unmapped_sequence_xrefs {
 =cut
 
 sub load_unmapped_misc_xref {
-  my ( $self, $xref_offset, $analysis_ids ) = @_;
+  my ( $self, $xref_offset, $analysis_id, $reason_id ) = @_;
 
   my @xref_list = ();
-  my %name_to_external_db_id = $self->name_to_external_db_id;
-  my %reason_id = $self->reason_id;
+  my %name_to_external_db_id = $self->get_xref_external_dbs();
 
-  my $analysis_id = %{ $analysis_ids }{'Transcript'};   # No real analysis here but in table it is set to not NULL
   my $misc_xref_handle = $self->xref->get_insert_misc_xref();
   while ( my $misc_handle_ref = $misc_xref_handle->() ) {
     my %misc_handle = %{ $misc_handle_ref };
@@ -491,7 +505,7 @@ sub load_unmapped_misc_xref {
         analysis_id        => $analysis_id,
         external_db_id     => $name_to_external_db_id{ $misc_handle{'dbname'} },
         identifier         => $misc_handle{'acc'},
-        unmapped_reason_id => $reason_id{'NO_MAPPING'} } );
+        unmapped_reason_id => $reason_id } );
       push @xref_list, $xref_id;
     }
   }
@@ -514,11 +528,9 @@ sub load_unmapped_other_xref {
   # with the dependencys added later so did not know they had no masters at time of loading.
   # (e.g. EntrezGene, WikiGene, MIN_GENE, MIM_MORBID)
 
-  my ( $self, $xref_offset, $analysis_ids ) = @_;
-  my %name_to_external_db_id = $self->name_to_external_db_id;
-  my %reason_id = $self->reason_id;
+  my ( $self, $xref_offset, $analysis_id, $reason_id ) = @_;
+  my %name_to_external_db_id = $self->get_xref_external_dbs();
 
-  my $analysis_id = %{ $analysis_ids }{'Transcript'};   # No real analysis here but in table it is set to not NULL
   my @xref_list = ();
   my $other_xrefs_handle = $self->xref->get_insert_other_xref();
 
@@ -545,7 +557,7 @@ sub load_unmapped_other_xref {
       analysis_id        => $analysis_id,
       external_db_id     => $name_to_external_db_id{ $other_handle{'dbname'} },
       identifier         => $other_handle{'acc'},
-      unmapped_reason_id => $reason_id{ 'NO_MASTER' }
+      unmapped_reason_id => $reason_id
     } );
     push @xref_list, $xref_id;
   }
@@ -564,8 +576,6 @@ sub load_identity_xref {
 
   my $last_xref = 0;
   my @xref_list = ();
-
-  use Data::Dumper;
 
   my $identity_xrefs_handle = $self->xref->get_insert_identity_xref( $source_id, $type );
 
@@ -1245,6 +1255,7 @@ SQL
   my $failed_id=undef;
   $sth->bind_columns(\$failed_id);
   $sth->fetch;
+  $sth->finish();
 
   return $failed_id;
 } ## end sub get_unmapped_reason_id

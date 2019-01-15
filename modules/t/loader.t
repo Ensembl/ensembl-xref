@@ -221,7 +221,7 @@ ok(
 ok(
   !defined $loader_handle->add_unmapped_object({
     analysis_id        => $analysis_ids{'Gene'},
-    external_db_id     => $returned_external_db_ids{'RefSeq'},
+    external_db_id     => $returned_external_db_ids{'RefSeq_dna_predicted'},
     identifier         => 'TestIdentifier',
     unmapped_reason_id => $unmapped_reason_id
   } ),
@@ -231,7 +231,7 @@ ok(
 ok(
   !defined $loader_handle->add_unmapped_object({
     analysis_id        => $analysis_ids{'Gene'},
-    external_db_id     => $returned_external_db_ids{'RefSeq'},
+    external_db_id     => $returned_external_db_ids{'RefSeq_dna_predicted'},
     identifier         => 'TestIdentifier',
     unmapped_reason_id => $unmapped_reason_id,
     query_score        => 100
@@ -245,7 +245,7 @@ ok(
 
 ## Prepare the xref db
 my $source = $db->schema->resultset('Source')->create({
-  name                 => 'RefSeq',
+  name                 => 'RefSeq_dna_predicted',
   status               => 'KNOWN',
   source_release       => '38',
   download             => 'Y',
@@ -254,9 +254,24 @@ my $source = $db->schema->resultset('Source')->create({
 });
 
 is(
-  $loader_handle->xref->get_source_id_for_source_name('RefSeq'),
+  $loader_handle->xref->get_source_id_for_source_name('RefSeq_dna_predicted'),
   $source->source_id, 'get_source_id_for_source_name'
 );
+
+my $source_mapping_method = $db->schema->resultset('SourceMappingMethod')->create({
+  source_id => $source->source_id,
+  method    => 'Alignment',
+});
+
+my $mapping = $db->schema->resultset('Mapping')->create({
+  job_id => 123456,
+  type    => 'dna',
+  command_line => 'ls',
+  percent_query_cutoff => 75,
+  percent_target_cutoff => 90,
+  method => 'Alignment',
+  array_size => 5,
+});
 
 my $new_xref_00 = {
   ACCESSION    => 'NM04560',
@@ -500,18 +515,91 @@ ok(
 );
 
 ## Unmapped Xrefs
+# Get the cutoff values
+my %failed_sources = %{ $loader_handle->xref->get_unmapped_reason() };
+
+my %summary_failed = %{ $failed_sources{'summary'} };
+my %desc_failed    = %{ $failed_sources{'desc'} };
+
+my %reason_id;
+foreach my $key (keys %desc_failed){
+  my $failed_id = $loader_handle->get_unmapped_reason_id( $desc_failed{$key} );
+
+  if(!defined $failed_id ) {
+    $failed_id = $loader_handle->add_unmapped_reason(
+      $summary_failed{$key}, $desc_failed{$key} );
+  }
+  $reason_id{$key} = $failed_id;
+}
+
+
 # load_unmapped_direct_xref
+my @unmapped_direct_xrefs = $loader_handle->load_unmapped_direct_xref(
+  $returned_stored_data{'xref'} + 100,
+  $analysis_ids{'Transcript'},
+  $unmapped_reason_id
+);
+
+foreach my $unmapped_id ( @unmapped_direct_xrefs ) {
+  ok(
+    ( $unmapped_id == 1 or $unmapped_id == 2 ),
+    "load_unmapped_direct_xref - $unmapped_id"
+  );
+}
+
+
 # load_unmapped_dependent_xref
-# load_unmapped_sequence_xrefs
+my @unmapped_dependent_xrefs = $loader_handle->load_unmapped_dependent_xref(
+  $returned_stored_data{'xref'} + 100,
+  $analysis_ids{'Transcript'},
+  $unmapped_reason_id
+);
+
+foreach my $unmapped_id ( @unmapped_dependent_xrefs ) {
+  ok( $unmapped_id == 5, "load_unmapped_dependent_xref - $unmapped_id" );
+}
+
+
+# load_unmapped_sequence_xrefs - ensembl_id is defined
+my @unmapped_sequence_xrefs = $loader_handle->load_unmapped_sequence_xrefs(
+  $returned_stored_data{'xref'} + 100,
+  \%analysis_ids,
+  \%reason_id
+);
+
+is( $unmapped_sequence_xrefs[0], 3, 'load_unmapped_sequence_xrefs - 3' );
+
+# load_unmapped_sequence_xrefs - ensembl_id is !defined
+
+
 # load_unmapped_misc_xref
+my @unmapped_misc_xrefs = $loader_handle->load_unmapped_misc_xref(
+  $returned_stored_data{'xref'} + 100,
+  $analysis_ids{'Transcript'},
+  $reason_id{'NO_MAPPING'}
+);
+
+is( $unmapped_misc_xrefs[0], 4, 'load_unmapped_misc_xrefs - 4' );
+
+
 # load_unmapped_other_xref
+my @unmapped_other_xrefs = $loader_handle->load_unmapped_other_xref(
+  $returned_stored_data{'xref'} + 100,
+  $analysis_ids{'Transcript'},
+  $reason_id{'NO_MASTER'}
+);
+
+is( $unmapped_other_xrefs[0], 5, 'load_unmapped_other_xrefs - 5' );
 
 
 ## Wrapper Tests
 #  The are functions that wrap the logical calling of multiple functions
-
-# update
 # map_xrefs_from_xrefdb_to_coredb
+
+
+
+## Final wrapper function
+# update
 
 
 
