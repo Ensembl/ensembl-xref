@@ -451,9 +451,9 @@ while( my $insert_checksum_xref_ref = $insert_checksum_xrefs->() ) {
   my %insert_checksum_xref = %{ $insert_checksum_xref_ref };
   ok(
     (
-      $insert_checksum_xref{'acc'}, 'NM04560' or
-      $insert_checksum_xref{'acc'}, 'NM04561'
-    ) ,
+      $insert_checksum_xref{'acc'} eq 'NM04560' or
+      $insert_checksum_xref{'acc'} eq 'NM04561'
+    ),
     "get_insert_checksum_xref - $insert_checksum_xref{'acc'}"
   );
 }
@@ -591,25 +591,7 @@ my @unmapped_other_xrefs = $loader_handle->load_unmapped_other_xref(
 
 is( $unmapped_other_xrefs[0], 5, 'load_unmapped_other_xrefs - 5' );
 
-
-## Wrapper Tests
-#  The are functions that wrap the logical calling of multiple functions
-# map_xrefs_from_xrefdb_to_coredb
-
-
-
-## Final wrapper function
-# update
-
-
-
 done_testing();
 
-
-sub _check_db {
-   my ($dba, $table, $search_conditions) = @_;
-
-   my $result_set = $dba->schema->resultset( $table )->search( $search_conditions );
-   return $result_set->next;
-}
+1;
 

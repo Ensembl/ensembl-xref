@@ -161,7 +161,7 @@ sub update {
   # Now add the new ones from xref to core #
   ##########################################
 
-  $self->map_xrefs_from_xrefdb_to_coredb( $xref_offset, $object_xref_offset, %analysis_ids );
+  $self->map_xrefs_from_xrefdb_to_coredb( $xref_offset, $object_xref_offset );
 
 
   #######################################
@@ -170,10 +170,29 @@ sub update {
   # 2) Process where dumped is null and type = DIRECT, DEPENDENT, SEQUENCE_MATCH, MISC seperately
   ########################################
 
+  $self->unmapped_xrefs_from_xrefdb_to_coredb(
+    $xref_offset,
+    $object_xref_offset,
+    \%analysis_ids,
+    \%reason_id
+  );
+
+  $self->xref->insert_process_status( 'core_loaded' );
+
+  return;
+} ## end sub update
+
+
+sub unmapped_xrefs_from_xrefdb_to_coredb {
+  my ( $self, $xref_offset, $object_xref_offset, $analysis_ids, $reason_ids ) = @_;
+
+  my %analysis_id = %{ $analysis_ids };
+  my %reason_id = %{ $reason_ids };
+
   # DIRECT #
   my @direct_xref_list = $self->load_unmapped_direct_xref(
     $xref_offset,
-    $analysis_ids{'Transcript'},   # No real analysis here but in table it is set to not NULL
+    $analysis_id{'Transcript'},   # No real analysis here but in table it is set to not NULL
     $reason_id{'NO_STABLE_ID'}
   );
   if ( @direct_xref_list ) {
@@ -183,7 +202,7 @@ sub update {
   # MISC #
   my @misc_xref_list = $self->load_unmapped_misc_xref(
     $xref_offset,
-    $analysis_ids{'Transcript'},
+    $analysis_id{'Transcript'},
     $reason_id{'NO_MAPPING'}
   );
   if ( @misc_xref_list ) {
@@ -193,7 +212,7 @@ sub update {
   # DEPENDENT #
   my @dependent_xref_list = $self->load_unmapped_dependent_xref(
     $xref_offset,
-    $analysis_ids{'Transcript'},
+    $analysis_id{'Transcript'},
     $reason_id{ 'MASTER_FAILED' }
   );
   if ( @dependent_xref_list ) {
@@ -203,8 +222,8 @@ sub update {
   # SEQUENCE_MATCH #
   my @sequence_xref_list = $self->load_unmapped_sequence_xrefs(
     $xref_offset,
-    \%analysis_ids,
-    \%reason_ids
+    \%analysis_id,
+    \%reason_id
   );
   if ( @sequence_xref_list ) {
     $self->xref->mark_mapped_xrefs( @sequence_xref_list, 'UNMAPPED_NO_MAPPING' );
@@ -216,18 +235,15 @@ sub update {
   # (e.g. EntrezGene, WikiGene, MIN_GENE, MIM_MORBID)
   my @other_xref_list = $self->load_unmapped_other_xref(
     $xref_offset,
-    $analysis_ids{'Transcript'},
+    $analysis_id{'Transcript'},
     $reason_id{ 'NO_MASTER' }
   );
   if ( @other_xref_list ) {
     $self->xref->mark_mapped_xrefs( @other_xref_list, 'UNMAPPED_NO_MASTER' );
   }
 
-
-  $self->xref->insert_process_status( 'core_loaded' );
-
   return;
-} ## end sub update
+}
 
 
 =head2 map_xrefs_from_xrefdb_to_coredb
@@ -236,9 +252,9 @@ sub update {
 =cut
 
 sub map_xrefs_from_xrefdb_to_coredb {
-  my ( $self, $xref_offset, $object_xref_offset, $analysis_ids ) = @_;
+  my ( $self, $xref_offset, $object_xref_offset ) = @_;
 
-  my %name_to_external_db_id = $self->name_to_external_db_id;
+  my %name_to_external_db_id = $self->get_xref_external_dbs();
 
   my $xrefs_handle = $self->xref->get_dump_out_xrefs();
   while ( my $xref_handle_ref = $xrefs_handle->() ) {
@@ -290,9 +306,9 @@ sub map_xrefs_from_xrefdb_to_coredb {
 
     # Transfer data for synonym and set xref database xrefs to dumped.
     if ( @xref_list ) {
-      $self->load_synonyms( @xref_list, $xref_offset );
+      $self->load_synonyms( \@xref_list, $xref_offset );
 
-      $self->xref->mark_mapped_xrefs( @xref_list, 'MAPPED' );
+      $self->xref->mark_mapped_xrefs( \@xref_list, 'MAPPED' );
     }
 
     # Update the core databases release in for source form the xref database
