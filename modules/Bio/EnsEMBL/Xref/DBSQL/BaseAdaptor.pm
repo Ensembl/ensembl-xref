@@ -2483,18 +2483,6 @@ sub get_refseq_sources {
 }
 
 
-
-
-################################################################################
-################################################################################
-################################################################################
-### Functions from the Loader.pm module. This needs normalising into the     ###
-### already existing code base.                                              ###
-################################################################################
-################################################################################
-################################################################################
-
-
 =head2 get_valid_source_id_to_external_db_id
   Description: Create a hash of all the external db names and ids that have
                associated xrefs
@@ -2529,7 +2517,14 @@ SQL
 } ## end sub get_valid_source_id_to_external_db_id
 
 
-=head2
+=head2 get_source_ids_with_xrefs
+  Description: Get all sources with xrefs
+  Return type: Iterator - Hashref
+  Example    : my $sources = $ba_handle->get_source_ids_with_sources();
+               while( my $source_ref = $sources->() ) {
+                 my %source = %{ $source_ref };
+                 print "$source{'name'} - $source{'count'}";
+               }
 
 =cut
 
@@ -2561,6 +2556,16 @@ SQL
 } ## end sub get_source_ids_with_xrefs
 
 
+=head2 get_dump_out_xrefs
+  Description: Get all sources that have associated xrefs
+  Return type: Iterator - Hashref
+  Example    : my $sources = $ba_handle->get_dump_out_sources();
+               while( my $source_ref = $sources->() ) {
+                 my %source = %{ $source_ref };
+                 print "$source{'name'} - $source{'count'}";
+               }
+
+=cut
 
 sub get_dump_out_xrefs {
   my $self = shift;
@@ -2596,7 +2601,19 @@ SQL
 }
 
 
-## This looks to be an unused function, can this get removed?
+=head2 get_insert_identity_xref
+  Arg [1]    : integer - $source_id
+  Arg [2]    : string - $type
+  Description: Get all identity xrefs
+  Return type: Iterator - Hashref
+  Example    : my $xref_identities = $ba_handle->get_insert_identity_xref();
+               while( my $xref_identities_ref = $xref_identities->() ) {
+                 my %xref_identity = %{ $xref_identities_ref };
+                 print "$xref_identity{'xref_id'} - $xref_identity{'acc'}";
+               }
+
+=cut
+
 sub get_insert_identity_xref {
   my ( $self, $source_id, $type ) = @_;
 
@@ -2658,7 +2675,19 @@ SQL
 } ## end sub get_insert_identity_xref
 
 
-## This looks to be an unused function, can this get removed?
+=head2 get_insert_checksum_xref
+  Arg [1]    : integer - $source_id
+  Arg [2]    : string - $type
+  Description: Get all CHECKSUM xrefs
+  Return type: Iterator - Hashref
+  Example    : my $xref_checksums = $ba_handle->get_insert_checksum_xref();
+               while( my $xref_checksums_ref = $xref_checksums->() ) {
+                 my %xref_checksum = %{ $xref_checksums_ref };
+                 print "$xref_checksum{'xref_id'} - $xref_checksum{'acc'}";
+               }
+
+=cut
+
 sub get_insert_checksum_xref {
   my ( $self, $source_id, $type ) = @_;
 
@@ -2702,6 +2731,18 @@ SQL
 } ## end sub get_insert_checksum_xref
 
 
+=head2 get_insert_dependent_xref
+  Arg [1]    : integer - $source_id
+  Arg [2]    : string - $type
+  Description: Get all DEPENDENT xrefs
+  Return type: Iterator - Hashref
+  Example    : my $xref_dependents = $ba_handle->get_insert_dependent_xref();
+               while( my $xref_dependents_ref = $xref_dependents->() ) {
+                 my %xref_dependent = %{ $xref_dependents_ref };
+                 print "$xref_dependent{'xref_id'} - $xref_dependent{'acc'}";
+               }
+
+=cut
 
 sub get_insert_dependent_xref {
   my ( $self, $source_id, $type ) = @_;
@@ -2746,6 +2787,18 @@ SQL
 } ## end sub get_insert_dependent_xref
 
 
+=head2 get_synonyms_for_xref
+  Arg [1]    : Arrayref - \@xref_list
+  Description: For a list of xref IDs retrieve the list of matching synonyms.
+  Return type: Iterator - Hashref
+  Example    : my $xref_synonyms = $ba_handle->get_synonyms_for_xref();
+               while( my $xref_synonyms_ref = $xref_synonyms->() ) {
+                 my %xref_synonym = %{ $xref_synonyms_ref };
+                 print "$xref_synonym{'xref_id'} - $xref_synonym{'syn'}";
+               }
+
+=cut
+
 sub get_synonyms_for_xref {
   my ( $self, $xref_list ) = @_;
 
@@ -2767,10 +2820,17 @@ SQL
       }
     }
   }
-}
+} ## end sub get_synonyms_for_xref
 
 
 # just incase this is being run again
+=head2 mark_mapped_xrefs_already_run
+  Description: Set dumped to NULL if the value in dumped is not set to
+              NO_DUMP_ANOTHER_PRIORITY
+  Return type: undef
+
+=cut
+
 sub mark_mapped_xrefs_already_run {
   my ( $self ) = @_;
 
@@ -2784,9 +2844,16 @@ SQL
   $sth->execute() || confess 'Could not set dumped status';
 
   return;
-}
+} ## end sub mark_mapped_xrefs_already_run
 
 
+=head2 mark_mapped_xrefs
+  Arg [1]    : Arrayref - \@xref_list
+  Arg [2]    : string - $status
+  Description: Set the dumped column for a list of xref IDs with $status
+  Return type: undef
+
+=cut
 
 sub mark_mapped_xrefs {
   my ( $self, $xref_list, $status ) = @_;
@@ -2802,9 +2869,15 @@ SQL
     confess 'Could not set dumped status';
 
   return;
-}
+} ## end sub mark_mapped_xrefs
 
 
+=head2 insert_process_status
+  Arg [1]    : string - $status
+  Description: Insert the current status for a process
+  Return type: undef
+
+=cut
 
 sub insert_process_status {
   my ( $self, $status ) = @_;
@@ -2817,9 +2890,16 @@ SQL
   $sth->execute( $status ) || confess 'Could not set dumped status';
 
   return;
-}
+} ## end sub insert_process_status
 
 
+=head2 get_unmapped_reason
+  Description: Get the names and descriptions of valid reasons why an xref could
+               could be unmapped. These shoudld be used to describe the xrefs
+               when they are loaded into the core DB.
+  Return type: Hashref
+
+=cut
 
 sub get_unmapped_reason {
   my ( $self ) = @_;
@@ -2867,9 +2947,20 @@ SQL
     summary => \%summary_failed,
     desc    => \%desc_failed
   };
-}
+} ## end sub get_unmapped_reason
 
 
+=head2 get_insert_direct_xref_low_priority
+  Description: Iteratively retrieve all xrefs that are have info_type as DIRECT
+               and ox_status as FAILED_PRIORITY and dumped as NULL
+  Return type: Iterator - Hashref
+  Example    : my $xrefs = $ba_handle->get_insert_direct_xref_low_priority();
+               while( my $xref_ref = $xrefs->() ) {
+                 my %xref = %{ $xref_ref };
+                 print $xref{'acc'};
+               }
+
+=cut
 
 sub get_insert_direct_xref_low_priority {
   my ( $self ) = @_;
@@ -2880,7 +2971,7 @@ sub get_insert_direct_xref_low_priority {
     FROM source s,xref x
          LEFT JOIN  object_xref ox ON ox.xref_id = x.xref_id
     WHERE x.source_id = s.source_id AND
-          x.dumped is null AND
+          x.dumped IS NULL AND
           ox.ox_status != 'FAILED_PRIORITY' AND
           x.info_type = 'DIRECT'
 SQL
@@ -2911,6 +3002,17 @@ SQL
 } ## end sub get_insert_direct_xref_low_priority
 
 
+=head2 get_insert_dependent_xref_low_priority
+  Description: Iteratively retrieve all xrefs that are have info_type as DEPENDENT
+               and ox_status as FAILED_PRIORITY and dumped is NULL
+  Return type: Iterator - Hashref
+  Example    : my $xrefs = $ba_handle->get_insert_dependent_xref_low_priority();
+               while( my $xref_ref = $xrefs->() ) {
+                 my %xref = %{ $xref_ref };
+                 print $xref{'acc'};
+               }
+
+=cut
 
 sub get_insert_dependent_xref_low_priority {
   my ( $self ) = @_;
@@ -2956,6 +3058,17 @@ SQL
 } ## end sub get_insert_dependent_xref_low_priority
 
 
+=head2 get_insert_sequence_xref_remaining
+  Description: Iteratively retrieve all xrefs that are have info_type as SEQUENCE_MATCH
+               and dumped is NULL
+  Return type: Iterator - Hashref
+  Example    : my $xrefs = $ba_handle->get_insert_sequence_xref_remaining();
+               while( my $xref_ref = $xrefs->() ) {
+                 my %xref = %{ $xref_ref };
+                 print $xref{'acc'};
+               }
+
+=cut
 
 sub get_insert_sequence_xref_remaining {
   my ( $self ) = @_;
@@ -3009,6 +3122,17 @@ SQL
 } ## end sub get_insert_sequence_xref_remaining
 
 
+=head2 get_insert_misc_xref
+  Description: Iteratively retrieve all xrefs that are have info_type as MISC
+               and dumped is NULL
+  Return type: Iterator - Hashref
+  Example    : my $xrefs = $ba_handle->get_insert_misc_xref();
+               while( my $xref_ref = $xrefs->() ) {
+                 my %xref = %{ $xref_ref };
+                 print $xref{'acc'};
+               }
+
+=cut
 
 sub get_insert_misc_xref {
   my ( $self ) = @_;
@@ -3047,13 +3171,20 @@ SQL
 } ## end sub get_insert_misc_xref
 
 
-###########################
-# WEL (What ever is left).#
-###########################
+=head2 get_insert_other_xref
+  Description: WEL (Whatever is left)
+               These are those defined as dependent but the master never existed
+               and the xref and their descriptions etc are loaded first with the
+               dependency's added later so did not know they had no masters at
+               time of loading. (e.g. EntrezGene, WikiGene, MIN_GENE, MIM_MORBID)
+  Return type: Iterator - HashRef
+  Example    : my $xrefs = $ba_handle->get_insert_other_xref();
+               while( my $xref_ref = $xrefs->() ) {
+                 my %xref = %{ $xref_ref };
+                 print $xref{'acc'};
+               }
+=cut
 
-# These are those defined as dependent but the master never existed and the xref and their descriptions etc are loaded first
-# with the dependencys added later so did not know they had no masters at time of loading.
-# (e.g. EntrezGene, WikiGene, MIN_GENE, MIM_MORBID)
 sub get_insert_other_xref {
   my ( $self ) = @_;
 
@@ -3088,7 +3219,7 @@ SQL
       }
     }
   }
-}
+} ## end sub get_insert_other_xref
 
 1;
 
