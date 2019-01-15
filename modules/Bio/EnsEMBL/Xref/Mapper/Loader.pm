@@ -53,12 +53,15 @@ use DBI;
 
 
 =head2 update
-
+  Description: This is the main wrapper function to handle the extraction of
+               xrefs from the xref db and loading them into the core db.
+  Return type: Hashref
+  Example    : $loader_handle->update()
 
 =cut
 
 sub update {
-  my ( $self, $arg ) = @_;
+  my ( $self ) = @_;
   # remove xref, object_xref, identity_xref, depenedent_xref, go_xref, unmapped_object, (interpro???), external_synonym, projections.
 
   ##################################################
@@ -178,6 +181,23 @@ sub update {
 } ## end sub update
 
 
+=head2 unmapped_xrefs_from_xrefdb_to_coredb
+  Arg [1]    : integer - $xref_offset
+  Arg [2]    : integer - $object_xref_offset
+  Arg [3]    : hashref - $analyss_ids
+  Arg [4]    : hashref - $reason_ids
+  Description: Wrapper for running the functions for importing mapped xrefs from
+               unmapped xrefs from the xref db into the core db
+  Return type: Hashref
+  Example    : $loader_handler->unmapped_xrefs_from_xrefdb_to_coredb(
+                 100,
+                 1000,
+                 { ... },
+                 { ... }
+               )
+
+=cut
+
 sub unmapped_xrefs_from_xrefdb_to_coredb {
   my ( $self, $xref_offset, $object_xref_offset, $analysis_ids, $reason_ids ) = @_;
 
@@ -242,7 +262,17 @@ sub unmapped_xrefs_from_xrefdb_to_coredb {
 
 
 =head2 map_xrefs_from_xrefdb_to_coredb
-
+  Arg [1]    : integer - $xref_offset
+  Arg [2]    : integer - $object_xref_offset
+  Description: Wrapper for running the functions for importing mapped xrefs from
+               the xref db into the core db
+  Return type: Hashref
+  Example    : $loader_handler->map_xrefs_from_xrefdb_to_coredb(
+                 100,
+                 1000,
+                 { ... },
+                 { ... }
+               )
 
 =cut
 
@@ -318,7 +348,14 @@ sub map_xrefs_from_xrefdb_to_coredb {
 
 
 =head2 load_unmapped_direct_xref
-
+  Arg [1]    : integer - $xref_offset
+  Arg [2]    : integer - $analysis_id
+  Arg [3]    : integer - $reason_id
+  Description: Function for loading direct xrefs into the core db from the xref db
+  Return type: Array - @xref_list
+  Example    : my @unmapped_xref_ids = $loader_handle->load_unmapped_direct_xref(
+                 100, 1, 16
+               );
 
 =cut
 
@@ -361,7 +398,14 @@ sub load_unmapped_direct_xref {
 
 
 =head2 load_unmapped_dependent_xref
-
+  Arg [1]    : integer - $xref_offset
+  Arg [2]    : integer - $analysis_id
+  Arg [3]    : integer - $reason_id
+  Description: Function for loading dependent xrefs into the core db from the xref db
+  Return type: Array - @xref_list
+  Example    : my @unmapped_xref_ids = $loader_handle->load_unmapped_dependent_xref(
+                 100, 1, 16
+               );
 
 =cut
 
@@ -410,7 +454,14 @@ sub load_unmapped_dependent_xref {
 
 
 =head2 load_unmapped_sequence_xrefs
-
+  Arg [1]    : integer - $xref_offset
+  Arg [2]    : Hashref - $analysis_id
+  Arg [3]    : Hashref - $reason_id
+  Description: Function for loading sequence xrefs into the core db from the xref db
+  Return type: Array - @xref_list
+  Example    : my @unmapped_xref_ids = $loader_handle->load_unmapped_sequence_xref(
+                 100, { ... }, { ... }
+               );
 
 =cut
 
@@ -485,7 +536,14 @@ sub load_unmapped_sequence_xrefs {
 
 
 =head2 load_unmapped_misc_xref
-
+  Arg [1]    : integer - $xref_offset
+  Arg [2]    : integer - $analysis_id
+  Arg [3]    : integer - $reason_id
+  Description: Function for loading misc xrefs into the core db from the xref db
+  Return type: Array - @xref_list
+  Example    : my @unmapped_xref_ids = $loader_handle->load_unmapped_misc_xref(
+                 100, 1, 16
+               );
 
 =cut
 
@@ -525,19 +583,23 @@ sub load_unmapped_misc_xref {
 
 
 =head2 load_unmapped_other_xref
+  Arg [1]    : integer - $xref_offset
+  Arg [2]    : integer - $analysis_id
+  Arg [3]    : integer - $reason_id
+  Description: Function for loading other xrefs into the core db from the xref db
 
+               These are those defined as dependent but the master never existed
+               and the xref and their descriptions etc are loaded first with the
+               dependency's added later so did not know they had no masters at
+               time of loading. (e.g. EntrezGene, WikiGene, MIN_GENE, MIM_MORBID)
+  Return type: Array - @xref_list
+  Example    : my @unmapped_xref_ids = $loader_handle->load_unmapped_other_xref(
+                 100, 1, 16
+               );
 
 =cut
 
 sub load_unmapped_other_xref {
-  ###########################
-  # WEL (What ever is left).#
-  ###########################
-
-  # These are those defined as dependent but the master never existed and the xref and their descriptions etc are loaded first
-  # with the dependencys added later so did not know they had no masters at time of loading.
-  # (e.g. EntrezGene, WikiGene, MIN_GENE, MIM_MORBID)
-
   my ( $self, $xref_offset, $analysis_id, $reason_id ) = @_;
   my %name_to_external_db_id = $self->get_xref_external_dbs();
 
@@ -577,7 +639,16 @@ sub load_unmapped_other_xref {
 
 
 =head2 load_identity_xref
-
+  Arg [1]    : integer - $source_id
+  Arg [2]    : string - $type
+  Arg [3]    : integer - $xref_offset
+  Arg [4]    : integer - $external_db_id
+  Arg [5]    : integer - $object_xref_offset
+  Description: Function for loading identity xrefs into the core db from the xref db
+  Return type: Array - @xref_list
+  Example    : my @mapped_xref_ids = $loader_handle->load_identity_xref(
+                 1, 'DIRECT', 100, 5, 1000
+               );
 
 =cut
 
@@ -641,7 +712,17 @@ sub load_identity_xref {
 
 
 =head2 load_checksum_xref
-
+  Arg [1]    : integer - $source_id
+  Arg [2]    : string - $type
+  Arg [3]    : integer - $xref_offset
+  Arg [4]    : integer - $external_db_id
+  Arg [5]    : integer - $object_xref_offset
+  Arg [6]    : integer - $checksum_analysis_id
+  Description: Function for loading checksum xrefs into the core db from the xref db
+  Return type: Array - @xref_list
+  Example    : my @mapped_xref_ids = $loader_handle->load_checksum_xref(
+                 1, 'DIRECT', 100, 5, 1000
+               );
 
 =cut
 
@@ -689,7 +770,16 @@ sub load_checksum_xref {
 
 
 =head2 load_dependent_xref
-
+  Arg [1]    : integer - $source_id
+  Arg [2]    : string - $type
+  Arg [3]    : integer - $xref_offset
+  Arg [4]    : integer - $external_db_id
+  Arg [5]    : integer - $object_xref_offset
+  Description: Function for loading dependent xrefs into the core db from the xref db
+  Return type: Array - @xref_list
+  Example    : my @mapped_xref_ids = $loader_handle->load_dependent_xref(
+                 1, 'DIRECT', 100, 5, 1000
+               );
 
 =cut
 
@@ -767,7 +857,13 @@ sub load_dependent_xref {
 
 
 =head2 load_synonyms
-
+  Arg [1]    : Arrayref - $xref_list
+  Arg [2]    : integer - $xref_offset
+  Description: Function for loading xref synonyms into the core db from the xref db
+  Return type: undef
+  Example    : $loader_handle->load_synonyms(
+                 ( 1, 2, 3, 4, ...), 100
+               );
 
 =cut
 
@@ -799,7 +895,9 @@ sub load_synonyms {
 
 
 =head2 get_analysis
-
+  Description: ...
+  Return type: Hashref
+  Example    :
 
 =cut
 
@@ -818,7 +916,9 @@ sub get_analysis {
 
 
 =head2 get_single_analysis
-
+  Description: ...
+  Return type: Hashref
+  Example    :
 
 =cut
 
@@ -855,7 +955,9 @@ sub get_single_analysis {
 
 
 =head2 add_xref
-
+  Description: ...
+  Return type: Hashref
+  Example    :
 
 =cut
 
@@ -900,7 +1002,9 @@ SQL
 
 
 =head2 add_object_xref
-
+  Description: ...
+  Return type: Hashref
+  Example    :
 
 =cut
 
@@ -975,7 +1079,9 @@ sub get_xref_external_dbs {
 
 
 =head2 delete_projected_xrefs
-
+  Description: ...
+  Return type: Hashref
+  Example    :
 
 =cut
 
@@ -1170,7 +1276,9 @@ sub parsing_stored_data {
 
 
 =head2 add_identity_xref
-
+  Description: ...
+  Return type: Hashref
+  Example    :
 
 =cut
 
@@ -1208,7 +1316,9 @@ SQL
 
 
 =head2 add_dependent_xref
-
+  Description: ...
+  Return type: Hashref
+  Example    :
 
 =cut
 
@@ -1231,7 +1341,9 @@ my $sth  = $self->core->dbc->prepare( $sql );
 
 
 =head2 add_xref_synonym
-
+  Description: ...
+  Return type: Hashref
+  Example    :
 
 =cut
 
@@ -1247,7 +1359,9 @@ sub add_xref_synonym {
 
 
 =head2 get_unmapped_reason_id
-
+  Description: ...
+  Return type: Hashref
+  Example    :
 
 =cut
 
@@ -1272,7 +1386,9 @@ SQL
 
 
 =head2 add_unmapped_reason
-
+  Description: ...
+  Return type: Hashref
+  Example    :
 
 =cut
 
@@ -1292,7 +1408,9 @@ SQL
 
 
 =head2 add_unmapped_object
-
+  Description: ...
+  Return type: Hashref
+  Example    :
 
 =cut
 
