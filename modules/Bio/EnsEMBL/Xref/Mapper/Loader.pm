@@ -66,7 +66,7 @@ sub update {
   # module                                         #
   ##################################################
 
-  $self->name_to_external_db_id = %{ $self->get_xref_external_dbs() };
+  my %name_to_external_db_id = $self->get_xref_external_dbs();
 
   # Get the cutoff values
   my %failed_sources = %{ $self->xref->get_unmapped_reason() };
@@ -85,8 +85,6 @@ sub update {
     $reason_id{$key} = $failed_id;
   }
 
-  $self->reason_id = %reason_id;
-
   # my $verbose  = $self->verbose;
   # my $core_dbi = $self->core->dbc;
   # my $xref_dbi = $self->xref->dbc;
@@ -102,11 +100,9 @@ sub update {
   # Get source_id to external_db_id       #
   #########################################
 
-  my %name_to_external_db_id = $self->name_to_external_db_id;
-
   my %source_id_to_external_db_id;
   my %source_list = $self->xref->get_valid_source_id_to_external_db_id();
-  while ( my ( $name, $id ) = each %source_list ) {
+  while ( my ( $id, $name ) = each %source_list ) {
     if ( defined $name_to_external_db_id{ $name } ) {
       $source_id_to_external_db_id{ $id } = $name_to_external_db_id{ $name };
     }
@@ -117,7 +113,6 @@ sub update {
   }
 
   $self->xref->mark_mapped_xrefs_already_run(); # just incase this is being ran again
-
 
   ######################################
   # For each external_db to be updated #
@@ -196,7 +191,7 @@ sub unmapped_xrefs_from_xrefdb_to_coredb {
     $reason_id{'NO_STABLE_ID'}
   );
   if ( @direct_xref_list ) {
-    $self->xref->mark_mapped_xrefs( @direct_xref_list, 'UNMAPPED_NO_STABLE_ID' );
+    $self->xref->mark_mapped_xrefs( \@direct_xref_list, 'UNMAPPED_NO_STABLE_ID' );
   }
 
   # MISC #
@@ -206,7 +201,7 @@ sub unmapped_xrefs_from_xrefdb_to_coredb {
     $reason_id{'NO_MAPPING'}
   );
   if ( @misc_xref_list ) {
-    $self->xref->mark_mapped_xrefs( @misc_xref_list, 'UNMAPPED_NO_MAPPING' );
+    $self->xref->mark_mapped_xrefs( \@misc_xref_list, 'UNMAPPED_NO_MAPPING' );
   }
 
   # DEPENDENT #
@@ -216,7 +211,7 @@ sub unmapped_xrefs_from_xrefdb_to_coredb {
     $reason_id{ 'MASTER_FAILED' }
   );
   if ( @dependent_xref_list ) {
-    $self->xref->mark_mapped_xrefs( @dependent_xref_list, 'UNMAPPED_MASTER_FAILED' );
+    $self->xref->mark_mapped_xrefs( \@dependent_xref_list, 'UNMAPPED_MASTER_FAILED' );
   }
 
   # SEQUENCE_MATCH #
@@ -226,7 +221,7 @@ sub unmapped_xrefs_from_xrefdb_to_coredb {
     \%reason_id
   );
   if ( @sequence_xref_list ) {
-    $self->xref->mark_mapped_xrefs( @sequence_xref_list, 'UNMAPPED_NO_MAPPING' );
+    $self->xref->mark_mapped_xrefs( \@sequence_xref_list, 'UNMAPPED_NO_MAPPING' );
   }
 
   # WEL (What ever is left) #
@@ -239,7 +234,7 @@ sub unmapped_xrefs_from_xrefdb_to_coredb {
     $reason_id{ 'NO_MASTER' }
   );
   if ( @other_xref_list ) {
-    $self->xref->mark_mapped_xrefs( @other_xref_list, 'UNMAPPED_NO_MASTER' );
+    $self->xref->mark_mapped_xrefs( \@other_xref_list, 'UNMAPPED_NO_MASTER' );
   }
 
   return;
@@ -302,7 +297,6 @@ sub map_xrefs_from_xrefdb_to_coredb {
     else {
       print "PROBLEM:: what type is $xref_handle{'type'}\n";
     }
-
 
     # Transfer data for synonym and set xref database xrefs to dumped.
     if ( @xref_list ) {
@@ -621,7 +615,7 @@ sub load_identity_xref {
       $identity_xref_handle{'object_xref_id'},
       $identity_xref_handle{'ensembl_id'},
       $identity_xref_handle{'ensembl_type'},
-      ( $xref_id + $xref_offset),
+      $xref_id + $xref_offset,
       $identity_xref_handle{'analysis_ids'}{ $identity_xref_handle{'ensembl_type'} },
       $self->core->dbc
     );
