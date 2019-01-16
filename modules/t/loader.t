@@ -141,7 +141,7 @@ ok( defined $returned_external_db_ids{'GO'}, 'get_xref_external_dbs' );
 
 # delete_projected_xrefs
 ok(
-  $loader_handle->delete_projected_xrefs(
+  !defined $loader_handle->delete_projected_xrefs(
     $returned_external_db_ids{'RefSeq_dna_predicted'}
   ),
   'delete_projected_xrefs'

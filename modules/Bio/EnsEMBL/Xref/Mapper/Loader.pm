@@ -1134,13 +1134,15 @@ SQL
   if ( $self->verbose ) {
     print "\tDeleted $affected_rows PROJECTED xref row(s)\n";
   }
+
+  return;
 } ## end sub delete_projected_xrefs
 
 
 =head2 delete_by_external_db_id
   Arg [1]    : external_db_id
   Description: Delete xrefs and associated links for a given external db ID
-  Return type:
+  Return type: undef
   Exceptions : confess on a failed UPDATE
   Caller     : internal
 
