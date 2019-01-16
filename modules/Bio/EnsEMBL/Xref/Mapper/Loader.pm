@@ -895,9 +895,9 @@ sub load_synonyms {
 
 
 =head2 get_analysis
-  Description: ...
+  Description: Get the mapping of dependent xref analysis IDs from their name
   Return type: Hashref
-  Example    :
+  Example    : $loader_handle->get_analysis();
 
 =cut
 
@@ -916,9 +916,10 @@ sub get_analysis {
 
 
 =head2 get_single_analysis
-  Description: ...
+  Arg [1]    : string - $logic_name
+  Description: Returns the analysis_id for a given logic_name
   Return type: Hashref
-  Example    :
+  Example    : my $analysis_id = $loader_handle->get_single_analysis( 'xrefexoneratedna' );
 
 =cut
 
@@ -955,9 +956,22 @@ sub get_single_analysis {
 
 
 =head2 add_xref
-  Description: ...
-  Return type: Hashref
-  Example    :
+  Arg [1]    : integer - $offset
+  Arg [2]    : integer - $xref_id
+  Arg [3]    : integer - $external_db_id
+  Arg [4]    : string - $dbprimary_acc
+  Arg [5]    : string - $display_label
+  Arg [6]    : integer - $version
+  Arg [7]    : string - $description
+  Arg [8]    : string - $info_type
+  Arg [9]    : string - $info_text
+  Arg [10]   : Bio::EnsEMBL::DBSQL::DBConnection - $dbc
+  Description: Insert entry in the xref table in the core db.
+  Return type: integer - $xref_id
+  Example    : $loader_handle->add_xref(
+                 $offset, $xref_id, $external_db_id, $dbprimary_acc, $display_label,
+                 $version, $description, $info_type, $info_text, $dbc
+               );
 
 =cut
 
@@ -1002,14 +1016,26 @@ SQL
 
 
 =head2 add_object_xref
-  Description: ...
-  Return type: Hashref
-  Example    :
+  Arg [1]    : integer - $offset
+  Arg [2]    : integer - $object_xref_id
+  Arg [3]    : integer - $ensembl_id
+  Arg [4]    : string - $ensembl_object_type
+  Arg [5]    : integer - $xref_id
+  Arg [6]    : integer - $analysis_id
+  Arg [7]    : Bio::EnsEMBL::DBSQL::DBConnection - $dbc
+  Description: Add entries in the object_xref table mapping between the ensembl
+               object and an xref.
+  Return type: integer
+  Example    : $loader_handle->add_object_xref(
+                 $offset, $object_xref_id, $ensembl_id, $ensembl_object_type,
+                 $xref_id, $analysis_id, $dbc
+               );
 
 =cut
 
 sub add_object_xref {
-  my ($self, $offset, $object_xref_id, $ensembl_id, $ensembl_object_type, $xref_id, $analysis_id, $dbc) = @_;
+  my ( $self, $offset, $object_xref_id, $ensembl_id, $ensembl_object_type,
+       $xref_id, $analysis_id, $dbc) = @_;
 
   my $select_sql = (<<'SQL');
     SELECT object_xref_id
@@ -1079,9 +1105,9 @@ sub get_xref_external_dbs {
 
 
 =head2 delete_projected_xrefs
-  Description: ...
-  Return type: Hashref
-  Example    :
+  Description: Delete xref entries from the core db
+  Return type: undef
+  Example    : $loader_handle->delete_projected_xrefs();
 
 =cut
 
@@ -1239,7 +1265,7 @@ SQL
 
 =head2 parsing_stored_data
   Description: Store data needed to be able to revert to same stage as after parsing
-  Return type:
+  Return type:Hashref
   Caller     : internal
 
   Notes      : Store max id for
@@ -1278,9 +1304,22 @@ sub parsing_stored_data {
 
 
 =head2 add_identity_xref
-  Description: ...
-  Return type: Hashref
-  Example    :
+  Arg [1]    : Hashref - $xref
+  Description: Insert entry in the identity_xref table for a given object_xref_id
+  Return type: undef
+  Example    : $loader_handle->add_identity_xref(
+               {
+                 object_xref_id => $object_xref_id,
+                 xref_identity => 100,
+                 ensembl_identity => 100,
+                 xref_start => 1,
+                 xref_end => 256,
+                 ensembl_start => 1,
+                 ensembl_end => 256,
+                 cigar_line => '256M',
+                 score => 100,
+                 evalue => 24_000_000
+               } );
 
 =cut
 
@@ -1318,9 +1357,16 @@ SQL
 
 
 =head2 add_dependent_xref
-  Description: ...
-  Return type: Hashref
-  Example    :
+  Arg [1]    : integer - $object_xref_id
+  Arg [2]    : integer - $master_xref_id
+  Arg [3]    : integer - $dependent_xref_id
+  Description: Insert entry in the dependent_xref table for a given object_xref_id
+  Return type: undef
+  Example    : $loader_handle->add_dependent_xref(
+                 $returned_object_xref_id,
+                 $returned_xref_id,
+                 $dependent_xref_id
+               );
 
 =cut
 
@@ -1343,8 +1389,10 @@ my $sth  = $self->core->dbc->prepare( $sql );
 
 
 =head2 add_xref_synonym
-  Description: ...
-  Return type: Hashref
+  Arg [1]    : integer - $xref_id
+  Arg [2]    : string - $synonym
+  Description: Add a synonym to a given xref in the core db
+  Return type: undef
   Example    :
 
 =cut
@@ -1361,9 +1409,12 @@ sub add_xref_synonym {
 
 
 =head2 get_unmapped_reason_id
-  Description: ...
-  Return type: Hashref
-  Example    :
+  Arg [1]    : string - $desc_failed
+  Description: Get the reason ID based on an unmapped reasons description
+  Return type: integer
+  Example    : my $unmapped_reason_id = $loader_handle->get_unmapped_reason_id(
+                 'exonerate%'
+               );
 
 =cut
 
@@ -1388,9 +1439,12 @@ SQL
 
 
 =head2 add_unmapped_reason
-  Description: ...
-  Return type: Hashref
-  Example    :
+  Arg [1]    : string - $summary_failed
+  Arg [2]    : string - $desc_failed
+  Description: Load reason for why an xref entry is unmapped
+  Return type: integer
+  Example    : my $unmapped_reason_id = $loader_handle->add_unmapped_reason(
+                 $summary_failed, $desc_failed);
 
 =cut
 
@@ -1410,9 +1464,20 @@ SQL
 
 
 =head2 add_unmapped_object
-  Description: ...
-  Return type: Hashref
-  Example    :
+  Arg [1]    : Hashref - $param
+  Description: Add unmapped xref objects to the core db
+  Return type: undef
+  Example    : $loader_handle->add_unmapped_object( \%params );
+  Notes      : Available parameters in %param:
+                 analysis_id         - REQUIRED
+                 external_db_id      - REQUIRED
+                 identifier          - REQUIRED
+                 unmapped_reason_id  - REQUIRED
+                 query_score         - OPTIONAL
+                 target_score        - OPTIONAL
+                 ensembl_id          - OPTIONAL
+                 ensembl_object_type - OPTIONAL
+                 parent              - OPTIONAL
 
 =cut
 
