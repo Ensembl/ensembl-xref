@@ -83,9 +83,7 @@ my %returned_stored_data = $loader_handle->parsing_stored_data();
 ## Prepare the xref db
 my $source = $db->schema->resultset('Source')->create({
   name                 => 'RefSeq_dna_predicted',
-  status               => 'KNOWN',
   source_release       => '38',
-  download             => 'Y',
   priority             => 1,
   priority_description => 'Like a boss',
 });
