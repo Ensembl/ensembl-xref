@@ -484,7 +484,7 @@ sub load_unmapped_sequence_xrefs {
     ) {
       next;
     }
-    if ( !defined $xref_id or $last_xref != $xref_id ) {
+    if ( !defined $xref_id || $last_xref != $xref_id ) {
       $xref_id = $self->add_xref(
         $xref_offset,
         $xref_handle{'xref_id'},
