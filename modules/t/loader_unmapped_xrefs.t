@@ -80,6 +80,14 @@ my %returned_stored_data = $loader_handle->parsing_stored_data();
 ## Loader Tests
 #  Tests for calling the loader functions
 
+# delete_projected_xrefs
+ok(
+  !defined $loader_handle->delete_projected_xrefs(
+    $returned_external_db_ids{'RefSeq_dna_predicted'}
+  ),
+  'delete_projected_xrefs'
+);
+
 ## Prepare the xref db
 my $source = $db->schema->resultset('Source')->create({
   name                 => 'RefSeq_dna_predicted',

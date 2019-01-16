@@ -67,18 +67,20 @@ isa_ok( $loader_handle, 'Bio::EnsEMBL::Xref::Mapper::Loader' );
 #  functionality of other functions in the module
 
 
-# # get_analysis
-# my %analysis_ids = $loader_handle->get_analysis();
-
-# # get_xref_external_dbs
-# my %returned_external_db_ids = $loader_handle->get_xref_external_dbs();
-
-# # parsing_stored_data
-# my %returned_stored_data = $loader_handle->parsing_stored_data();
+# get_xref_external_dbs
+my %returned_external_db_ids = $loader_handle->get_xref_external_dbs();
 
 
 ## Loader Tests
 #  Tests for calling the loader functions
+
+# delete_projected_xrefs
+ok(
+  !defined $loader_handle->delete_projected_xrefs(
+    $returned_external_db_ids{'RefSeq_dna_predicted'}
+  ),
+  'delete_projected_xrefs'
+);
 
 ## Prepare the xref db
 my $source = $db->schema->resultset('Source')->create({
