@@ -490,7 +490,9 @@ sub upload_xref_object_graphs {
       'species_id'   => $xref->{SPECIES_ID},
       'info_type'    => $xref->{INFO_TYPE},
       'info_text'    => $xref->{INFO_TEXT},
-      'update_label' => 1, 'update_desc' => 1 } );
+      'update_label' => 1,
+      'update_desc' => 1
+    } );
 
     # If there are any direct_xrefs, add these to the relevant tables
     $self->add_multiple_direct_xrefs( $xref->{DIRECT_XREFS} );
@@ -1348,13 +1350,13 @@ sub get_acc_to_label {
   my ( $self, $name, $species_id, $prio_desc ) = @_;
   my %hash1 = ();
 
-  my $sql = (<<'GLA');
+  my $sql = (<<'SQL');
     SELECT  xref.accession, xref.label
     FROM xref, source
     WHERE
       source.name LIKE ? AND
       xref.source_id = source.source_id
-GLA
+SQL
 
   my @sql_params = ($name . q{%});
 
@@ -1414,13 +1416,13 @@ sub get_dependent_mappings {
   my $self      = shift;
   my $source_id = shift;
 
-  my $sql = (<<'GDM');
+  my $sql = (<<'SQL');
     SELECT  d.master_xref_id, d.dependent_xref_id, d.linkage_annotation
     FROM dependent_xref d, xref x
     WHERE
       x.xref_id = d.dependent_xref_id AND
       x.source_id = ?
-GDM
+SQL
   my $sth = $self->dbi->prepare_cached($sql);
   $sth->execute($source_id);
   my $master_xref;
@@ -2047,8 +2049,8 @@ SQL
 
 
 =head2 _update_xref_description
-  Description: Refseq sources to consider. Prefixes not in this list will be ignored.
-               To be used by RefSeq parsers
+  Description: Return a map from RefSeq prefix symbols to their corresponding
+               sources.
   Return type: hashref
   Caller     : internal
 
