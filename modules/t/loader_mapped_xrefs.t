@@ -80,13 +80,9 @@ my %returned_stored_data = $loader_handle->parsing_stored_data();
 ## Loader Tests
 #  Tests for calling the loader functions
 
-# delete_projected_xrefs
-ok(
-  !defined $loader_handle->delete_projected_xrefs(
-    $returned_external_db_ids{'RefSeq_dna_predicted'}
-  ),
-  'delete_projected_xrefs'
-);
+my $delete_meta_offset_sth = $loader_handle->core->dbc->prepare_cached(
+  'DELETE FROM meta WHERE meta_key = "xref_offset" OR meta_key = "object_xref_offset"');
+$delete_meta_offset_sth->execute();
 
 ## Prepare the xref db
 my $source = $db->schema->resultset('Source')->create({
@@ -117,9 +113,9 @@ my $mapping = $db->schema->resultset('Mapping')->create({
 });
 
 my $new_xref_00 = {
-  ACCESSION    => 'NM04560',
+  ACCESSION    => 'NM07890',
   VERSION      => 1,
-  LABEL        => 'NM04560.1',
+  LABEL        => 'NM07890.1',
   DESCRIPTION  => 'Fake RefSeq transcript',
   SPECIES_ID   => '9606',
   SOURCE_ID    => $source->source_id,
@@ -130,9 +126,9 @@ my $new_xref_00 = {
 };
 
 my $new_xref_01 = {
-  ACCESSION    => 'NM04561',
+  ACCESSION    => 'NM07891',
   VERSION      => 1,
-  LABEL        => 'NM04561.1',
+  LABEL        => 'NM07891.1',
   DESCRIPTION  => 'Fake RefSeq transcript',
   SPECIES_ID   => '9606',
   SOURCE_ID    => $source->source_id,
@@ -143,9 +139,9 @@ my $new_xref_01 = {
 };
 
 my $new_xref_02 = {
-  ACCESSION    => 'NM04562',
+  ACCESSION    => 'NM07892',
   VERSION      => 1,
-  LABEL        => 'NM04562.1',
+  LABEL        => 'NM07892.1',
   DESCRIPTION  => 'Fake RefSeq transcript',
   SPECIES_ID   => '9606',
   SOURCE_ID    => $source->source_id,
@@ -156,9 +152,9 @@ my $new_xref_02 = {
 };
 
 my $new_xref_03 = {
-  ACCESSION    => 'NM04563',
+  ACCESSION    => 'NM07893',
   VERSION      => 1,
-  LABEL        => 'NM04563.1',
+  LABEL        => 'NM07893.1',
   DESCRIPTION  => 'Fake RefSeq misc',
   SPECIES_ID   => '9606',
   SOURCE_ID    => $source->source_id,
@@ -173,7 +169,7 @@ $loader_handle->xref->upload_xref_object_graphs( \@new_xref_array );
 
 my $object_xref_id_00 = $loader_handle->xref->add_object_xref(
   {
-    xref_id     => $loader_handle->xref->get_xref('NM04560', $source->source_id, 9606),
+    xref_id     => $loader_handle->xref->get_xref('NM07890', $source->source_id, 9606),
     ensembl_id  => 1,
     object_type => 'Gene'
   }
@@ -188,7 +184,7 @@ ok(
 
 my $object_xref_id_01 = $loader_handle->xref->add_object_xref(
   {
-    xref_id     => $loader_handle->xref->get_xref('NM04561', $source->source_id, 9606),
+    xref_id     => $loader_handle->xref->get_xref('NM07891', $source->source_id, 9606),
     ensembl_id  => 1,
     object_type => 'Gene'
   }
@@ -197,7 +193,7 @@ ok( defined $object_xref_id_01, "add_object_xref - Object_xref entry inserted - 
 
 my $object_xref_id_02 = $loader_handle->xref->add_object_xref(
   {
-    xref_id     => $loader_handle->xref->get_xref('NM04562', $source->source_id, 9606),
+    xref_id     => $loader_handle->xref->get_xref('NM07892', $source->source_id, 9606),
     ensembl_id  => 1,
     object_type => 'Gene'
   }
@@ -206,7 +202,7 @@ ok( defined $object_xref_id_02, "add_object_xref - Object_xref entry inserted - 
 
 ok(
   defined $loader_handle->xref->_add_primary_xref(
-    $loader_handle->xref->get_xref('NM04562', $source->source_id, 9606),
+    $loader_handle->xref->get_xref('NM07892', $source->source_id, 9606),
     'GATACCA', 'dna', 'experimental'
   ),
   '_add_primary_xref'
@@ -214,7 +210,7 @@ ok(
 
 my $object_xref_id_03 = $loader_handle->xref->add_object_xref(
   {
-    xref_id     => $loader_handle->xref->get_xref('NM04563', $source->source_id, 9606),
+    xref_id     => $loader_handle->xref->get_xref('NM07893', $source->source_id, 9606),
     ensembl_id  => 1,
     object_type => 'Gene'
   }
@@ -225,7 +221,7 @@ ok( defined $object_xref_id_03, "add_object_xref - Object_xref entry inserted - 
 my $new_xref_04 = {
   master_xref_id => $object_xref_id_01,
   type           => 'Gene',
-  acc            => 'NM04564',
+  acc            => 'NM07894',
   version        => 1,
   label          => 'DPNDT',
   desc           => 'Fake dependent xref',
@@ -255,7 +251,7 @@ my $dependent_update_sth = $xref_dbi->prepare(
   'UPDATE object_xref SET master_xref_id = ? WHERE object_xref_id = ?' );
 
 $dependent_update_sth->execute(
-  $loader_handle->xref->get_xref('NM04561', $source->source_id, 9606),
+  $loader_handle->xref->get_xref('NM07891', $source->source_id, 9606),
   $object_xref_id_04 );
 
 # Set the dumping on the object_xref table
