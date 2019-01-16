@@ -56,8 +56,8 @@ use_ok 'Bio::EnsEMBL::Xref::Parser::UCSC_human_parser';
 $db->schema->populate(
   'Source',
   [
-   [ qw/name status/ ],
-   [ 'UCSC_human', 'KNOWN' ],
+   [ qw/name/ ],
+   [ 'UCSC_human' ],
   ]
 );
 

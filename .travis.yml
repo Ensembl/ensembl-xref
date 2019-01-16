@@ -2,23 +2,16 @@ language: perl
 
 perl:
   - '5.26'
-  - '5.14'
 
 env:
   matrix:
     - COVERALLS=true
-    - COVERALLS=false
   global:
     - secure: Ju069PzB8QZG3302emIhyCEEQfVfVsiXy0nGcR6hue+vW9nE82NnOEZHbZIwUCXEjUaZRMVQ31Em70Ky22OrLK4D59bs2ClH21u8URDGD/cn7JNPGWFrgxuaXQKMQrw72doeB0+w1+ShURtqM41vITjinyU3y34RZ1NcbDwYSZI=
 
 sudo: false
 
 matrix:
-  exclude:
-    - perl: '5.14'
-      env: COVERALLS=true
-    - perl: '5.26'
-      env: COVERALLS=false
 
 addons:
   apt:

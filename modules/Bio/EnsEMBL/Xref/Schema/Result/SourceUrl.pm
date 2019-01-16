@@ -57,34 +57,6 @@ __PACKAGE__->table("source_url");
   extra: {unsigned => 1}
   is_nullable: 0
 
-=head2 url
-
-  data_type: 'mediumtext'
-  is_nullable: 1
-
-=head2 release_url
-
-  data_type: 'mediumtext'
-  is_nullable: 1
-
-=head2 checksum
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 1025
-
-=head2 file_modified_date
-
-  data_type: 'datetime'
-  datetime_undef_if_invalid: 1
-  is_nullable: 1
-
-=head2 upload_date
-
-  data_type: 'datetime'
-  datetime_undef_if_invalid: 1
-  is_nullable: 1
-
 =head2 parser
 
   data_type: 'varchar'
@@ -105,24 +77,6 @@ __PACKAGE__->add_columns(
   { data_type => "integer", extra => { unsigned => 1 }, is_nullable => 0 },
   "species_id",
   { data_type => "integer", extra => { unsigned => 1 }, is_nullable => 0 },
-  "url",
-  { data_type => "mediumtext", is_nullable => 1 },
-  "release_url",
-  { data_type => "mediumtext", is_nullable => 1 },
-  "checksum",
-  { data_type => "varchar", is_nullable => 1, size => 1025 },
-  "file_modified_date",
-  {
-    data_type => "datetime",
-    datetime_undef_if_invalid => 1,
-    is_nullable => 1,
-  },
-  "upload_date",
-  {
-    data_type => "datetime",
-    datetime_undef_if_invalid => 1,
-    is_nullable => 1,
-  },
   "parser",
   { data_type => "varchar", is_nullable => 1, size => 255 },
 );

@@ -50,7 +50,6 @@ use Carp;
 use Data::Dumper;
 
 use Bio::EnsEMBL::Utils::Exception;
-use Bio::EnsEMBL::Xref::FetchFiles;
 use Getopt::Long;
 use IO::Uncompress::AnyUncompress '$AnyUncompressError';
 
@@ -310,8 +309,7 @@ sub get_source_ids_for_source_name_pattern {
     confess 'source_name undefined';
   }
 
-  my $sth = $self->dbi->prepare_cached(
-              'SELECT source_id FROM source WHERE UPPER(name) LIKE ?' );
+  my $sth = $self->dbi->prepare_cached('SELECT source_id FROM source WHERE UPPER(name) LIKE ?');
 
   my $big_name = uc $source_name;
   $sth->execute("%${big_name}%");
@@ -350,13 +348,14 @@ sub get_source_name_for_source_id {
     $source_name = $row[0];
   }
   else {
-    print
-"There is no entity with source-id  $source_id  in the source-table of the \n";
-    print
-"xref-database. The source-id and the name of the source-id is hard-coded in populate_metadata.sql\n";
-    print "and in the parser\n";
-    print "Couldn't get source name for source ID $source_id\n";
-    $source_name = '-1';
+    my $error_msg = <<"ERROR";
+There is no entity with source-id  $source_id  in the source-table of the
+xref-database. The source-id and the name of the source-id is hard-coded in
+populate_metadata.sql and in the parser.
+Couldn't get source name for source ID $source_id
+ERROR
+
+    confess $error_msg;
   }
 
   return $source_name;
@@ -415,143 +414,7 @@ DSS
   return \%dependent_2_xref;
 } ## end sub get_valid_xrefs_for_dependencies
 
-=head2 get_valid_xrefs_for_direct_xrefs
-  Arg [1]    : direct name
-  Arg [2]    : separator
-  Description: Get a hash to go from accession of a direct xref to master_xref_id
-               for all of source names given
-  Return type: Hashref
-  Caller     : internal
 
-=cut
-
-sub get_valid_xrefs_for_direct_xrefs {
-  my ( $self, $direct_name, $separator ) = @_;
-
-  my %direct_2_xref;
-
-  my $sql = 'SELECT source_id FROM source WHERE name LIKE ?';
-  my $sth = $self->dbi->prepare($sql);
-  my @direct_sources;
-  $sth->execute("${direct_name}%");
-  while ( my @row = $sth->fetchrow_array() ) {
-    push @direct_sources, $row[0];
-  }
-
-  my $gene_sql = <<"GDS";
-    SELECT d.general_xref_id,
-           d.ensembl_stable_id,
-           'Gene',
-           d.linkage_xref,
-           x1.accession
-    FROM gene_direct_xref d, xref x1
-    WHERE x1.xref_id = d.general_xref_id AND
-          x1.source_id=?
-GDS
-
-  my $transcript_sql = <<"TDS";
-    SELECT d.general_xref_id,
-           d.ensembl_stable_id,
-           'Transcript',
-           d.linkage_xref,
-           x1.accession
-    FROM transcript_direct_xref d, xref x1
-    WHERE x1.xref_id = d.general_xref_id AND
-          x1.source_id=?
-TDS
-
-  my $translation_sql = <<"PDS";
-    SELECT d.general_xref_id,
-           d.ensembl_stable_id,
-           'TYPE',
-           d.linkage_xref,
-           x1.accession
-    FROM translation_direct_xref d, xref x1
-    WHERE x1.xref_id = d.general_xref_id AND
-          x1.source_id=?
-PDS
-
-  my %sql_hash = ( Gene        => $gene_sql,
-                   Transcript  => $transcript_sql,
-                   Translation => $translation_sql );
-
-  my @sth;
-  my $i = 0;
-  foreach my $type ( qw(Gene Transcript Translation) ) {
-    $sth[ $i++ ] = $self->dbi->prepare_cached( $sql_hash{$type} );
-  }
-
-  foreach my $d (@direct_sources) {
-    for my $ii ( 0 .. 2 ) {
-      $sth[$ii]->execute($d);
-      while ( my ( $gen_xref_id, $stable_id, $type, $link, $acc ) =
-              $sth[$ii]->fetchrow_array() )
-      {
-        if ( !defined $link ) {
-          $link = q{};
-        }
-        $direct_2_xref{$acc} =
-          $gen_xref_id . $separator .
-          $stable_id . $separator . $type . $separator . $link;
-      }
-    }
-  }
-
-  return \%direct_2_xref;
-} ## end sub get_valid_xrefs_for_direct_xrefs
-
-=head2 label_to_acc
-  Arg [1]    : source name
-  Arg [2]    : species id
-  Description: Get a hash of label to acc for a particular source name and
-               species_id
-  Return type: Hashref
-  Caller     : internal
-
-=cut
-
-sub label_to_acc {
-
-  my ( $self, $source_name, $species_id ) = @_;
-
-  # First cache synonyms so we can quickly add them later
-  my %synonyms;
-  my $syn_sth =
-    $self->dbi->prepare_cached('SELECT xref_id, synonym FROM synonym');
-  $syn_sth->execute();
-
-  my ( $xref_id, $synonym );
-  $syn_sth->bind_columns( \$xref_id, \$synonym );
-  while ( $syn_sth->fetch() ) {
-    push @{ $synonyms{$xref_id} }, $synonym;
-  }
-
-  my %valid_codes;
-  my @sources;
-
-  my $big_name = uc $source_name;
-  my $sql = 'SELECT source_id FROM source WHERE UPPER(name) LIKE ?';
-  my $sth = $self->dbi->prepare_cached($sql);
-  $sth->execute("${big_name}%");
-  while ( my @row = $sth->fetchrow_array() ) {
-    push @sources, $row[0];
-  }
-
-  foreach my $source (@sources) {
-    $sql = 'SELECT label, xref_id FROM xref WHERE species_id = ? AND source_id = ?';
-    $sth = $self->dbi->prepare_cached($sql);
-    $sth->execute( $species_id, $source );
-    while ( my @row = $sth->fetchrow_array() ) {
-      $valid_codes{ $row[0] } = $row[1];
-      # add any synonyms for this xref as well
-      foreach my $syn ( @{ $synonyms{ $row[1] } } ) {
-        $valid_codes{$syn} = $row[1];
-      }
-    }
-  }
-
-  return \%valid_codes;
-} ## end sub label_to_acc
 
 =head2 get_valid_codes
   Arg [1]    : source name
@@ -663,67 +526,6 @@ sub upload_xref_object_graphs {
   return;
 } ## end sub upload_xref_object_graphs
 
-=head2 upload_direct_xrefs
-  Arg [1]    : Array of direct xrefs
-  Description: Add direct xref to the table XXX_direct_xref. (XXX -E<gt> Gene,
-               Transcript or Translation. Xref has to exist already, this module
-               just adds to the direct_xref table.
-               $direct_xref is a reference to an array of hash objects.
-  Return type:
-  Caller     : internal
-
-=cut
-
-sub upload_direct_xrefs {
-  my ( $self, $direct_xref ) = @_;
-  for my $dr ( @{$direct_xref} ) {
-
-    # Find the xref_id for this accession and source
-    my $general_xref_id =
-      $self->get_xref( $dr->{ACCESSION}, $dr->{SOURCE_ID},
-                       $dr->{SPECIES_ID} );
-
-    # If found add the direct xref else write error message
-    if ($general_xref_id) {
-      $self->add_direct_xref( $general_xref_id,
-                              $dr->{STABLE_ID},
-                              $dr->{ENSEMBL_TYPE},
-                              $dr->{LINKAGE_XREF} );
-    }
-    else {
-      print {*STDERR} 'Problem Could not find accession ' .
-        $dr->{ACCESSION} . ' for source ' .
-        $dr->{SOURCE} . ' so not able to add direct xref to ' .
-        $dr->{STABLE_ID} . "\n";
-    }
-  }
-  return;
-}
-
-=head2 add_meta_pair
-  Arg [1]    : Scalar; the key
-  Arg [2]    : Scalar; the value
-  Description: Insert into the meta table the key and value.
-  Return type: None
-  Caller     : Bio::EnsEMBL::Xref::Mapper
-
-=cut
-
-sub add_meta_pair {
-
-  my ( $self, $key, $value ) = @_;
-
-  if ( !defined $key || !defined $value ) {
-    confess 'Need to specify (key, value) pair';
-  }
-
-  my $sth = $self->dbi->prepare_cached(
-    'INSERT INTO meta (meta_key, meta_value, date) VALUES (?, ?, NOW())'
-  );
-  $sth->execute( $key, $value );
-
-  return;
-}
 
 =head2 add_alt_allele
 
@@ -793,30 +595,6 @@ sub get_xref_sources {
   }
 
   return %sourcename_to_sourceid;
-}
-
-=head2 get_xref_id
-  Arg [1]    : xref entry
-  Description: Get the xref internal id
-               If there was an error, an xref with the same acc & source already
-               exists. If so, find its ID, otherwise get ID of xref just inserted
-  Return type: integer
-  Caller     : internal
-
-=cut
-
-sub get_xref_id {
-  my ( $self, $arg_ref ) = @_;
-  my $acc = $arg_ref->{acc} ||
-    confess 'Need an accession for get_xref_id';
-  my $source = $arg_ref->{source_id} ||
-    confess 'Need a source_id for get_xref_id';
-  my $species = $arg_ref->{species_id} ||
-    confess 'Need a species_id for get_xref_id';
-
-  my $id = $self->get_xref( $acc, $source, $species );
-
-  return $id;
 }
 
 =head2 primary_xref_id_exists
@@ -1318,15 +1096,15 @@ sub add_dependent_xref {
   my $info_text = $arg_ref->{info_text} // q{};
 
   my $dependent_xref_id =
-    $self->add_xref(
-                     { acc        => $acc,
-                       source_id  => $source_id,
-                       species_id => $species_id,
-                       label      => $label,
-                       desc       => $desc,
-                       version    => $version,
-                       info_type  => 'DEPENDENT',
-                       info_text  => $info_text } );
+    $self->add_xref( {
+      acc        => $acc,
+      source_id  => $source_id,
+      species_id => $species_id,
+      label      => $label,
+      desc       => $desc,
+      version    => $version,
+      info_type  => 'DEPENDENT',
+      info_text  => $info_text } );
 
   # Now add the dependency mapping
   $self->add_dependent_xref_maponly( $dependent_xref_id, $source_id,
@@ -1401,14 +1179,14 @@ sub add_multiple_dependent_xrefs {
     my %dep = %{$depref};
 
     # Insert the xref
-    my $dep_xref_id = $self->add_xref( (
+    my $dep_xref_id = $self->add_xref( {
       'acc'        => $dep{ACCESSION},
       'version'    => $dep{VERSION}     // 1,
       'label'      => $dep{LABEL}       // $dep{ACCESSION},
       'desc'       => $dep{DESCRIPTION},
       'source_id'  => $dep{SOURCE_ID},
       'species_id' => $dep{SPECIES_ID},
-      'info_type'  => 'DEPENDENT' ) );
+      'info_type'  => 'DEPENDENT' } );
 
     # Add the linkage_annotation and source id it came from
     $self->add_dependent_xref_maponly(
@@ -1525,7 +1303,7 @@ sub add_multiple_synonyms {
 =cut
 
 sub add_synonyms_for_hgnc_vgnc {
-  my ($self, $ref_arg) = @_;
+  my ( $self, $ref_arg ) = @_;
 
   my $source_id    = $ref_arg->{source_id};
   my $name         = $ref_arg->{name};
@@ -1534,95 +1312,26 @@ sub add_synonyms_for_hgnc_vgnc {
   my $alias_string = $ref_arg->{alias};
 
   # dead name, add to synonym
-  if (defined $dead_string) {
+  if ( defined $dead_string ) {
     $dead_string =~ s/"//xg;
     my @dead_array = split( ',\s', $dead_string );
-    foreach my $dead (@dead_array){
-      $self->add_to_syn($name, $source_id, $dead, $species_id);
+    foreach my $dead (@dead_array) {
+      $self->add_to_syn( $name, $source_id, $dead, $species_id );
     }
   }
 
   # alias name, add to synonym
-  if (defined $alias_string) {
+  if ( defined $alias_string ) {
     $alias_string =~ s/"//xg;
     my @alias_array = split( ',\s', $alias_string );
-    foreach my $alias (@alias_array){
-      $self->add_to_syn($name, $source_id, $alias, $species_id);
+    foreach my $alias (@alias_array) {
+      $self->add_to_syn( $name, $source_id, $alias, $species_id );
     }
   }
 
   return;
-}
+} ## end sub add_synonyms_for_hgnc_vgnc
 
-=head2 get_label_to_acc
-  Arg [1]    : description
-  Arg [2]    : species ID
-  Arg [3]    : source priority description
-  Description: Create a hash that uses the label as a key and the acc as the
-               value. Also add synonyms for these as keys.
-  Return type: Hashref
-  Caller     : internal
-
-=cut
-
-sub get_label_to_acc {
-  my ( $self, $name, $species_id, $prio_desc ) = @_;
-  my %hash1 = ();
-
-  my $sql = (<<'GLA');
-    SELECT  xref.accession, xref.label
-    FROM xref, source
-    WHERE
-      source.name LIKE ? AND
-      xref.source_id = source.source_id
-GLA
-
-
-  my @sql_params = ($name . q{%});
-  if ( defined $prio_desc ) {
-    $sql .= ' AND source.priority_description LIKE ?';
-    push @sql_params, $prio_desc;
-  }
-  if ( defined $species_id ) {
-    $sql .= ' AND xref.species_id = ?';
-    push @sql_params, $species_id;
-  }
-  my $sub_sth = $self->dbi->prepare_cached($sql);
-
-  $sub_sth->execute(@sql_params);
-  while ( my @row = $sub_sth->fetchrow_array() ) {
-    $hash1{ $row[1] } = $row[0];
-  }
-
-  # Remember synonyms
-  $sql = (<<'GLS');
-    SELECT  xref.accession, synonym.synonym
-    FROM xref, source, synonym
-    WHERE
-      synonym.xref_id = xref.xref_id AND
-      source.name LIKE ? AND
-      xref.source_id = source.source_id
-GLS
-
-  @sql_params = ($name . q{%});
-
-  if ( defined $prio_desc ) {
-    $sql .= ' AND source.priority_description LIKE ?';
-    push @sql_params, $prio_desc;
-  }
-  if ( defined $species_id ) {
-    $sql .= ' AND xref.species_id  = ?';
-    push @sql_params, $species_id;
-  }
-  $sub_sth = $self->dbi->prepare_cached($sql);
-
-  $sub_sth->execute(@sql_params);
-  while ( my @row = $sub_sth->fetchrow_array() ) {
-    $hash1{ $row[1] } = $row[0];
-  }
-
-  return \%hash1;
-} ## end sub get_label_to_acc
 
 =head2 get_acc_to_label
   Arg [1]    : description
@@ -1667,75 +1376,6 @@ GLA
   return \%hash1;
 } ## end sub get_acc_to_label
 
-=head2 get_label_to_desc
-  Arg [1]    : description
-  Arg [2]    : species ID
-  Arg [3]    : source priority description
-  Description: Create a hash that uses the label as a key and the desc as the
-               value. Also add synonyms for these as keys.
-  Return type: Hashref
-  Caller     : internal
-
-=cut
-
-sub get_label_to_desc {
-  my ( $self, $name, $species_id, $prio_desc ) = @_;
-  my %hash1 = ();
-
-  my $sql = (<<'GDH');
-    SELECT xref.description, xref.label
-    FROM xref, source
-    WHERE
-      source.name LIKE ? AND
-      xref.source_id = source.source_id
-GDH
-
-  my @sql_params = ($name . q{%});
-
-  if ( defined $prio_desc ) {
-    $sql .= ' AND source.priority_description LIKE ?';
-    push @sql_params, $prio_desc;
-  }
-  if ( defined $species_id ) {
-    $sql .= ' and xref.species_id  = ?';
-    push @sql_params, $species_id;
-  }
-  my $sub_sth = $self->dbi->prepare_cached($sql);
-
-  $sub_sth->execute(@sql_params);
-  while ( my @row = $sub_sth->fetchrow_array() ) {
-    $hash1{ $row[1] } = $row[0];
-  }
-
-  # Also include the synonyms
-  my $syn_sql = (<<'GDS');
-    SELECT xref.description, synonym.synonym
-    FROM xref, source, synonym
-    WHERE
-      synonym.xref_id = xref.xref_id AND
-      source.name LIKE ? AND
-      xref.source_id = source.source_id
-GDS
-
-  @sql_params = ($name . q{%});
-
-  if ( defined $prio_desc ) {
-    $syn_sql .= ' AND source.priority_description LIKE ?';
-    push @sql_params, $prio_desc;
-  }
-  if ( defined $species_id ) {
-    $syn_sql .= ' AND xref.species_id  = ?';
-    push @sql_params, $species_id;
-  }
-  $sub_sth = $self->dbi->prepare_cached($syn_sql);
-
-  $sub_sth->execute(@sql_params);
-  while ( my @row = $sub_sth->fetchrow_array() ) {
-    $hash1{ $row[1] } = $row[0];
-  }
-
-  return \%hash1;
-} ## end sub get_label_to_desc
 
 =head2 set_release
   Arg [1]    : source ID
@@ -1811,13 +1451,13 @@ sub get_ext_synonyms {
   my %seen; # can be in more than once fro each type of external source.
   my $separator = qw{:};
 
-  my $sql = (<<'GES');
+  my $sql = (<<'SQL');
     SELECT  x.accession, x.label, sy.synonym
     FROM xref x, source so, synonym sy
     WHERE x.xref_id = sy.xref_id AND
       so.source_id = x.source_id AND
       so.name LIKE ?
-GES
+SQL
   my $sth = $self->dbi->prepare_cached($sql);
 
   $sth->execute( $source_name );
@@ -1838,41 +1478,6 @@ GES
 
 } ## end sub get_ext_synonyms
 
-=head2 parsing_finished_store_data
-  Description: Store data needed to be able to revert to same stage as after parsing
-  Return type:
-  Caller     : internal
-
-  Notes      : Store max id for
-
-    gene/transcript/translation_direct_xref     general_xref_id  #Does this change??
-    xref                                        xref_id
-    dependent_xref                              object_xref_id is all null
-    go_xref                                     object_xref_id
-    object_xref                                 object_xref_id
-    identity_xref                               object_xref_id
-
-=cut
-
-sub parsing_finished_store_data {
-  my $self = shift;
-
-  my %table_and_key = (
-    'xref'        => 'SELECT MAX(xref_id) FROM xref',
-    'object_xref' => 'SELECT MAX(object_xref_id) FROM object_xref'
-  );
-
-  foreach my $table ( keys %table_and_key ) {
-    my $sth = $self->dbi->prepare_cached( $table_and_key{$table} );
-    $sth->execute;
-    my $max_val;
-    $sth->bind_columns( \$max_val );
-    $sth->fetch;
-    $self->add_meta_pair( 'PARSED_' . $table . '_id', $max_val || 1 );
-    $sth->finish();
-  }
-  return;
-}
 
 =head2 get_meta_value
 
@@ -1924,28 +1529,6 @@ sub update_process_status {
   return;
 }
 
-=head2 xref_latest_status
-
-  Arg []     : none
-  Description: Get latest process status
-  Returntype : none
-  Exceptions : none
-
-=cut
-
-sub xref_latest_status {
-  my $self = shift;
-
-  my $sth = $self->dbi->prepare_cached(
-             'SELECT id, status, date FROM process_status ORDER BY id');
-  $sth->execute();
-
-  my ( $id, $status, $date );
-  $sth->bind_columns( \$id, \$status, \$date );
-  while ( $sth->fetch ) { }    # get the last one
-
-  return $status;
-}
 
 =head2 clean_up
 

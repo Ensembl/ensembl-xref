@@ -58,14 +58,15 @@ use strict;
 use warnings;
 use Carp;
 use Bio::EnsEMBL::Registry;
-use Bio::EnsEMBL::Xref::FetchFiles;
 use URI::ftp;
 
 use parent qw( Bio::EnsEMBL::Xref::Parser );
 
-my $default_ftp_server = 'ftp.ebi.ac.uk';
-my $default_ftp_dir =
-  'pub/databases/microarray/data/atlas/bioentity_properties/ensembl';
+=head2 run
+  Description: Runs the ArrayExpressParser
+  Return type: N/A
+  Caller     : internal
+=cut
 
 sub run {
 
@@ -78,14 +79,15 @@ sub run {
   my $xref_dba     = $self->{xref_dba};
   my $dba          = $self->{dba};
 
-  defined $species_name or confess 'Species name is required';
+  defined $species_name or confess "Species name is required";
 
-  my $file = shift @{$files};
+  # Extract species name from file name
+  my $species = shift @{$files};
+  $species =~ s/\..*$//g;
+  $species =~ s/^.*\///g;
 
-  my $species_lookup      = $self->_get_species($verbose);
-  my $active = $self->_is_active_species( $species_lookup, $species_name, $verbose );
-
-  if ( !$active ) {
+  # Leave early if this is not the right species
+  if ($species ne $species_name) {
     return 0;
   }
 
@@ -128,40 +130,5 @@ sub run {
 
 }
 
-sub _get_species {
-  my ( $self, $verbose ) = @_;
-  $verbose = ( defined $verbose ) ? $verbose : 0;
-
-  my $ff = Bio::EnsEMBL::Xref::FetchFiles->new();
-  my $ftp = $ff->get_ftp(URI::ftp->new("ftp://".$default_ftp_server));
-
-  if ( !defined $ftp) {
-    croak "Failed to get FTP connection to $default_ftp_server\n";
-  }
-
-  $ftp->cwd($default_ftp_dir);
-  my @files = $ftp->ls() or confess "Cannot change to $default_ftp_dir: $@";
-  $ftp->quit;
-
-  my %species_lookup;
-  foreach my $file (@files) {
-    my ($species) = split( /\./, $file );
-    $species_lookup{$species} = 1;
-  }
-  return \%species_lookup;
-}
-
-# checks if the species is still active in ArrayExress
-sub _is_active_species {
-  my ( $self, $species_lookup, $species_name, $verbose ) = @_;
-
-  if ( $species_lookup->{$species_name} ) {
-    if ( $verbose ) {
-      printf 'Found ArrayExpress has declared the name "%s". This was an alias' . "\n", $species_name;
-    }
-    return 1;
-  }
-  return 0;
-}
 
 1;

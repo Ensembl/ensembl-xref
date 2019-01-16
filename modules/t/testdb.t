@@ -44,9 +44,7 @@ ok($db, 'TestDB ready to go');
 
 my $source = $db->schema->resultset('Source')->create({
   name => 'RefSeq',
-  status => 'KNOWN',
   source_release => '38',
-  download => 'Y',
   priority => 1,
   priority_description => 'Like a boss',
 });
@@ -86,12 +84,7 @@ my $count = $db->schema->resultset('Source')->count(
 );
 
 cmp_ok($count , '==', 1,'One VGNC source in place of four in the original DB');
-my $result = $db->schema->resultset('Source')->find(
-  { name => 'VGNC' }
-);
-
-is($result->download, 'Y', 'All VGNC sources are downloaded');
-is($result->status, 'NOIDEA', 'All VGNC sources have the same status');
+ok( $db->schema->resultset('Source')->find( { name => 'VGNC' } ), 'Source found' );
 
 # We do not use URLs in the current pipeline, so it's difficult and fruitless to test
 # the source_url relationship

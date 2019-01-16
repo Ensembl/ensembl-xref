@@ -58,8 +58,8 @@ my $xref_dba = Bio::EnsEMBL::Xref::DBSQL::BaseAdaptor->new(
 $db->schema->populate(
   'Species',
   [
-    [qw/species_id taxonomy_id name aliases/],
-    [ 9606, 9606, 'homo_sapiens', 'homo_sapiens' ],
+    [qw/species_id taxonomy_id name/],
+    [ 9606, 9606, 'homo_sapiens' ],
   ]
 );
 
@@ -69,7 +69,7 @@ my $parser = Bio::EnsEMBL::Xref::Parser::ArrayExpressParser->new(
   source_id  => 1,
   species_id => 9606,
   species    => 'homo_sapiens',
-  files      => ["project=>ensembl"],
+  files      => [ "$Bin/test-data/homo_sapiens.ensgene.tsv" ],
   xref_dba   => $xref_dba,
   dba        => $dba
 );

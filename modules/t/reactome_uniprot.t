@@ -53,8 +53,7 @@ my $xref_dba = Bio::EnsEMBL::Xref::DBSQL::BaseAdaptor->new(
 my $species = $db->schema->resultset('Species')->create({
   species_id  => 9606,
   taxonomy_id => 9606,
-  name        => 'homo_sapiens',
-  aliases     => 'homo_sapiens'
+  name        => 'homo_sapiens'
 });
 
 my $reactome_uniprot_source = $db->schema->resultset('Source')->create({

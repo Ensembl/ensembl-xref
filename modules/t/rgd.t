@@ -50,15 +50,13 @@ my $xref_dba = Bio::EnsEMBL::Xref::DBSQL::BaseAdaptor->new(
 # Initialise two sources:
 my $rgd_source = $db->create_db_row('Source',{
   name => 'RGD',
-  status => 'KNOWN',
   priority_description => 'Test RGD source',
   priority => 10
 });
 
 my $refseq_source = $db->create_db_row('Source',{
   name => 'refseq',
-  status => 'XREF',
-  priority_description => 'Test RefSeq source for dependent xref creation',
+  priority_description => 'Test RefSeq source for dependent xref',
   priority => 20
 });
 

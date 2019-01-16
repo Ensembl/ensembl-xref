@@ -3,6 +3,7 @@ requires 'DBD::mysql';
 requires 'DBI';
 requires 'DBIx::Class';
 requires 'HTTP::Tiny';
+requires 'List::Util', '>= 1.45';
 requires 'Moose';
 requires 'SQL::Translator', '>= 0.11018';
 requires 'Text::CSV';

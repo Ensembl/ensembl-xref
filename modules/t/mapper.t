@@ -97,8 +97,7 @@ is( $filtered_desc, 'stuff', 'Filtered description' );
 my $species = $db->schema->resultset('Species')->create({
   species_id           => 10,
   taxonomy_id          => 9606,
-  name                 => 'Homo sapiens',
-  aliases              => 'human'
+  name                 => 'Homo sapiens'
 });
 is($species->name, 'Homo sapiens', 'Species created in the DB');
 

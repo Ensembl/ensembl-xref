@@ -157,7 +157,7 @@ sub run {
     $txStart = $data->{'txStart'};
     $txStart += 1;
     $exonStarts = $data->{'exonStarts'};
-    $exonStarts = join( ',', map( { ++$_ } split( /,/, $exonStarts ) ) );
+    $exonStarts =~ s/,$//; # Remove trailing comma
     if ( defined($cdsStart) ) { $cdsStart += 1 }
 
     # Cut off the last comma from $exonEnds, if it exists.  This is done

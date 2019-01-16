@@ -206,7 +206,7 @@ subtest 'Missing required source IDs' => sub {
 # We will need these later
 $db->schema->populate( 'Source', [
   [ qw{ source_id name } ],
-  [ $SOURCE_ID_OMIM_GENE,   'MIM_GENE'   ],
+  [ $SOURCE_ID_OMIM_GENE,   'MIM_GENE' ],
   [ $SOURCE_ID_OMIM_MORBID, 'MIM_MORBID' ],
 ] );
 

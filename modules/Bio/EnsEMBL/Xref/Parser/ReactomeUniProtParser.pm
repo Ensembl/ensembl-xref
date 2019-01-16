@@ -83,7 +83,7 @@ sub run {
   my $file = shift @{$files};
 
   my $reactome_source_id =
-    $xref_dba->get_source_id_for_source_name( "reactome_translation", "uniprot" );
+    $xref_dba->get_source_id_for_source_name( "reactome_translation" );
 
 #e.g.
 #A0A075B6P5  R-HSA-109582  https://reactome.org/PathwayBrowser/#/R-HSA-109582  Hemostasis  TAS  Homo sapiens

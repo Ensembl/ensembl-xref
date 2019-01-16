@@ -57,41 +57,33 @@ $db->schema->resultset('Source')->populate([
   {
     source_id            => 95,
     name                 => 'RefSeq_mRNA',
-    priority_description => 'refseq',
-    ordered              => 20
+    priority_description => 'refseq'
   },{
     source_id            => 97,
     name                 => 'RefSeq_mRNA_predicted',
-    priority_description => 'refseq',
-    ordered              => 20
+    priority_description => 'refseq'
   },{
     source_id            => 99,
     name                 => 'RefSeq_ncRNA',
-    priority_description => 'refseq',
-    ordered              => 20
+    priority_description => 'refseq'
   },{
     source_id            => 101,
     name                 => 'RefSeq_ncRNA_predicted',
-    priority_description => 'refseq',
-    ordered              => 20
+    priority_description => 'refseq'
   },{
     source_id            => 109,
     name                 => 'RefSeq_peptide',
-    priority_description => 'refseq',
-    ordered              => 30
+    priority_description => 'refseq'
   },{
     source_id            => 110,
     name                 => 'RefSeq_peptide_predicted',
-    priority_description => 'refseq',
-    ordered              => 30
+    priority_description => 'refseq'
   },{
     source_id            => 23,
-    name                 => 'EntrezGene',
-    ordered              => 10
+    name                 => 'EntrezGene'
   },{
     source_id            => 146,
-    name                 => 'WikiGene',
-    ordered              => 100
+    name                 => 'WikiGene'
   }
 ]);
 

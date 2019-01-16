@@ -57,8 +57,7 @@ my $core_dba = $multi_db->get_DBAdaptor('core');
 my $species = $db->schema->resultset('Species')->create({
   species_id  => 9606,
   taxonomy_id => 9606,
-  name        => 'homo_sapiens',
-  aliases     => 'Human'
+  name        => 'homo_sapiens'
 });
 
 # populate used sources

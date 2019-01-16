@@ -1,0 +1,12 @@
+ZDB-GENE-040718-486	ring finger protein 144ab	rnf144ab	rnf144	SO:0000704
+ZDB-GENE-040718-486	ring finger protein 144ab	rnf144ab	rnf144a	SO:0000704
+ZDB-GENE-040718-486	ring finger protein 144ab	rnf144ab	si:dkeyp-7f8.1-001	SO:0000704
+ZDB-GENE-040718-486	ring finger protein 144ab	rnf144ab	wu:fj49a04	SO:0000704
+ZDB-GENE-040718-486	ring finger protein 144ab	rnf144ab	zgc:92582	SO:0000704
+ZDB-GENE-040718-487	coenzyme Q8A	coq8a	adck3	SO:0000704
+ZDB-GENE-040718-487	coenzyme Q8A	coq8a	zgc:92578	SO:0000704
+ZDB-GENE-040718-488	WD repeat domain, phosphoinositide interacting 2	wipi2	zgc:92576	SO:0000704
+ZDB-GENE-040718-49	HORMA domain containing 1	hormad1	zgc:92129	SO:0000704
+ZDB-GENE-040718-490	islet cell autoantigen 1	ica1	zgc:92566	SO:0000704
+ZDB-GENE-040718-491	nuclear transcription factor Y, alpha, like	nfyal	wu:fd20d03	SO:0000704
+ZDB-GENE-040718-491	nuclear transcription factor Y, alpha, like	nfyal	zgc:92567	SO:0000704

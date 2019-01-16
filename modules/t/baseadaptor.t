@@ -73,9 +73,7 @@ throws_ok
 # Add an example source to the db
 my $source = $db->schema->resultset('Source')->create({
   name                 => 'RefSeq',
-  status               => 'KNOWN',
   source_release       => '38',
-  download             => 'Y',
   priority             => 1,
   priority_description => 'Like a boss',
 });
@@ -113,9 +111,7 @@ is(
 # Add a second example source to the db
 my $source2 = $db->schema->resultset('Source')->create({
   name                 => 'Second_fake_source',
-  status               => 'KNOWN',
   source_release       => '38',
-  download             => 'Y',
   priority             => 1,
   priority_description => 'Like a boss',
 });
@@ -145,13 +141,11 @@ is(
 
 # get_source_name_for_source_id
 throws_ok { $xref_dba->get_source_name_for_source_id() } qr/source_id undefined/, 'Throws with no arguments';
-is( $xref_dba->get_source_name_for_source_id('fake_name'), -1, 'source not present in db' );
+throws_ok {
+  $xref_dba->get_source_name_for_source_id('fake_name')
+   } qr/no entity/, 'source not present in db';
 is( $xref_dba->get_source_name_for_source_id($source->source_id), 'RefSeq', 'get_source_name_for_source_id' );
 
-
-# label_to_acc
-my %l2a_result = %{ $xref_dba->label_to_acc( 'RefSeq', 9606 ) };
-is( $l2a_result{ 'NM01234.1' }, 1, 'label_to_acc' );
 
 
 # get_valid_codes
@@ -204,54 +198,10 @@ my $xref_id = $xref_dba->get_xref('NM01235', $source->source_id, 9606);
 ok( defined $xref_id, "NM01235 (xref_id: $xref_id) was added to the xref table" );
 
 
-# upload_direct_xrefs - Testing later with the other direct_xref functions
-
-
-# add_meta_pair
-throws_ok {
-  $xref_dba->add_meta_pair()
-} qr/Need to specify/, 'Throws with required arguments not provided';
-throws_ok {
-  $xref_dba->add_meta_pair( 'fake_key' )
-} qr/Need to specify/, 'Throws with required arguments not provided';
-
-ok( !defined $xref_dba->add_meta_pair( 'fake_key', 'fake_value' ), 'add_meta_pair' );
-is( _check_db( $db, 'Meta', { meta_key => 'fake_key' } )->meta_value, 'fake_value', 'Metadata pair added' );
-
-
 # get_xref_sources
 my $xref_sources = $xref_dba->get_xref_sources();
 ok( defined $xref_sources, 'There are sources in the db');
 
-
-# get_xref_id
-throws_ok
-  { $xref_dba->get_xref_id() }
-  qr/Need an accession for get_xref_id/,
-  'get_xref_id - Throws with no arguments 1';
-
-throws_ok {
-   $xref_dba->get_xref_id( {
-      acc => 'NM01235'
-   } )
-} qr/Need a source_id for get_xref_id/, 'get_xref_id - Throws with no arguments 2';
-
-throws_ok {
-   $xref_dba->get_xref_id( {
-      acc       => 'NM01235',
-      source_id => $source->source_id
-   } )
-} qr/Need a species_id for get_xref_id/, 'get_xref_id - Throws with no arguments 3';
-
-is(
-   $xref_dba->get_xref_id( {
-      acc        => 'NM01235',
-      source_id  => $source->source_id,
-      species_id => 9606
-   } ),
-   2,
-   'get_xref_id'
-);
 
 # Test for a new coordinate_xref
 my $new_coordinate_xref = {
@@ -395,27 +345,6 @@ is(
 # Entry has already been added, so this test should be just for failing out
 ok( !defined $xref_dba->add_direct_xref( $xref_id_new, 'NM01236', 'Gene' ), 'add_direct_xref' );
 
-
-# get_valid_xrefs_for_direct_xrefs
-my %valid_direct_xrefs = %{ $xref_dba->get_valid_xrefs_for_direct_xrefs( 'RefSeq', ',' ) };
-is( $valid_direct_xrefs{ 'NM01236' }, '3,NM01236,Gene,', 'get_valid_xrefs_for_direct_xrefs' );
-
-
-# upload_direct_xrefs
-my $new_xref_05 = {
-  ACCESSION    => 'NM01235',
-  SPECIES_ID   => '9606',
-  SOURCE_ID    => $source->source_id,
-  STABLE_ID    => 'NM01235',
-  ENSEMBL_TYPE => 'Transcript',
-  LINKAGE_XREF => 'PROBE',
-  SOURCE       => 'RefSeq'
-};
-
-my @xref_array_03 = ( $new_xref_05 );
-ok( !defined $xref_dba->upload_direct_xrefs( \@xref_array_03 ), 'upload_direct_xrefs' );
-
-
 # add_multiple_direct_xrefs
 my $new_direct_xref_00 = {
   STABLE_ID    => 'NM01236',
@@ -500,16 +429,9 @@ my @multi_syn_array = ( 'fs:000', 'fs:001', 'fs:002' );
 ok( !defined $xref_dba->add_multiple_synonyms( $xref_id_new, \@multi_syn_array ), 'Add multiple fake synonyms' );
 
 
-# get_label_to_acc
-ok( scalar $xref_dba->get_label_to_acc( 'RefSeq', 9606, 'Like a boss' ) > 0, 'get_label_to_acc' );
-
-
 # get_acc_to_label
 ok( scalar $xref_dba->get_acc_to_label( 'RefSeq', 9606, 'Like a boss' ) > 0, 'get_acc_to_label' );
 
-
-# get_label_to_desc
-ok( scalar $xref_dba->get_label_to_desc( 'RefSeq', 9606, 'Like a boss' ) > 0, 'get_label_to_desc' );
 
 
 # set_release
@@ -522,15 +444,6 @@ ok( !defined $xref_dba->get_dependent_mappings( $source->source_id ), 'Dependent
 
 # get_ext_synonyms
 ok( scalar $xref_dba->get_ext_synonyms( 'RefSeq' ) > 0, 'get_ext_synonyms' );
-
-
-# parsing_finished_store_data
-ok( !defined $xref_dba->parsing_finished_store_data(), 'parsing_finished_store_data' );
-
-
-# get_meta_value
-my $get_meta_value = $xref_dba->get_meta_value('PARSED_xref_id');
-ok( $xref_dba->get_meta_value('PARSED_xref_id') == 5, "get_meta_value ($get_meta_value)" );
 
 
 # _update_xref_info_type
@@ -566,8 +479,7 @@ note 'Test methods to support base mapper';
 # Add an example source to the db
 my $species_id_autoincrement = $db->schema->resultset('Species')->create({
   taxonomy_id => 9606,
-  name => 'Homo sapiens',
-  aliases => 'Human'
+  name => 'Homo sapiens'
 });
 
 throws_ok {
@@ -597,8 +509,6 @@ is( _check_db( $db, 'AltAllele', { alt_allele_id => 10 } )->gene_id, 1, 'Add alt
 
 $xref_dba->update_process_status( 'alt_alleles_added' );
 is( _check_db( $db, 'ProcessStatus', { status => 'alt_alleles_added' } )->id, 1, 'Update process status' );
-
-is( $xref_dba->xref_latest_status(), 'alt_alleles_added', 'Latest status' );
 
 $xref_dba->delete_alt_alleles();
 ok( !_check_db( $db, 'AltAllele' ), 'No alt alleles after deletion');

@@ -125,7 +125,7 @@ sub run {
   my $aa_of = $of_dba->get_AnalysisAdaptor();
 
   # Not all species have refseq_import data, exit if not found
-  if (!defined $aa_of->fetch_by_logic_name('refseq_import')->logic_name) {
+  if (!defined $aa_of->fetch_by_logic_name('refseq_import')) {
     print "No data found for RefSeq_import. Skipping\n";
     return;
   }

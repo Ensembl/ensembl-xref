@@ -202,8 +202,9 @@ sub get_rfam_supporting_features {
   while ($iterator->has_next()) {
     my $row = $iterator->next;
     # RFAM sequences align to 1+ transcripts
-    if ($row->[1] =~ /^RF\d+/) {
-      push @{ $rfam_mapping{$row->[1]} }, $row->[0];
+    if ($row->[1] =~ /^(RF\d+)/) {
+      my $accession = $1;
+      push @{ $rfam_mapping{$accession} }, $row->[0];
     }
   }
   return \%rfam_mapping;

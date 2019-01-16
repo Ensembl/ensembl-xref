@@ -56,12 +56,6 @@ __PACKAGE__->table("species");
   is_nullable: 0
   size: 255
 
-=head2 aliases
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 255
-
 =cut
 
 __PACKAGE__->add_columns(
@@ -71,8 +65,6 @@ __PACKAGE__->add_columns(
   { data_type => "integer", extra => { unsigned => 1 }, is_nullable => 0 },
   "name",
   { data_type => "varchar", is_nullable => 0, size => 255 },
-  "aliases",
-  { data_type => "varchar", is_nullable => 1, size => 255 },
 );
 
 =head1 UNIQUE CONSTRAINTS

@@ -64,6 +64,12 @@ use Text::CSV;
 
 use parent qw( Bio::EnsEMBL::Xref::Parser );
 
+=head2 run
+  Description: Runs the MGIParser
+  Return type: N/A
+  Caller     : internal
+=cut
+
 sub run {
 
   my ( $self, $ref_arg ) = @_;

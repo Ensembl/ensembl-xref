@@ -63,6 +63,12 @@ use Text::CSV;
 
 use parent qw( Bio::EnsEMBL::Xref::Parser );
 
+=head2 run
+  Description: Runs the XenopusJamboreeParser
+  Return type: N/A
+  Caller     : internal
+=cut
+
 sub run {
   my ( $self, $ref_arg ) = @_;
   my $source_id  = $self->{source_id};
@@ -114,6 +120,13 @@ sub run {
 
   return 0;
 } ## end sub run
+
+=head2 parse_description
+  Description: Extract description information from 
+               Xenopus downloaded file
+  Return type: N/A
+  Caller     : internal
+=cut
 
 sub parse_description {
   my ( $self, $desc ) = @_;

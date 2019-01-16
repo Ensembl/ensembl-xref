@@ -55,9 +55,9 @@ use_ok 'Bio::EnsEMBL::Xref::Parser::EntrezGeneParser';
 $db->schema->populate(
   'Source',
   [
-   [ qw/name status/ ],
-   [ 'EntrezGene', 'KNOWN' ],
-   [ 'WikiGene', 'KNOWN' ],
+   [ qw/name/ ],
+   [ 'EntrezGene' ],
+   [ 'WikiGene' ],
   ]
 );
 

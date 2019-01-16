@@ -89,12 +89,12 @@ sub run {
 
   # get RefSeq source ids
   while (my ($source_prefix, $source_name) = each %{$self->{refseq_sources}}) {
-    $self->{source_ids}->{$source_name} = $xref_dba->get_source_id_for_source_name( $source_name, undef )
+    $self->{source_ids}->{$source_name} = $xref_dba->get_source_id_for_source_name( $source_name, 'refseq')
   }
 
   # get extra source ids
-  $self->{source_ids}->{EntrezGene} = $xref_dba->get_source_id_for_source_name( 'EntrezGene', undef );
-  $self->{source_ids}->{WikiGene} = $xref_dba->get_source_id_for_source_name( 'WikiGene', undef );
+  $self->{source_ids}->{EntrezGene} = $xref_dba->get_source_id_for_source_name( 'EntrezGene' );
+  $self->{source_ids}->{WikiGene} = $xref_dba->get_source_id_for_source_name( 'WikiGene' );
 
   # Retrieve existing RefSeq mRNA
   $self->{refseq_ids} = { %{$xref_dba->get_valid_codes('RefSeq_mRNA', $species_id )},
@@ -283,6 +283,7 @@ sub xref_from_record {
         SOURCE_ID         => $self->source_id_from_name('EntrezGene'),
         LINKAGE_SOURCE_ID => $acc_source_id,
         ACCESSION         => $gene_id,
+        SPECIES_ID        => $self->{species_id},
         LABEL             => $self->{entrez}->{$gene_id}
     };
 
@@ -290,6 +291,7 @@ sub xref_from_record {
         SOURCE_ID         => $self->source_id_from_name('WikiGene'),
         LINKAGE_SOURCE_ID => $acc_source_id,
         ACCESSION         => $gene_id,
+        SPECIES_ID        => $self->{species_id},
         LABEL             => $self->{entrez}->{$gene_id}
     };
 

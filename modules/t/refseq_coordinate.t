@@ -57,8 +57,7 @@ my $xref_dba = Bio::EnsEMBL::Xref::DBSQL::BaseAdaptor->new(
 $db->schema->resultset('Species')->create({
   species_id  => 9606,
   taxonomy_id => 9606,
-  name        => 'homo_sapiens',
-  aliases     => 'Human'
+  name        => 'homo_sapiens'
 });
 
 # populate used sources
@@ -66,37 +65,30 @@ $db->schema->resultset('Source')->populate([
   {
     source_id            => 95,
     name                 => 'RefSeq_mRNA',
-    priority_description => 'otherfeatures',
-    ordered              => 20
+    priority_description => 'otherfeatures'
   },{
     source_id            => 98,
     name                 => 'RefSeq_mRNA_predicted',
-    priority_description => 'otherfeatures',
-    ordered              => 20
+    priority_description => 'otherfeatures'
   },{
     source_id            => 100,
     name                 => 'RefSeq_ncRNA',
-    priority_description => 'otherfeatures',
-    ordered              => 20
+    priority_description => 'otherfeatures'
   },{
     source_id            => 102,
     name                 => 'RefSeq_ncRNA_predicted',
-    priority_description => 'otherfeatures',
-    ordered              => 20
+    priority_description => 'otherfeatures'
   },{
     source_id            => 109,
     name                 => 'RefSeq_peptide',
-    priority_description => 'otherfeatures',
-    ordered              => 20
+    priority_description => 'otherfeatures'
   },{
     source_id            => 111,
     name                 => 'RefSeq_peptide_predicted',
-    priority_description => 'otherfeatures',
-    ordered              => 20
+    priority_description => 'otherfeatures'
   },{
     source_id            => 23,
-    name                 => 'EntrezGene',
-    ordered              => 10
+    name                 => 'EntrezGene'
   }
 ]);
 

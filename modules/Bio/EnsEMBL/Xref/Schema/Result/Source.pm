@@ -51,25 +51,11 @@ __PACKAGE__->table("source");
   is_nullable: 0
   size: 255
 
-=head2 status
-
-  data_type: 'enum'
-  default_value: 'NOIDEA'
-  extra: {list => ["KNOWN","XREF","PRED","ORTH","PSEUDO","LOWEVIDENCE","NOIDEA"]}
-  is_nullable: 0
-
 =head2 source_release
 
   data_type: 'varchar'
   is_nullable: 1
   size: 255
-
-=head2 download
-
-  data_type: 'enum'
-  default_value: 'Y'
-  extra: {list => ["Y","N"]}
-  is_nullable: 1
 
 =head2 priority
 
@@ -97,24 +83,8 @@ __PACKAGE__->add_columns(
   },
   "name",
   { data_type => "varchar", is_nullable => 0, size => 255 },
-  "status",
-  {
-    data_type => "enum",
-    default_value => "NOIDEA",
-    extra => {
-      list => ["KNOWN", "XREF", "PRED", "ORTH", "PSEUDO", "LOWEVIDENCE", "NOIDEA"],
-    },
-    is_nullable => 0,
-  },
   "source_release",
   { data_type => "varchar", is_nullable => 1, size => 255 },
-  "download",
-  {
-    data_type => "enum",
-    default_value => "Y",
-    extra => { list => ["Y", "N"] },
-    is_nullable => 1,
-  },
   "priority",
   {
     data_type => "integer",

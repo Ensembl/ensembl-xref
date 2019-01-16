@@ -53,8 +53,7 @@ my $xref_dba = Bio::EnsEMBL::Xref::DBSQL::BaseAdaptor->new(
 my $species = $db->schema->resultset('Species')->create({
   species_id  => 9598,
   taxonomy_id => 9598,
-  name        => 'Pan troglodytes',
-  aliases     => 'Chimpanzee'
+  name        => 'Pan troglodytes'
 });
 
 
