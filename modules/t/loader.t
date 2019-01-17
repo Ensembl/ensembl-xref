@@ -431,14 +431,14 @@ while( my $insert_identity_xref_ref = $insert_identity_xrefs->() ) {
   );
 }
 
-my $loaded_identity_xrefs = $loader_handle->load_identity_xref(
+my @loaded_identity_xrefs = @{ $loader_handle->load_identity_xref(
   $source->source_id,                                # $source_id
   'DIRECT',                                          # $type
   $returned_stored_data{'xref'},                     # $xref_offset
   $returned_external_db_ids{'RefSeq_dna_predicted'}, # $ex_id
   $returned_stored_data{'object_xref'}               # $object_xref_offset
-);
-is( $loaded_identity_xrefs, 1, 'load_identity_xref');
+) };
+is( $loaded_identity_xrefs[0], 1, 'load_identity_xref');
 
 
 # load_checksum_xref
@@ -464,7 +464,15 @@ my @loaded_checksum_xrefs = @{ $loader_handle->load_checksum_xref(
   $returned_stored_data{'object_xref'},                 # $object_xref_offset
   $loader_handle->get_single_analysis( 'xrefchecksum' ) # $checksum_analysis_id
 ) };
-is( $loaded_checksum_xrefs[0], 2, 'load_checksum_xref');
+foreach my $load_checksum_xref_id ( @loaded_checksum_xrefs ) {
+  ok(
+    (
+      $load_checksum_xref_id == 1 or
+      $load_checksum_xref_id == 2
+    ),
+    "load_checksum_xref - $load_checksum_xref_id"
+  );
+}
 
 
 # load_dependent_xref
