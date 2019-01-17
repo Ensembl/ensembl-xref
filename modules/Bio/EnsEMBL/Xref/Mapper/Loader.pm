@@ -44,12 +44,9 @@ package Bio::EnsEMBL::Xref::Mapper::Loader;
 use strict;
 use warnings;
 use Carp;
-use Data::Dumper;
 use Bio::EnsEMBL::Utils::Exception;
 
 use parent qw( Bio::EnsEMBL::Xref::Mapper );
-
-use DBI;
 
 
 =head2 update
@@ -165,7 +162,7 @@ sub update {
   #######################################
   # Remember to do unmapped entries
   # 1) make sure the reason exist/create them and get the ids for these.
-  # 2) Process where dumped is null and type = DIRECT, DEPENDENT, SEQUENCE_MATCH, MISC seperately
+  # 2) Process where dumped is null and type = DIRECT, DEPENDENT, SEQUENCE_MATCH, MISC separately
   ########################################
 
   $self->unmapped_xrefs_from_xrefdb_to_coredb(
@@ -184,11 +181,11 @@ sub update {
 =head2 unmapped_xrefs_from_xrefdb_to_coredb
   Arg [1]    : integer - $xref_offset
   Arg [2]    : integer - $object_xref_offset
-  Arg [3]    : hashref - $analyss_ids
+  Arg [3]    : hashref - $analysis_ids
   Arg [4]    : hashref - $reason_ids
   Description: Wrapper for running the functions for importing mapped xrefs from
                unmapped xrefs from the xref db into the core db
-  Return type: Hashref
+  Return type: undef
   Example    : $loader_handler->unmapped_xrefs_from_xrefdb_to_coredb(
                  100,
                  1000,
@@ -205,41 +202,41 @@ sub unmapped_xrefs_from_xrefdb_to_coredb {
   my %reason_id = %{ $reason_ids };
 
   # DIRECT #
-  my @direct_xref_list = $self->load_unmapped_direct_xref(
+  my @direct_xref_list = @{ $self->load_unmapped_direct_xref(
     $xref_offset,
     $analysis_id{'Transcript'},   # No real analysis here but in table it is set to not NULL
     $reason_id{'NO_STABLE_ID'}
-  );
+  ) };
   if ( @direct_xref_list ) {
     $self->xref->mark_mapped_xrefs( \@direct_xref_list, 'UNMAPPED_NO_STABLE_ID' );
   }
 
   # MISC #
-  my @misc_xref_list = $self->load_unmapped_misc_xref(
+  my @misc_xref_list = @{ $self->load_unmapped_misc_xref(
     $xref_offset,
     $analysis_id{'Transcript'},
     $reason_id{'NO_MAPPING'}
-  );
+  ) };
   if ( @misc_xref_list ) {
     $self->xref->mark_mapped_xrefs( \@misc_xref_list, 'UNMAPPED_NO_MAPPING' );
   }
 
   # DEPENDENT #
-  my @dependent_xref_list = $self->load_unmapped_dependent_xref(
+  my @dependent_xref_list = @{ $self->load_unmapped_dependent_xref(
     $xref_offset,
     $analysis_id{'Transcript'},
     $reason_id{ 'MASTER_FAILED' }
-  );
+  ) };
   if ( @dependent_xref_list ) {
     $self->xref->mark_mapped_xrefs( \@dependent_xref_list, 'UNMAPPED_MASTER_FAILED' );
   }
 
   # SEQUENCE_MATCH #
-  my @sequence_xref_list = $self->load_unmapped_sequence_xrefs(
+  my @sequence_xref_list = @{ $self->load_unmapped_sequence_xrefs(
     $xref_offset,
     \%analysis_id,
     \%reason_id
-  );
+  ) };
   if ( @sequence_xref_list ) {
     $self->xref->mark_mapped_xrefs( \@sequence_xref_list, 'UNMAPPED_NO_MAPPING' );
   }
@@ -248,11 +245,11 @@ sub unmapped_xrefs_from_xrefdb_to_coredb {
   # These are those defined as dependent but the master never existed and the xref and their descriptions etc are loaded first
   # with the dependencys added later so did not know they had no masters at time of loading.
   # (e.g. EntrezGene, WikiGene, MIN_GENE, MIM_MORBID)
-  my @other_xref_list = $self->load_unmapped_other_xref(
+  my @other_xref_list = @{ $self->load_unmapped_other_xref(
     $xref_offset,
     $analysis_id{'Transcript'},
     $reason_id{ 'NO_MASTER' }
-  );
+  ) };
   if ( @other_xref_list ) {
     $self->xref->mark_mapped_xrefs( \@other_xref_list, 'UNMAPPED_NO_MASTER' );
   }
@@ -266,7 +263,7 @@ sub unmapped_xrefs_from_xrefdb_to_coredb {
   Arg [2]    : integer - $object_xref_offset
   Description: Wrapper for running the functions for importing mapped xrefs from
                the xref db into the core db
-  Return type: Hashref
+  Return type: undef
   Example    : $loader_handler->map_xrefs_from_xrefdb_to_coredb(
                  100,
                  1000,
@@ -309,23 +306,26 @@ sub map_xrefs_from_xrefdb_to_coredb {
 
     if ( $xref_handle{'type'} eq 'DIRECT' or $xref_handle{'type'} eq 'INFERRED_PAIR' or
          $xref_handle{'type'} eq 'MISC'   or $xref_handle{'type'} eq 'SEQUENCE_MATCH' ) {
-      push @xref_list, $self->load_identity_xref(
-        $xref_handle{'source_id'}, $xref_handle{'type'}, $xref_offset, $ex_id, $object_xref_offset );
+      push @xref_list, @{ $self->load_identity_xref(
+        $xref_handle{'source_id'}, $xref_handle{'type'},
+        $xref_offset, $ex_id, $object_xref_offset
+      ) };
     }
     elsif ($xref_handle{'type'} eq 'CHECKSUM') {
-      push @xref_list, $self->load_checksum_xref(
+      push @xref_list, @{ $self->load_checksum_xref(
         $xref_handle{'source_id'}, $xref_handle{'type'},
         $xref_offset, $ex_id, $object_xref_offset,
         $self->get_single_analysis( 'xrefchecksum' )
-      );
+      ) };
     }
     elsif ( $xref_handle{'type'} eq 'DEPENDENT' ) {
-      push @xref_list, $self->load_dependent_xref(
+      push @xref_list, @{ $self->load_dependent_xref(
         $xref_handle{'source_id'}, $xref_handle{'type'},
-        $xref_offset, $ex_id, $object_xref_offset );
+        $xref_offset, $ex_id, $object_xref_offset
+      ) };
     }
     else {
-      print "PROBLEM:: what type is $xref_handle{'type'}\n";
+      print "PROBLEM: what type is $xref_handle{'type'}\n";
     }
 
     # Transfer data for synonym and set xref database xrefs to dumped.
@@ -393,7 +393,7 @@ sub load_unmapped_direct_xref {
     }
   }
 
-  return @xref_list;
+  return \@xref_list;
 } ## end sub load_unmapped_direct_xref
 
 
@@ -449,7 +449,7 @@ sub load_unmapped_dependent_xref {
     }
   }
 
-  return @xref_list;
+  return \@xref_list;
 } ## end sub load_unmapped_dependent_xref
 
 
@@ -531,7 +531,7 @@ sub load_unmapped_sequence_xrefs {
     }
   }
 
-  return @xref_list;
+  return \@xref_list;
 } ## end sub load_unmapped_sequence_xrefs
 
 
@@ -578,7 +578,7 @@ sub load_unmapped_misc_xref {
     }
   }
 
-  return @xref_list;
+  return \@xref_list;
 } ## end sub load_unmapped_misc_xref
 
 
@@ -634,7 +634,7 @@ sub load_unmapped_other_xref {
     push @xref_list, $xref_id;
   }
 
-  return @xref_list;
+  return \@xref_list;
 } ## end sub load_unmapped_other_xref
 
 
@@ -707,7 +707,7 @@ sub load_identity_xref {
     }
   }
 
-  return @xref_list;
+  return \@xref_list;
 } ## end sub load_identity_xref
 
 
@@ -765,7 +765,7 @@ sub load_checksum_xref {
     );
   }
 
-  return @xref_list;
+  return \@xref_list;
 } ## end sub load_checksum_xref
 
 
@@ -852,7 +852,7 @@ sub load_dependent_xref {
     print "\n";
   }
 
-  return @xref_list;
+  return \@xref_list;
 } ## end sub load_dependent_xref
 
 

@@ -456,15 +456,15 @@ while( my $insert_checksum_xref_ref = $insert_checksum_xrefs->() ) {
   );
 }
 
-my $loaded_checksum_xrefs = $loader_handle->load_checksum_xref(
+my @loaded_checksum_xrefs = @{ $loader_handle->load_checksum_xref(
   $source->source_id,                                   # $source_id
   'DIRECT',                                             # $type
   $returned_stored_data{'xref'},                        # $xref_offset
   $returned_external_db_ids{'RefSeq_dna_predicted'},    # $ex_id
   $returned_stored_data{'object_xref'},                 # $object_xref_offset
   $loader_handle->get_single_analysis( 'xrefchecksum' ) # $checksum_analysis_id
-);
-is( $loaded_checksum_xrefs, 2, 'load_checksum_xref');
+) };
+is( $loaded_checksum_xrefs[0], 2, 'load_checksum_xref');
 
 
 # load_dependent_xref
@@ -479,14 +479,14 @@ while( my $insert_dependent_xref_ref = $insert_dependent_xrefs->() ) {
   );
 }
 
-my $loaded_dependent_xrefs = $loader_handle->load_dependent_xref(
+my @loaded_dependent_xrefs = @{ $loader_handle->load_dependent_xref(
   $source->source_id,                                # $source_id
   'DEPENDENT',                                       # $type
   $returned_stored_data{'xref'},                     # $xref_offset
   $returned_external_db_ids{'RefSeq_dna_predicted'}, # $ex_id
   $returned_stored_data{'object_xref'},              # $object_xref_offset
-);
-is( $loaded_dependent_xrefs, 1, 'load_dependent_xref');
+) };
+is( $loaded_dependent_xrefs[0], 5, 'load_dependent_xref');
 
 
 # load_synonyms
@@ -532,11 +532,11 @@ foreach my $key (keys %desc_failed){
 
 
 # load_unmapped_direct_xref
-my @unmapped_direct_xrefs = $loader_handle->load_unmapped_direct_xref(
+my @unmapped_direct_xrefs = @{ $loader_handle->load_unmapped_direct_xref(
   $returned_stored_data{'xref'} + 100,
   $analysis_ids{'Transcript'},
   $unmapped_reason_id
-);
+) };
 
 foreach my $unmapped_id ( @unmapped_direct_xrefs ) {
   ok(
@@ -547,11 +547,11 @@ foreach my $unmapped_id ( @unmapped_direct_xrefs ) {
 
 
 # load_unmapped_dependent_xref
-my @unmapped_dependent_xrefs = $loader_handle->load_unmapped_dependent_xref(
+my @unmapped_dependent_xrefs = @{ $loader_handle->load_unmapped_dependent_xref(
   $returned_stored_data{'xref'} + 100,
   $analysis_ids{'Transcript'},
   $unmapped_reason_id
-);
+) };
 
 foreach my $unmapped_id ( @unmapped_dependent_xrefs ) {
   ok( $unmapped_id == 5, "load_unmapped_dependent_xref - $unmapped_id" );
@@ -559,11 +559,11 @@ foreach my $unmapped_id ( @unmapped_dependent_xrefs ) {
 
 
 # load_unmapped_sequence_xrefs - ensembl_id is defined
-my @unmapped_sequence_xrefs = $loader_handle->load_unmapped_sequence_xrefs(
+my @unmapped_sequence_xrefs = @{ $loader_handle->load_unmapped_sequence_xrefs(
   $returned_stored_data{'xref'} + 100,
   \%analysis_ids,
   \%reason_id
-);
+) };
 
 is( $unmapped_sequence_xrefs[0], 3, 'load_unmapped_sequence_xrefs - 3' );
 
@@ -571,21 +571,21 @@ is( $unmapped_sequence_xrefs[0], 3, 'load_unmapped_sequence_xrefs - 3' );
 
 
 # load_unmapped_misc_xref
-my @unmapped_misc_xrefs = $loader_handle->load_unmapped_misc_xref(
+my @unmapped_misc_xrefs = @{ $loader_handle->load_unmapped_misc_xref(
   $returned_stored_data{'xref'} + 100,
   $analysis_ids{'Transcript'},
   $reason_id{'NO_MAPPING'}
-);
+) };
 
 is( $unmapped_misc_xrefs[0], 4, 'load_unmapped_misc_xrefs - 4' );
 
 
 # load_unmapped_other_xref
-my @unmapped_other_xrefs = $loader_handle->load_unmapped_other_xref(
+my @unmapped_other_xrefs = @{ $loader_handle->load_unmapped_other_xref(
   $returned_stored_data{'xref'} + 100,
   $analysis_ids{'Transcript'},
   $reason_id{'NO_MASTER'}
-);
+) };
 
 is( $unmapped_other_xrefs[0], 5, 'load_unmapped_other_xrefs - 5' );
 

@@ -47,8 +47,6 @@ use warnings;
 
 use Carp;
 
-use Data::Dumper;
-
 use Bio::EnsEMBL::Utils::Exception;
 use Getopt::Long;
 use IO::Uncompress::AnyUncompress '$AnyUncompressError';
@@ -2048,7 +2046,7 @@ SQL
 } ## end sub _get_alt_allele_hashes
 
 
-=head2 _update_xref_description
+=head2 get_refseq_sources
   Description: Return a map from RefSeq prefix symbols to their corresponding
                sources.
   Return type: hashref
@@ -2408,10 +2406,10 @@ SQL
 } ## end sub get_synonyms_for_xref
 
 
-# just incase this is being run again
 =head2 mark_mapped_xrefs_already_run
   Description: Set dumped to NULL if the value in dumped is not set to
-              NO_DUMP_ANOTHER_PRIORITY
+              NO_DUMP_ANOTHER_PRIORITY.
+              This is for just in case this is being run again
   Return type: undef
 
 =cut
@@ -2480,7 +2478,7 @@ SQL
 
 =head2 get_unmapped_reason
   Description: Get the names and descriptions of valid reasons why an xref could
-               could be unmapped. These shoudld be used to describe the xrefs
+               could be unmapped. These should be used to describe the xrefs
                when they are loaded into the core DB.
   Return type: Hashref
 
