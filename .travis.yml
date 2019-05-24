@@ -3,6 +3,9 @@ language: perl
 perl:
   - '5.26'
 
+services:
+  - mysql
+
 env:
   matrix:
     - COVERALLS=true
