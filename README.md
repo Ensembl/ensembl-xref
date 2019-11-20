@@ -2,10 +2,4 @@
 
 ## NOTE
 
-This is an experimental repo
-
-[![Build Status](https://travis-ci.org/Ensembl/ensembl-xref.png?branch=master)][travis]
-[![Coverage Status](https://coveralls.io/repos/github/Ensembl/ensembl-xref/badge.svg?branch=master)][coveralls]
-
-[travis]: https://travis-ci.org/Ensembl/ensembl-xref
-[coveralls]: https://coveralls.io/github/Ensembl/ensembl-xref?branch=master
+This is an archival snapshot of the experimental output of the 2018 Core xref sprint, saved here for possible future reference. As of late 2019, production-grade xref code continues to reside in the directory _misc-scripts/xref_mapping_ of the repository _ensembl_.
